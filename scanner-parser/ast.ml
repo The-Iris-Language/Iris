@@ -1,11 +1,11 @@
 (* ast.ml for IRIS *)
 
 type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq |
-          And | Or
+          And | Or  | Pleq | Meq | Teq   | Deq 
 
-type uop = Neg | Not
+type uop = Neg | Not | PPlus | MMinus
 
-type typ = Char | Int | Bool | Float | String | Void
+type typ = Char | Int | Bool | Float | String | Void 
 
 
 type classname = string     (* a class' defined name, e.g. Object or Dog*)
@@ -21,6 +21,8 @@ type expr =
     Literal of int
   | Fliteral of string
   | BoolLit of bool
+  | StringLit of string
+  | CharLit of string
   | Id of string
   | Binop of expr * op * expr
   | Unop of uop * expr
@@ -37,6 +39,28 @@ type stmt =
   | If of expr * stmt * stmt
   | For of expr * expr * expr * stmt
   | While of expr * stmt
+
+type func_decl = {
+  univ : bool;
+  typ : typ;
+  fname : string;
+  formals : bind list;
+  locals : bind list;
+  body : stmt list;
+}
+
+type members = func_decl list
+
+type class_decl = {
+  cname : string;
+  pname : string;
+  pub_mems : members
+  per_mems : members
+  pri_mems : members
+  per_classes : string list
+}
+
+type program = class_decl list
 
 (* 
 type expr =
