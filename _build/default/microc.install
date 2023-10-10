@@ -1,0 +1,11 @@
+lib: [
+  "_build/install/default/lib/microc/META"
+  "_build/install/default/lib/microc/dune-package"
+  "_build/install/default/lib/microc/opam"
+]
+bin: [
+  "_build/install/default/bin/microc"
+]
+doc: [
+  "_build/install/default/doc/microc/README"
+]

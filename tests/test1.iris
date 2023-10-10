@@ -1,0 +1,9 @@
+.~* test 1 *~.
+
+class Main {
+    univ int main(){
+        return 0;
+    }
+}
+
+        
