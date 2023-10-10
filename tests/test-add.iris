@@ -1,4 +1,4 @@
-.~* test 2 *~.
+.~* test addition *~.
 ..tests variable declarations and assignment for all primitive data types
 
 class Main {

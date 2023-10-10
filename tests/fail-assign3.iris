@@ -1,0 +1,10 @@
+.~* test fail assignment: int and string *~.
+..tests assigning string literal to int
+.. 
+
+class Main {
+    univ void main(){
+        int i;
+        i = 1.25; ..Fail: assign float to int
+    }
+}

@@ -1,0 +1,10 @@
+.~* test fail assignment: bool and string *~.
+..tests assigning string literal to bool
+.. 
+
+class Main {
+    univ void main() {
+        bool b;
+        b = "wrong :/"; ..Fail: assign string to bool
+    }
+}

@@ -95,8 +95,8 @@ class_decl:
 
     CLASS ID p_class LBRACE
 
-   CLASS ID p_class LBRACE members
-   univ_opt typ ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
+    CLASS ID p_class LBRACE members
+    univ_opt typ ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
       { { typ = $1;
           fname = $2;
           formals = List.rev $4;
