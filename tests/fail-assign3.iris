@@ -1,5 +1,5 @@
-.~* test fail assignment: int and string *~.
-..tests assigning string literal to int
+.~* test fail assignment: int and float *~.
+..tests assigning float literal to int
 .. 
 
 class Main {
