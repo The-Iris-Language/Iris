@@ -1,0 +1,15 @@
+.~* test 5 *~.
+..tests dividing integers
+
+class Main {
+    univ void main(){
+        int i;
+        i = 4;
+
+        int y;
+        y = 2;
+
+        int quotient;
+        quotient = x/y; ..should be 2      
+    }
+}

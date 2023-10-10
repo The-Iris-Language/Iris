@@ -1,0 +1,15 @@
+.~* test 2 *~.
+..tests variable declarations and assignment for all primitive data types
+
+class Main {
+    univ void main(){
+        int i;
+        i = 4;
+
+        int y;
+        y = 2;
+
+        int sum;
+        sum = x + y;  ..should be 6    
+    }
+}

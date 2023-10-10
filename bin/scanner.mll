@@ -10,6 +10,7 @@ rule tokenize = parse
 | ')'                  { RPAREN }
 | '{'                  { LBRACE }
 | '}'                  { RBRACE }
+| ':'                  { COLON }
 | ';'                  { SEMI }
 | ','                  { COMMA }
 | '+'                  { PLUS }
@@ -58,7 +59,7 @@ rule tokenize = parse
 | digits as lxm        { LITERAL(int_of_string lxm) }
 | digits '.'  digits as lxm { FLIT(float_of_string lxm) }
 | '\''['\\']?[' ' - '~' | '\161' - '\255'] { LITERAL() } 
-| ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']* as lxm { VARIABLE(lxm) }
+| ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']* as lxm { ID(lxm) }
 
 (* | '"'  *)
 | ['0'-'9']+ as lit    { LITERAL(int_of_string lit) }

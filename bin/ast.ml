@@ -19,7 +19,7 @@ type bind = typ * string
 
 type expr =
     Literal of int
-  | Fliteral of string
+  | Fliteral of float
   | BoolLit of bool
   | StringLit of string
   | CharLit of string

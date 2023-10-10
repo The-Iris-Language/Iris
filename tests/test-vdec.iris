@@ -1,0 +1,18 @@
+.~* test 1 *~.
+..tests variable declarations and assignment for all primitive data types
+
+class Main {
+    univ void main(){
+        int i;
+
+        bool b;
+
+        string s;
+
+        float f;
+
+        char c;
+    }
+}
+
+        

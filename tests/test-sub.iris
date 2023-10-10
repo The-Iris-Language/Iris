@@ -1,0 +1,16 @@
+.~* test 3 *~.
+..tests subtracting 2 integers
+
+class Main {
+    univ void main(){
+        int i;
+        i = 4;
+
+        int y;
+        y = 2;
+
+        int diff;
+        diff = x - y; ..should be 2
+   
+    }
+}
