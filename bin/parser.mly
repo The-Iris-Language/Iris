@@ -89,6 +89,9 @@ fdecl:
           locals = List.rev $7;
           body = List.rev $8 } }
 
+fdecl_list:
+    
+
 // class_decl:
 
 //     CLASS ID p_class LBRACE encap encap encap RBRACE
