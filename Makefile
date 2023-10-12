@@ -5,15 +5,21 @@
 .PHONY : all
 all : ./_build/default/bin/iris.exe
 
+
+.PHONY : all
+test : 
+	dune exec --no-build iris $(file)
+
 # "make test" Compiles everything and runs the regression tests
 
 .PHONY : test
-test : all testall.sh
+testall : all testall.sh
 	./testall.sh
 
 # "make" will just compile the Iris compiler along with printbig.c
 
-./_build/default/bin/iris.exe : bin/parser.mly bin/scanner.mll bin/codegen.ml bin/semant.ml bin/iris.ml
+# bin/codegen.ml bin/semant.ml
+./_build/default/bin/iris.exe : bin/parser.mly bin/scanner.mll bin/ast.ml bin/iris.ml
 	dune build
 
 # # "make printbig" compiles the helper C file for the printbig built-in

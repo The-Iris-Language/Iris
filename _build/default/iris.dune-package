@@ -1,4 +1,0 @@
-(lang dune 3.10)
-(name iris)
-(sections (lib .) (bin ../../bin) (doc ../../doc/iris))
-(files (lib (META dune-package opam)) (bin (iris)) (doc (README.md)))

@@ -61,7 +61,7 @@ rule tokenize = parse
 | "false"              { BLIT(false) }
 | digits as lxm        { LITERAL(int_of_string lxm) }
 | digits '.'  digits as lxm { FLIT(float_of_string lxm) }
-| '\''['\\']?[' ' - '~' '\161' - '\255'] { LITERAL() } 
+| '\''['\\']?[' ' - '~' '\161' - '\255'] as lxm { LITERAL(lxm) } 
 | ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']* as lxm { ID(lxm) }
 
 (* | '"'  *)

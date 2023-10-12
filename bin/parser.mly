@@ -6,10 +6,10 @@ open Ast
 
 %token SEMI LPAREN RPAREN LBRACE RBRACE COMMA PLUS MINUS TIMES DIVIDE ASSIGN
 %token NOT EQ NEQ LT LEQ GT GEQ AND OR
-%token RETURN IF ELSE FOR WHILE INT BOOL FLOAT VOID
+%token RETURN IF ELSE FOR WHILE INT BOOL FLOAT VOID /* CHAR STRING */
 %token <int> LITERAL
 %token <bool> BLIT
-%token <string> ID FLIT
+%token <string> ID FLIT /* CHARLIT STRINGLIT */
 %token EOF
 
 %start program
@@ -53,17 +53,21 @@ formal_list:
   | formal_list COMMA typ ID { ($3,$4) :: $1 }
 
 typ:
-    INT   { Int   }
-  | BOOL  { Bool  }
-  | FLOAT { Float }
-  | VOID  { Void  }
+    INT    { Int   }
+  | BOOL   { Bool  }
+  | FLOAT  { Float }
+  | VOID   { Void  }
+  /* | CHAR   { Char  } */
+  /* | STRING { String } */
+  
 
 vdecl_list:
     /* nothing */    { [] }
-  | vdecl_list vdecl { $2 :: $1 }
+  | vdecl_list vdecl { $2 :: $1 } 
 
 vdecl:
-   typ ID SEMI { ($1, $2) } (* vdecl: (Int, "z") *)
+   typ ID SEMI { ($1, $2) }
+
 
 stmt_list:
     /* nothing */  { [] }
@@ -87,6 +91,8 @@ expr:
     LITERAL          { Literal($1)            }
   | FLIT	           { Fliteral($1)           }
   | BLIT             { BoolLit($1)            }
+  /* | CHARLIT	         { CharLit($1)           } */
+  /* | STRINGLIT        { StringLit($1)          } */
   | ID               { Id($1)                 }
   | expr PLUS   expr { Binop($1, Add,   $3)   }
   | expr MINUS  expr { Binop($1, Sub,   $3)   }
