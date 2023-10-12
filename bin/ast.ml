@@ -54,10 +54,10 @@ type members = func_decl list
 type class_decl = {
   cname : string;
   pname : string;
-  pub_mems : members
-  per_mems : members
-  pri_mems : members
-  per_classes : string list
+  pub_mems : members;
+  per_mems : members;
+  pri_mems : members;
+  per_classes : string list;
 }
 
 type program = class_decl list

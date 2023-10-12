@@ -8,15 +8,13 @@
 
 %token SEMI LPAREN RPAREN LBRACE RBRACE COMMA PLUS MINUS TIMES DIVIDE ASSIGN COLON
 %token NOT EQ NEQ LT LEQ GT GEQ AND OR PEQ MEQ DEQ TEQ PLUSPLUS MINUSMINUS
-%token RETURN IF ELSE FOR WHILE INT BOOL FLOAT VOID STRING
-%token OF NEW PUBLIC PERMIT PRIVATE UNIV CLASS 
+%token RETURN IF ELSE FOR WHILE INT BOOL FLOAT VOID STRING CHAR
+%token OF NEW PUBLIC PERMIT PRIVATE UNIV CLASS
 %token <int> LITERAL
 %token <bool> BLIT
-%token <float> FLIT
-%token <string> VAR
-
-%left PLUS MINUS
-%left TIMES DIVIDE
+%token <float> ID FLIT
+%token <string> VAR CHARLIT
+%token EOF
 
 %nonassoc NOELSE
 %nonassoc ELSE
@@ -91,17 +89,17 @@ fdecl:
           locals = List.rev $7;
           body = List.rev $8 } }
 
-class_decl:
+// class_decl:
 
-    CLASS ID p_class LBRACE encap encap encap RBRACE
+//     CLASS ID p_class LBRACE encap encap encap RBRACE
 
-    CLASS ID p_class LBRACE members
-    univ_opt typ ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
-      { { typ = $1;
-          fname = $2;
-          formals = List.rev $4;
-          locals = List.rev $7;
-          body = List.rev $8 } }
+//     CLASS ID p_class LBRACE members
+//     univ_opt typ ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
+//       { { typ = $1;
+//           fname = $2;
+//           formals = List.rev $4;
+//           locals = List.rev $7;
+//           body = List.rev $8 } }
 
 univ_opt:
     /* nothing */ { true }
@@ -109,7 +107,13 @@ univ_opt:
 
 formals_opt:
     /* nothing */ { [] }
-  | formals_list   { List.rev $1 }
+  | formal_list   { List.rev $1 }
+
+
+formal_list:
+    typ ID                   { [($1,$2)]     }
+  | formal_list COMMA typ ID { ($3,$4) :: $1 }
+
 
 typ:
     INT   { Int }
@@ -119,7 +123,7 @@ typ:
   | VOID  { Void  }
   | ID { (Object, $1) }
 
-classtyp:
+
     
 
 vdecl_list:
@@ -133,10 +137,9 @@ vdecl:
 p_class:
     /* nothing */  { "Object" }
   | OF ID          { $2 }
-  
-encap:
-  fdecls list            { ("public:", $1)  }
-  | PUBLIC COLON fdecls list    { ("public:", $3) }
-  | PERMIT LPAREN string list RPAREN COLON fdecls list  { ("permit:", $6, $3) }
-  | PRIVATE COLON fdecls list   { ("private:", $3) }
 
+encap:
+  fdecl list            { ("public:", $1)  }
+  | PUBLIC COLON fdecl list    { ("public:", $3) }
+  | PERMIT COLON fdecl list  { ("permit:", $3) }
+  | PRIVATE COLON fdecl list   { ("private:", $3) }
