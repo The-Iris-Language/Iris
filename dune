@@ -1,4 +1,0 @@
-(library
- (name iris)
- (libraries llvm llvm.analysis))
-

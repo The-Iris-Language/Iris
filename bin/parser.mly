@@ -93,7 +93,7 @@ fdecl:
 
 class_decl:
 
-    CLASS ID p_class LBRACE
+    CLASS ID p_class LBRACE encap encap encap RBRACE
 
     CLASS ID p_class LBRACE members
     univ_opt typ ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
@@ -134,8 +134,9 @@ p_class:
     /* nothing */  { "Object" }
   | OF ID          { $2 }
   
-members:
-  /* nothing */             { "public:" }
-  | PUBLIC f_delcs list     { $1 }
-  | PERMIT                  { $1 }
-  | PRIVATE                 { $1 }
+encap:
+  fdecls list            { ("public:", $1)  }
+  | PUBLIC COLON fdecls list    { ("public:", $3) }
+  | PERMIT LPAREN string list RPAREN COLON fdecls list  { ("permit:", $6, $3) }
+  | PRIVATE COLON fdecls list   { ("private:", $3) }
+

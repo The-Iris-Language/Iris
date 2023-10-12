@@ -1,23 +1,35 @@
-(* Abstract Syntax Tree and functions for printing it *)
+(* ast.ml for IRIS *)
 
 type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq |
-          And | Or
+          And | Or  | Pleq | Meq | Teq   | Deq 
 
-type uop = Neg | Not
+type uop = Neg | Not | PPlus | MMinus
 
-type typ = Int | Bool | Float | Void
+type typ = Char | Int | Bool | Float | String | Void 
+
+
+type classname = string     (* a class' defined name, e.g. Object or Dog*)
+type instname = string      (* name of an INSTANCE of a class *)
+
+type classtyp = Class of classname
+
+type objenv = instname * classtyp list
 
 type bind = typ * string
 
 type expr =
     Literal of int
-  | Fliteral of string
+  | Fliteral of float
   | BoolLit of bool
+  | StringLit of string
+  | CharLit of string
   | Id of string
   | Binop of expr * op * expr
   | Unop of uop * expr
   | Assign of string * expr
-  | Call of string * expr list
+  | InstCall of instname * string * expr list     (* Function call from Object Instance. can refer to self within a class *)
+  | ClassCall of classname * string * expr list   (* Class Method Function call *)
+  | Inst of classname * instname * classname * expr list (* Object inst (object type, varname, object constructor, parameters) *)
   | Noexpr
 
 type stmt =
@@ -29,78 +41,31 @@ type stmt =
   | While of expr * stmt
 
 type func_decl = {
-    typ : typ;
-    fname : string;
-    formals : bind list;
-    locals : bind list;
-    body : stmt list;
-  }
+  univ : bool;
+  typ : typ;
+  fname : string;
+  formals : bind list;
+  locals : bind list;
+  body : stmt list;
+}
 
-type program = bind list * func_decl list
+type members = func_decl list
 
-(* Pretty-printing functions *)
+type class_decl = {
+  cname : string;
+  pname : string;
+  pub_mems : members
+  per_mems : members
+  pri_mems : members
+  per_classes : string list
+}
 
-let string_of_op = function
-    Add -> "+"
-  | Sub -> "-"
-  | Mult -> "*"
-  | Div -> "/"
-  | Equal -> "=="
-  | Neq -> "!="
-  | Less -> "<"
-  | Leq -> "<="
-  | Greater -> ">"
-  | Geq -> ">="
-  | And -> "&&"
-  | Or -> "||"
+type program = class_decl list
 
-let string_of_uop = function
-    Neg -> "-"
-  | Not -> "!"
-
-let rec string_of_expr = function
-    Literal(l) -> string_of_int l
-  | Fliteral(l) -> l
-  | BoolLit(true) -> "true"
-  | BoolLit(false) -> "false"
-  | Id(s) -> s
-  | Binop(e1, o, e2) ->
-      string_of_expr e1 ^ " " ^ string_of_op o ^ " " ^ string_of_expr e2
-  | Unop(o, e) -> string_of_uop o ^ string_of_expr e
-  | Assign(v, e) -> v ^ " = " ^ string_of_expr e
-  | Call(f, el) ->
-      f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
-  | Noexpr -> ""
-
-let rec string_of_stmt = function
-    Block(stmts) ->
-      "{\n" ^ String.concat "" (List.map string_of_stmt stmts) ^ "}\n"
-  | Expr(expr) -> string_of_expr expr ^ ";\n";
-  | Return(expr) -> "return " ^ string_of_expr expr ^ ";\n";
-  | If(e, s, Block([])) -> "if (" ^ string_of_expr e ^ ")\n" ^ string_of_stmt s
-  | If(e, s1, s2) ->  "if (" ^ string_of_expr e ^ ")\n" ^
-      string_of_stmt s1 ^ "else\n" ^ string_of_stmt s2
-  | For(e1, e2, e3, s) ->
-      "for (" ^ string_of_expr e1  ^ " ; " ^ string_of_expr e2 ^ " ; " ^
-      string_of_expr e3  ^ ") " ^ string_of_stmt s
-  | While(e, s) -> "while (" ^ string_of_expr e ^ ") " ^ string_of_stmt s
-
-let string_of_typ = function
-    Int -> "int"
-  | Bool -> "bool"
-  | Float -> "float"
-  | Void -> "void"
-
-let string_of_vdecl (t, id) = string_of_typ t ^ " " ^ id ^ ";\n"
-
-let string_of_fdecl fdecl =
-  string_of_typ fdecl.typ ^ " " ^
-  fdecl.fname ^ "(" ^ String.concat ", " (List.map snd fdecl.formals) ^
-  ")\n{\n" ^
-  String.concat "" (List.map string_of_vdecl fdecl.locals) ^
-  String.concat "" (List.map string_of_stmt fdecl.body) ^
-  "}\n"
-
-let string_of_program (vars, funcs) =
-  String.concat "" (List.map string_of_vdecl vars) ^ "\n" ^
-  String.concat "\n" (List.map string_of_fdecl funcs)
+(* 
+type expr =
+  Binop of expr * operator * expr
+  | Lit of int
+  | Seq of expr * expr
+  | Asn of string * expr
+  | Var of string *)
