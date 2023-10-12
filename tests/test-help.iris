@@ -1,6 +1,5 @@
 int main()
 {
-  print(39 + 3);
-  int i;
+  char c;
   return 0;
 }
