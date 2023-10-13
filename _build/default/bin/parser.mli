@@ -5,6 +5,7 @@ type token =
   | WHILE
   | VOID
   | TIMES
+  | STRING
   | SEMI
   | RPAREN
   | RETURN

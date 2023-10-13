@@ -38,7 +38,7 @@ rule token = parse
 | "float"  { FLOAT }
 | "void"   { VOID }
 | "char"   { CHAR }
-(* | "string" { STRING } *)
+| "string" { STRING }
 | "true"   { BLIT(true)  }
 | "false"  { BLIT(false) }
 | digits as lxm { LITERAL(int_of_string lxm) }
