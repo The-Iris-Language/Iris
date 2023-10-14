@@ -1,0 +1,35 @@
+class Animal(Dog, Cat, Fish) {  
+public:
+int age;
+int arms;
+int legs;
+string bark() {
+return "woof";
+}
+permit:
+int arms;
+int legs;
+bool bark() {
+return "woof";
+}
+private:
+string secrets() {
+return "no secrets here :0";
+}
+public:
+int hello;
+string wat;
+bool isthisright;
+}
+
+class Main() {
+public:
+int main() {
+return 0;
+}
+permit:
+private:
+}
+
+class Empty(hi) {
+}

@@ -1,4 +1,4 @@
-class Main {
+class Main() {
 int main() {
 int i;
 i = 1;

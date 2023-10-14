@@ -1,4 +1,4 @@
-class Animal {
+class Animal () {
   
   public:
     int age;
@@ -25,7 +25,7 @@ class Animal {
     bool isthisright;
 }
 
-class Main {
+class Main () {
   public: 
     int main() {
       return 0;
@@ -34,12 +34,12 @@ class Main {
   private:
 }
 
-class Empty {}
+class Empty () {}
 
 class private {
     private:
 }
 
-class public {
+class public () {
     public:
 }
