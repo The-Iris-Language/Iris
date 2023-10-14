@@ -18,6 +18,7 @@ open Ast
 %nonassoc NOELSE 
 %nonassoc ELSE 
 %right ASSIGN PEQ MEQ TEQ DEQ
+%right DASSIGN
 %left OR
 %left AND
 %left EQ NEQ
@@ -39,53 +40,46 @@ program:
   decls EOF { $1 }
 
 decls:
-   /* nothing */ { ([], [])               } 
- | decls vdecl { (($2 :: fst $1), snd $1) } 
- | decls fdecl { (fst $1, ($2 :: snd $1)) }
+    /* nothing */ { [] }
+  | decls fdecl { $2 :: $1 }
 
+// decls:
+//    /* nothing */ { ([], [])               } 
+//  | decls vdecl { (($2 :: fst $1), snd $1) } 
+//  | decls fdecl { (fst $1, ($2 :: snd $1)) }
 
 
 fdecl:
-   typ UNIV ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
+   typ UNIV ID LPAREN formals_opt RPAREN LBRACE stmt_list RBRACE
      { { 
       univ = true;
       typ = $1;
       fname = $3;
       formals = List.rev $5;
-      locals = List.rev $8;
-      body = List.rev $9 } }
-  | typ ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
+      body = List.rev $8 } }
+  | typ ID LPAREN formals_opt RPAREN LBRACE stmt_list RBRACE
      { { 
       univ = false;
       typ = $1;
       fname = $2;
       formals = List.rev $4;
-      locals = List.rev $7;
-      body = List.rev $8 } }
+      body = List.rev $7 } }
 
-/* fdecl:
-    univ_opt typ ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE 
-     { { 
-      univ = $1;   
-      typ = $2;
-      fname = $3;
-      formals = List.rev $5;
-      locals = List.rev $8;
-      body = List.rev $9 } }
-    |  typ ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE 
-     { { 
-      univ = true;   
-      typ = $2;
-      fname = $3;
-      formals = List.rev $5;
-      locals = List.rev $8;
-      body = List.rev $9 } }*/
+// TODO: why can't we do this?
+// fdecl:
+//     univ_opt typ ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE 
+//      { { 
+//       univ = $1;   
+//       typ = $2;
+//       fname = $3;
+//       formals = List.rev $5;
+//       locals = List.rev $8;
+//       body = List.rev $9 } }
 
+// univ_opt:
+//  /* nothing */   { false }
+//  | UNIV          { true }
 
-//univ_opt:
- // /* nothing */   { false }
- // | UNIV          { true }
-  
     
 formals_opt:
     /* nothing */ { [] }
@@ -124,6 +118,7 @@ stmt:
   | FOR LPAREN expr_opt SEMI expr SEMI expr_opt RPAREN stmt
                                             { For($3, $5, $7, $9)   }
   | WHILE LPAREN expr RPAREN stmt           { While($3, $5)         }
+  | typ ID SEMI                             { Local($1, $2) } 
 
 expr_opt:
     /* nothing */ { Noexpr }
@@ -153,7 +148,7 @@ expr:
   | ID   PPLUS       { DoubleOp($1, PPlus)        }
   | ID   MMINUS      { DoubleOp($1, MMinus)      }
   | ID ASSIGN expr   { Assign($1, $3)         }
-  /*| typ ID ASSIGN expr %prec NOT  { DeclAssign($1, $3)         }*/
+  | typ ID ASSIGN expr %prec DASSIGN { DeclAssign($1, $2, $4) }
   | ID   PEQ    expr { OpAssign($1, Peq, $3)   }
   | ID   MEQ    expr { OpAssign($1, Meq, $3)   }
   | ID   TEQ    expr { OpAssign($1, Teq, $3)   }

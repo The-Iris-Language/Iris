@@ -22,7 +22,7 @@ type expr =
   | Unop of uop * expr
   | DoubleOp of string * doubleop
   | Assign of string * expr
-  (* | DeclAssign of typ * string * expr *)
+  | DeclAssign of typ * string * expr
   | OpAssign of string * op_assign * expr
   | Call of string * expr list
   | Noexpr
@@ -40,17 +40,17 @@ type stmt =
   | If of expr * stmt * stmt
   | For of expr * expr * expr * stmt
   | While of expr * stmt
+  | Local of bind
 
 type func_decl = {
     univ : bool; 
     typ : typ;
     fname : string;
     formals : bind list;
-    locals : bind list;
     body : stmt list;
   }
 
-type program = bind list * func_decl list
+type program = func_decl list
 (* Pretty-printing functions *)
 
 let string_of_op = function
@@ -81,6 +81,14 @@ let string_of_doubleop = function
     MMinus -> "--"
   | PPlus -> "++"
 
+let string_of_typ = function
+    Int -> "int"
+  | Bool -> "bool"
+  | Float -> "float"
+  | Void -> "void"
+  | Char -> "char"
+  | String -> "string"
+  
 let rec string_of_expr = function
     Literal(l) -> string_of_int l
   | Fliteral(l) -> l
@@ -93,8 +101,8 @@ let rec string_of_expr = function
       string_of_expr e1 ^ " " ^ string_of_op o ^ " " ^ string_of_expr e2
   | Unop(o, e) -> string_of_uop o ^ string_of_expr e
   | Assign(v, e) -> v ^ " = " ^ string_of_expr e
-  (* | DeclAssign(t, v, e) -> 
-      string_of_typ t ^ " " ^ v ^ string_of_expr e *)
+  | DeclAssign(t, v, e) -> 
+      string_of_typ t ^ " " ^ v ^ " = "^ string_of_expr e 
   | OpAssign(s, o, e) -> s ^ " " ^ string_of_opAssign o ^ " " ^ string_of_expr e
   | Call(f, el) ->
       f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
@@ -110,19 +118,15 @@ let rec string_of_stmt = function
   | If(e, s1, s2) ->  "if (" ^ string_of_expr e ^ ")\n" ^
       string_of_stmt s1 ^ "else\n" ^ string_of_stmt s2
   | For(e1, e2, e3, s) ->
-      "for (" ^ string_of_expr e1  ^ " ; " ^ string_of_expr e2 ^ " ; " ^
+      "for (" ^ string_of_expr e1  ^ "; " ^ string_of_expr e2 ^ "; " ^
       string_of_expr e3  ^ ") " ^ string_of_stmt s
   | While(e, s) -> "while (" ^ string_of_expr e ^ ") " ^ string_of_stmt s
+  | Local(t, id) -> string_of_typ t ^ " " ^ id ^ ";\n"
 
-let string_of_typ = function
-    Int -> "int"
-  | Bool -> "bool"
-  | Float -> "float"
-  | Void -> "void"
-  | Char -> "char"
-  | String -> "string"
 
 let string_of_vdecl (t, id) = string_of_typ t ^ " " ^ id ^ ";\n"
+
+let string_of_formal (t, id) = string_of_typ t ^ " " ^ id
 
 let string_of_univ = function
     true  -> "univ " 
@@ -130,12 +134,10 @@ let string_of_univ = function
 
 let string_of_fdecl fdecl =
   string_of_typ fdecl.typ ^ " " ^ string_of_univ fdecl.univ ^ 
-  fdecl.fname ^ "(" ^ String.concat ", " (List.map snd fdecl.formals) ^
+  fdecl.fname ^ "(" ^ String.concat ", " (List.map string_of_formal fdecl.formals) ^
   ")\n{\n" ^
-  String.concat "" (List.map string_of_vdecl fdecl.locals) ^
   String.concat "" (List.map string_of_stmt fdecl.body) ^
   "}\n"
 
-let string_of_program (vars, funcs) =
-  String.concat "" (List.map string_of_vdecl vars) ^ "\n" ^
+let string_of_program funcs =
   String.concat "\n" (List.map string_of_fdecl funcs)
