@@ -6,6 +6,17 @@ Tim Valk
 Valerie Zhang
 Josh Kim
 
+# How to compile and execute
+
+After downloading and unzipping the zip file, run 'make' in terminal.
+
+# How to run test script
+
+To run the shell script, just type './testsyntax.sh' and press enter in 
+terminal.
+
+# What needs to be added
+
 # TODO: 
     describe how to compile and execute your compiler (as it stands)
     how to run your test script
