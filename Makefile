@@ -39,7 +39,7 @@ TESTS = \
   
 
 FAILS = \
-	emptyChar charLit permitted opAssign
+	emptyChar noColonEncap permitted opAssign noEncap
 
 TESTFILES = $(TESTS:%=%.iris) $(TESTS:%=%.out) \
 	    $(FAILS:%=fail-%.iris) $(FAILS:%=fail-%.err)

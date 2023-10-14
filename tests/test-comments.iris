@@ -1,5 +1,6 @@
 .. test for comments ignored by scanner
 class Main () { 
+  public:
   int main() {
     .. COMMENT
     .~* Val is 

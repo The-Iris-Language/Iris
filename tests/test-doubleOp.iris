@@ -1,5 +1,6 @@
 .. test for ++ and -- on variables
 class Main () {
+  public:
   int main() {
     int i;
     i = 1;

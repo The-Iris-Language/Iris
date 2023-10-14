@@ -1,5 +1,6 @@
 class Main of Object () {
 int main() {
+public:
 char c;
 c = 'a';
 c = '\r';

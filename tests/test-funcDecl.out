@@ -20,7 +20,6 @@ class Main () {
 public:
 int main() {
 Animal.bark();
-..Animal dog = new Animal();
 return 0;
 }
 }

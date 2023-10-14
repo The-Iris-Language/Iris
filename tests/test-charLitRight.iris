@@ -1,5 +1,6 @@
 .. tests for assigning both cases of chars
 class Main () {
+  public:
   int main() {
     char c;
     c = 'a';

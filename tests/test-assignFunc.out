@@ -1,4 +1,4 @@
-class Animal of Organism() {
+class Animal of Organism () {
 public:
 int age;
 Animal Animal() {
@@ -14,7 +14,7 @@ class Main () {
 public:
 int main() {
 Animal.bark();
-Animal dog = new Animal;
+Animal dog = Animal.Animal();
 return 0;
 }
 }

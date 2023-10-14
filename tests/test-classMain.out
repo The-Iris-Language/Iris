@@ -1,4 +1,5 @@
-class Main of Object () {                    
+class Main of Object () {       
+public:             
 int main() {
 return 0;
 }

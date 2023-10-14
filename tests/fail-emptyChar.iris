@@ -1,8 +1,9 @@
 .. try to set char to empty char
 class Main () {
-  int main(){
-    char c;
-    c = '';
-    return 0;
-  }
+  public:
+    int main(){
+      char c;
+      c = '';
+      return 0;
+    }
 }

@@ -1,5 +1,6 @@
 .. test for all OpAssign operations
 class Main () {
+  public:
   int main() {
     int i;
     i = 1;

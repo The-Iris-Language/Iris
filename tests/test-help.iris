@@ -1,6 +1,5 @@
 class Animal of Organism() {
-  
-  public:
+  permit:
     int age;
     string Animal() {
       return "g";

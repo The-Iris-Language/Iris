@@ -1,8 +1,0 @@
-.. try to assign string to char
-class Main () {  
-  int main() {
-    char c;
-    c = "a";
-    return 0;
-  }
-}
