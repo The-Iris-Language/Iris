@@ -1,3 +1,4 @@
+.. test for use of += on non-var(int)
 class Main () {
   int main() {
     int i;

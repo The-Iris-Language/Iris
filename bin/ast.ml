@@ -3,13 +3,15 @@
 type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq |
           And | Or  
 
+(*   +=   -=   *=   /=   *)
 type op_assign = Peq | Meq | Teq | Deq 
 
 type uop = Neg | Not
 
+(*   ++   --   *)
 type doubleop = PPlus | MMinus
 
-type typ = Int | Bool | Float | Void | Char | String
+type typ = Int | Bool | Float | Void | Char | String | Object of string
 
 type expr =
     Literal of int
@@ -23,8 +25,10 @@ type expr =
   | DoubleOp of string * doubleop
   | Assign of string * expr
   | DeclAssign of typ * string * expr
+  | ClassVarAssign of string * string * expr
   | OpAssign of string * op_assign * expr
-  | Call of string * expr list
+  | Call of string * string * expr list
+  | ClassVar of string * string
   | Noexpr
 
 type bind = typ * string
@@ -38,6 +42,13 @@ type stmt =
   | While of expr * stmt
   | Local of bind
 
+(* 
+  univ: class method indicator
+  typ: return type
+  fname: function name
+  fomals: args
+  body: implementation of function
+*)
 type func_decl = {
     univ : bool; 
     typ : typ;
@@ -46,20 +57,30 @@ type func_decl = {
     body : stmt list;
   }
 
+(* a member of a class is either a function or a variable *)
 type member =
     MemberVar of bind
   | MemberFun of func_decl 
   
+(* each encapsulation label (public, permit, private) has a list of members *)
 type encap = string * member list
 
+(* 
+  class_name: name of the class
+  parent_name: name of the parent class (defaults to Object)
+  mems: list of encaps
+  permitted: names of classes with access to permit members  
+*)
 type class_decl = {
   class_name : string;
   parent_name : string;
-  mems: encap list;
   permitted: string list;
+  mems: encap list;
 }
 
 type program = class_decl list
+
+
 (* Pretty-printing functions *)
 
 let string_of_op = function
@@ -97,6 +118,7 @@ let string_of_typ = function
   | Void -> "void"
   | Char -> "char"
   | String -> "string"
+  | Object(o) -> o
   
 let rec string_of_expr = function
     Literal(l) -> string_of_int l
@@ -112,9 +134,12 @@ let rec string_of_expr = function
   | Assign(v, e) -> v ^ " = " ^ string_of_expr e
   | DeclAssign(t, v, e) -> 
       string_of_typ t ^ " " ^ v ^ " = "^ string_of_expr e 
+  | ClassVarAssign(c, v, e) -> 
+      c ^ "." ^ v ^ " = "^ string_of_expr e 
   | OpAssign(s, o, e) -> s ^ " " ^ string_of_opAssign o ^ " " ^ string_of_expr e
-  | Call(f, el) ->
-      f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
+  | ClassVar(c, v) -> c ^ "." ^ v
+  | Call(c, f, el) ->
+      c ^ "." ^ f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
   | DoubleOp(v, o) -> v ^ string_of_doubleop o
   | Noexpr -> ""
 
@@ -147,7 +172,6 @@ let string_of_fdecl fdecl =
   ") {\n" ^
   String.concat "" (List.map string_of_stmt fdecl.body) ^
   "}"
-
 
 let rec string_of_members = function
     []                        -> ""

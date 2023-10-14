@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Regression testing script for MicroC
+# Regression testing script for IRIS
 # Step through a list of files
 #  Compile, run, and check the output of each expected-to-work test
 #  Compile and check the error of each expected-to-fail test
@@ -15,10 +15,10 @@ LLC="/opt/homebrew/opt/llvm@14/bin/llc"
 # Path to the C compiler
 CC="cc"
 
-# Path to the microc compiler.  Usually "./microc.native"
-# Try "_build/microc.native" if ocamlbuild was unable to create a symbolic link.
-MICROC="iris"
-#MICROC="_build/microc.native"
+# Path to the IRIS compiler.  Usually "./IRIS.native"
+# Try "_build/IRIS.native" if ocamlbuild was unable to create a symbolic link.
+IRIS="iris"
+#IRIS="_build/IRIS.native"
 
 # Set time limit for all operations
 ulimit -t 30
@@ -80,8 +80,8 @@ RunFail() {
 Check() {
     error=0
     basename=`echo $1 | sed 's/.*\\///
-                             s/.mc//'`
-    reffile=`echo $1 | sed 's/.mc$//'`
+                             s/.iris//'`
+    reffile=`echo $1 | sed 's/.iris$//'`
     basedir="`echo $1 | sed 's/\/[^\/]*$//'`/."
 
     echo -n "$basename..."
@@ -92,7 +92,7 @@ Check() {
     generatedfiles=""
 
     generatedfiles="$generatedfiles ${basename}.ll ${basename}.s ${basename}.exe ${basename}.out" &&
-    Run "dune exec $MICROC" "$1" ">" "${basename}.ll" &&
+    Run "dune exec $IRIS" "$1" ">" "${basename}.ll" &&
     Run "$LLC" "-relocation-model=pic" "${basename}.ll" ">" "${basename}.s" &&
     Run "$CC" "-o" "${basename}.exe" "${basename}.s" "printbig.o" &&
     Run "./${basename}.exe" > "${basename}.out" &&
@@ -115,8 +115,8 @@ Check() {
 CheckFail() {
     error=0
     basename=`echo $1 | sed 's/.*\\///
-                             s/.mc//'`
-    reffile=`echo $1 | sed 's/.mc$//'`
+                             s/.iris//'`
+    reffile=`echo $1 | sed 's/.iris$//'`
     basedir="`echo $1 | sed 's/\/[^\/]*$//'`/."
 
     echo -n "$basename..."
@@ -127,7 +127,7 @@ CheckFail() {
     generatedfiles=""
 
     generatedfiles="$generatedfiles ${basename}.err ${basename}.diff" &&
-    RunFail "dune exec $MICROC" "<" $1 "2>" "${basename}.err" ">>" $globallog &&
+    RunFail "dune exec $IRIS" "<" $1 "2>" "${basename}.err" ">>" $globallog &&
     Compare ${basename}.err ${reffile}.err ${basename}.diff
 
     # Report the status and clean up the generated files
@@ -165,18 +165,18 @@ LLIFail() {
 
 which "$LLI" >> $globallog || LLIFail
 
-if [ ! -f printbig.o ]
-then
-    echo "Could not find printbig.o"
-    echo "Try \"make printbig.o\""
-    exit 1
-fi
+# if [ ! -f printbig.o ]
+# then
+#     echo "Could not find printbig.o"
+#     echo "Try \"make printbig.o\""
+#     exit 1
+# fi
 
 if [ $# -ge 1 ]
 then
     files=$@
 else
-    files="tests/test-*.mc tests/fail-*.mc"
+    files="tests/test-*.iris tests/fail-*.iris"
 fi
 
 for file in $files

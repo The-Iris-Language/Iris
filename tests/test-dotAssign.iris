@@ -1,0 +1,26 @@
+.. test assignment using '.'
+class Animal of Organism() {
+  
+  public:
+    int age;
+    string bark() {
+      return "woof";
+    }
+  permit:
+    bool haha() {
+      self.age = 1;
+      return "woof";
+    }
+}
+
+class Main () {
+  public: 
+    int main() {
+      Animal.bark();
+      Dog.bark();
+      Dog.age = 0;
+      return 0;
+    }
+  permit:
+  private:
+}

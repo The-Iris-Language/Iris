@@ -2,10 +2,8 @@ class Animal of Organism() {
   
   public:
     int age;
-    string Animal() {
+    Animal Animal() {
       return "g";
-      Cat c = new Cat(hi, 7, "bruh");
-      Cat c = new Cat();
     }
     Gecko bark() {
       return "woof";
@@ -17,7 +15,7 @@ class Main () {
   public:
     int main() {
       Animal.bark();
-      Animal dog = d;
+      Animal dog = new Animal();
       return 0;
     }
 }

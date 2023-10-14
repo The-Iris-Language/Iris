@@ -1,0 +1,11 @@
+.. tests multiple assignment using '.'
+class Main () {
+  public:
+    int main() {
+      Animal.bark();
+      Dog.bark();
+      Dog.age = 0;
+      Dog.age = Cat.age = Fish.age = Gecko.age;
+      return 0;
+    }
+}

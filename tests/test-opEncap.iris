@@ -1,3 +1,4 @@
+.. test for encapsulation: not including all fields/different ordering of fields
 class Animal () {
   
   public:
@@ -18,7 +19,7 @@ class Animal () {
     string secrets() {
       return "no secrets here :0";
     }
-
+  .. including another field for public
   public:
     int hello;
     string wat;
@@ -34,12 +35,15 @@ class Main () {
   private:
 }
 
+.. no fields
 class Empty () {}
 
+.. only private
 class private {
     private:
 }
 
+.. only public
 class public () {
     public:
 }

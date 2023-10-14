@@ -1,0 +1,26 @@
+class Animal of Organism () {   
+public:
+int age;
+string bark() {
+return "woof";
+}
+permit:
+int arms;
+int legs;
+bool haha() {
+sMelfa.age = 1;
+return "woof";
+}
+}
+
+class Main of Object () {
+public:
+int main() {
+Animal.bark();
+Dog.bark();
+Dog.age = 0;
+return 0;
+}
+permit:
+private:
+}

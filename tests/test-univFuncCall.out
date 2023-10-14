@@ -1,11 +1,10 @@
 class Main of Object () {
+public:
 int main() {
-int i;
-i = 1;
-i += 1;
-i -= 1;
-i *= 4;
-i /= 2;
+Animal.bark();
+Dog.bark();
 return 0;
 }
+permit:
+private:
 }

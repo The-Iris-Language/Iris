@@ -1,0 +1,11 @@
+.. tests a univ function call using format: "classname.funcname"
+class Main of Object () {
+  public:
+    int main() {
+      Animal.bark();
+      Dog.bark();
+      return 0;
+    }
+  permit:
+  private:
+}

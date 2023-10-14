@@ -1,4 +1,4 @@
-class Main() {
+class Main of Object () {
 int univ main() {
 int i;
 int j;

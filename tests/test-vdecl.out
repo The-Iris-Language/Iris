@@ -1,9 +1,11 @@
-class Main() {
+class Main of Object () {
 int main() {
 int i;
 bool b;
 char c;
 string s;
+Gecko g;
+Animal a
 return 0;
 }
 }

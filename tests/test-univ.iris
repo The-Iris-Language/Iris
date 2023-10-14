@@ -1,3 +1,4 @@
+.. test univ keyword included
 class Main () {
   int univ main() {
     int i;

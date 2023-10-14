@@ -1,3 +1,4 @@
+.. try to assign string to char
 class Main () {  
   int main() {
     char c;

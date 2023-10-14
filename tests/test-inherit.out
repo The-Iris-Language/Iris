@@ -1,4 +1,4 @@
-class Animal of Object (Dog, Cat, Fish) {  
+class Animal of Organism () {   
 public:
 int age;
 int arms;
@@ -31,5 +31,5 @@ permit:
 private:
 }
 
-class Empty of Object (hi) {
+class Empty of Nothingness (hi) {
 }

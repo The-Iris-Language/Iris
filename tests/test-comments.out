@@ -1,9 +1,5 @@
-class Main() { 
+class Main of Object () { 
 int main() {
-.. COMMENT
-.~* Val is 
-da tester *~.
-.~* da goat *~.
 char c;
 c = 'a';
 c = '\r';

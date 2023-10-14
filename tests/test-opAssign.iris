@@ -1,3 +1,4 @@
+.. test for all OpAssign operations
 class Main () {
   int main() {
     int i;

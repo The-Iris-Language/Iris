@@ -1,11 +1,8 @@
 class Main of Object () {
 int main() {
-int i;
-i = 1;
-i += 1;
-i -= 1;
-i *= 4;
-i /= 2;
+char c;
+c = 'a';
+c = '\r';
 return 0;
 }
 }

@@ -10,6 +10,7 @@ rule token = parse
   [' ' '\t' '\r' '\n'] { token lexbuf } (* Whitespace *)
 | ".."      { singleComment lexbuf }           (* Comments *)
 | ".~*"     { multiComment lexbuf }           (* Comments *)
+| '.'       { DOT }
 | '('       { LPAREN }
 | ')'       { RPAREN }
 | '{'       { LBRACE }
@@ -40,6 +41,7 @@ rule token = parse
 | "univ"    { UNIV } 
 | "class"   { CLASS } 
 | "of"      { OF }
+| "new"     { NEW }
 | "public"  { PUBLIC }
 | "permit"  { PERMIT }
 | "private" { PRIVATE }

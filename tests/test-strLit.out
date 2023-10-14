@@ -1,4 +1,4 @@
-class Main() { 
+class Main of Object () { 
 int main() {
 string s;
 s = "'a'";

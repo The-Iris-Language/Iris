@@ -1,6 +1,5 @@
-.~* test for collection of permitted classes not included(must include empty 
-    parentheses if not permitted classes) *~.
-class Animal {
+.. test for both cases of inheritance: using "of" keyword or no inheritance
+class Animal of Organism() {
   
   public:
     int age;
@@ -25,4 +24,19 @@ class Animal {
     int hello;
     string wat;
     bool isthisright;
+}
+
+class Main 
+()
+{
+  public: 
+    int main() {
+      return 0;
+    }
+  permit:
+  private:
+}
+
+class Empty of Nothingness (hi) {
+
 }

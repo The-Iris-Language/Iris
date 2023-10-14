@@ -1,0 +1,26 @@
+class Animal of Organism() {
+public:
+int age;
+bool bark() {
+return true;
+}
+char newline() {
+return '\n';
+}
+string Animal() {
+return "g";
+}
+Gecko bark() {
+return "woof";
+Animal dog;
+}
+}
+
+class Main () {
+public:
+int main() {
+Animal.bark();
+..Animal dog = new Animal();
+return 0;
+}
+}

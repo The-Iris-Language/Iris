@@ -6,13 +6,13 @@
 all : ./_build/default/bin/iris.exe
 
 
-.PHONY : all
+.PHONY : test
 test : 
 	dune exec --no-build iris $(file)
 
 # "make test" Compiles everything and runs the regression tests
 
-.PHONY : test
+.PHONY : testall
 testall : all testall.sh
 	./testall.sh
 
@@ -22,32 +22,30 @@ testall : all testall.sh
 ./_build/default/bin/iris.exe : bin/parser.mly bin/scanner.mll bin/ast.ml bin/iris.ml
 	dune build
 
-# # "make printbig" compiles the helper C file for the printbig built-in
-
-# printbig : printbig.c
-# 	cc -o printbig -DBUILD_TEST printbig.c
-
 # "make clean" removes all generated files
 
 .PHONY : clean
 clean :
 	dune clean
-	rm -rf testall.log *.diff printbig.o iris.opam
+	rm -rf testall.log *.diff *.ll *.s iris.opam
 
 
 # Building the zip
 
 TESTS = \
-  add assign_int assign div mult sub vdec
+	multiAssign univ charLitRight opAssign strLit vDecAss comments assignFunc \
+	doubleOp permitted inherit funcDecl self vdecl univFuncCall opEncap help \
+	classMain dotAssign
+  
 
 FAILS = \
-  assign1 assign2 assign3 assign4 
+	emptyChar charLit permitted opAssign
 
-TESTFILES = $(TESTS:%=test-%.mc) $(TESTS:%=test-%.out) \
-	    $(FAILS:%=fail-%.mc) $(FAILS:%=fail-%.err)
+TESTFILES = $(TESTS:%=%.iris) $(TESTS:%=%.out) \
+	    $(FAILS:%=fail-%.iris) $(FAILS:%=fail-%.err)
 
 ZIPFILES = bin Dockerfile dune-project lib Makefile \
-	README testall.sh printbig.c \
+	README testall.sh \
 	$(TESTFILES:%=tests/%) 
 
 iris.zip : $(ZIPFILES)

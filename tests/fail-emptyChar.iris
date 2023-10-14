@@ -1,3 +1,4 @@
+.. try to set char to empty char
 class Main () {
   int main(){
     char c;

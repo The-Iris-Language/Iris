@@ -1,0 +1,9 @@
+.. tests for assigning both cases of chars
+class Main () {
+  int main() {
+    char c;
+    c = 'a';
+    c = '\r';
+    return 0;
+  }
+}

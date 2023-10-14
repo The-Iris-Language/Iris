@@ -1,15 +1,19 @@
+.. tests function declaration of different types
 class Animal of Organism() {
   
   public:
     int age;
+    bool bark() {
+      return true;
+    }
+    char newline() {
+      return '\n';
+    }
     string Animal() {
       return "g";
-      Cat c = new Cat(hi, 7, "bruh");
-      Cat c = new Cat();
     }
     Gecko bark() {
       return "woof";
-      Animal dog;
     }
 }
 
@@ -17,7 +21,6 @@ class Main () {
   public:
     int main() {
       Animal.bark();
-      Animal dog = d;
       return 0;
     }
 }

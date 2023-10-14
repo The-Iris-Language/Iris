@@ -1,0 +1,14 @@
+class Animal of Organism () {   
+public:
+int arms;
+string bark() {
+return "woof";
+}
+permit:
+bool haha() {
+self.bark();
+self.bark();
+self.arms;
+return "woof";
+}
+}
