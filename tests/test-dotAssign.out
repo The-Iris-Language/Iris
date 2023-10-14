@@ -1,14 +1,12 @@
-class Animal of Organism () {   
+class Animal of Organism () {
 public:
 int age;
 string bark() {
 return "woof";
 }
 permit:
-int arms;
-int legs;
 bool haha() {
-sMelfa.age = 1;
+self.age = 1;
 return "woof";
 }
 }

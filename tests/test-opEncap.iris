@@ -8,6 +8,7 @@ class Animal () {
     string bark() {
       return "woof";
     }
+
   permit:
     int arms;
     int legs;
@@ -19,7 +20,7 @@ class Animal () {
     string secrets() {
       return "no secrets here :0";
     }
-  .. including another field for public
+
   public:
     int hello;
     string wat;
@@ -39,11 +40,11 @@ class Main () {
 class Empty () {}
 
 .. only private
-class private {
-    private:
-}
+class priv () { 
+  private: 
+} 
 
 .. only public
-class public () {
+class pub () {
     public:
 }

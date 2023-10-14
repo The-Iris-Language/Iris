@@ -1,12 +1,13 @@
 .. test declaration of all types of variables(primitive types and class types)
 class Main () {
-  int main() {
-    int i;
-    bool b;
-    char c;
-    string s;
-    Gecko g;
-    Animal a
-    return 0;
-  }
+  public:
+    int main() {
+      int i;
+      bool b;
+      char c;
+      string s;
+      Gecko g;
+      Animal a;
+      return 0;
+    }
 }

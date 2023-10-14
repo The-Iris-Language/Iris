@@ -31,12 +31,13 @@ permit:
 private:
 }
 
-class Empty of Object () {}
+class Empty of Object () {
+}
 
-class private of Object () {
+class priv of Object () {
 private:
 }
 
-class public of Object () {
+class pub of Object () {
 public:
 }

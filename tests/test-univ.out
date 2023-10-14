@@ -1,4 +1,5 @@
 class Main of Object () {
+public:
 int univ main() {
 int i;
 int j;

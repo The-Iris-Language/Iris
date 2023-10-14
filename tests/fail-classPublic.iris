@@ -1,0 +1,4 @@
+..tests making a class named public
+class public () {
+    public:
+}

@@ -1,5 +1,6 @@
 .. test univ keyword included
 class Main () {
+  public: 
   int univ main() {
     int i;
     int j;

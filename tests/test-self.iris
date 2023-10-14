@@ -9,7 +9,7 @@ class Animal of Organism () {
     bool haha() {
       self.bark();
       self.bark();
-      self.arm
+      self.arms;
       return "woof";
     }
 }

@@ -10,7 +10,7 @@ Animal dog;
 }
 }
 
-class Main () {
+class Main of Object () {
 public:
 int main() {
 Animal.bark();

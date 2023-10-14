@@ -1,11 +1,12 @@
 class Main of Object () {
+public:
 int main() {
 int i;
 bool b;
 char c;
 string s;
 Gecko g;
-Animal a
+Animal a;
 return 0;
 }
 }

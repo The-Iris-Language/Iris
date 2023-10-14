@@ -1,10 +1,11 @@
 .. test for string literals all cases: empty string, whitespace, normal str
 class Main () { 
-  int main() {
-    string s;
-    s = "'a'";
-    s = "";
-    s = " ";
-    return 0;
-  }
+  public: 
+    int main() {
+      string s;
+      s = "'a'";
+      s = "";
+      s = " ";
+      return 0;
+    }
 }

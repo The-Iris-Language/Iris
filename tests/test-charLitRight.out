@@ -1,6 +1,6 @@
 class Main of Object () {
-int main() {
 public:
+int main() {
 char c;
 c = 'a';
 c = '\r';

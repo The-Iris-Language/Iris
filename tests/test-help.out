@@ -1,11 +1,22 @@
+class Animal of Organism () {
+permit:
+int age;
+string Animal() {
+return "g";
+Cat c = Cat.Cat(hi, 7, "bruh");
+Cat c = Cat.Cat();
+}
+Gecko bark() {
+return "woof";
+Animal dog;
+}
+}
+
 class Main of Object () {
+public:
 int main() {
-int i;
-i = 1;
-i += 1;
-i -= 1;
-i *= 4;
-i /= 2;
+Animal.bark();
+Animal dog = d;
 return 0;
 }
 }

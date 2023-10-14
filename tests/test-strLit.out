@@ -1,4 +1,5 @@
 class Main of Object () { 
+public:
 int main() {
 string s;
 s = "'a'";

@@ -1,4 +1,4 @@
-class Animal of Organism() {
+class Animal of Organism () {
 public:
 int age;
 bool bark() {
@@ -12,11 +12,10 @@ return "g";
 }
 Gecko bark() {
 return "woof";
-Animal dog;
 }
 }
 
-class Main () {
+class Main of Object () {
 public:
 int main() {
 Animal.bark();
