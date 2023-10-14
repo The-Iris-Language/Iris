@@ -6,7 +6,7 @@ open Ast
 
 %token SEMI LPAREN RPAREN LBRACE RBRACE COMMA PLUS MINUS TIMES DIVIDE ASSIGN PEQ MEQ TEQ DEQ
 %token NOT EQ NEQ LT LEQ GT GEQ AND OR PPLUS MMINUS
-%token RETURN IF ELSE FOR WHILE INT BOOL FLOAT VOID CHAR STRING UNIV 
+%token RETURN IF ELSE FOR WHILE INT BOOL FLOAT VOID CHAR STRING UNIV CLASS
 %token <int> LITERAL
 %token <bool> BLIT
 %token <string> ID FLIT CHARLIT STRINGLIT 
@@ -36,20 +36,33 @@ a *= 5
 
 (a = a * 2) + 3
 */
+
 program:
-  decls EOF { $1 }
+  class_decls EOF { $1 }
 
-decls:
+class_decls:
     /* nothing */ { [] }
-  | decls fdecl { $2 :: $1 }
+  | class_decls class_decl { $2 :: $1 }
 
-// decls:
-//    /* nothing */ { ([], [])               } 
-//  | decls vdecl { (($2 :: fst $1), snd $1) } 
-//  | decls fdecl { (fst $1, ($2 :: snd $1)) }
+/* TODO later: add permit() classes 
+               add encapsulation public/permit/private
+               add inheritance (OF ____) from parents */
+class_decl: 
+  CLASS ID LBRACE mem_decls RBRACE 
+  { {
+    cname = $2;
+    mems = List.rev $4;
+  } }
 
+mem_decls:
+   /* nothing */ { [] } 
+ | mem_decls member { ($2::$1) } 
 
-fdecl:
+member:
+  | var_decl { MemberVar($1) }
+  | fun_decl { MemberFun($1) }
+
+fun_decl:
    typ UNIV ID LPAREN formals_opt RPAREN LBRACE stmt_list RBRACE
      { { 
       univ = true;
@@ -65,9 +78,10 @@ fdecl:
       formals = List.rev $4;
       body = List.rev $7 } }
 
-// TODO: why can't we do this?
+
+// TODO: why can't we do this? ask??
 // fdecl:
-//     univ_opt typ ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE 
+//     univ_opt typ ID LPAREN formals_opt RPAREN LBRACE var_decl_list stmt_list RBRACE 
 //      { { 
 //       univ = $1;   
 //       typ = $2;
@@ -96,14 +110,15 @@ typ:
   | VOID   { Void  }
   | CHAR   { Char  } 
   | STRING { String } 
-  
-vdecl_list:
-    /* nothing */    { [] }
-  | vdecl_list vdecl { $2 :: $1 } 
 
-vdecl:
+/*
+var_decls:
+    /* nothing     { [] }
+  | var_decls var_decl { $2 :: $1 } */
+
+var_decl:
    typ ID SEMI { ($1, $2) }
-  /*| typ ID ASSIGN expr SEMI { ($1, $2) } (* vdecl: (Int, "z", 5) *)*/
+  /*| typ ID ASSIGN expr SEMI { ($1, $2) } (* var_decl: (Int, "z", 5) *)*/
 
 stmt_list:
     /* nothing */  { [] }

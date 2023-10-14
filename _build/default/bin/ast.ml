@@ -50,7 +50,16 @@ type func_decl = {
     body : stmt list;
   }
 
-type program = func_decl list
+type member =
+    MemberVar of bind
+  | MemberFun of func_decl    
+
+type class_decl = {
+  cname : string;
+  mems : member list
+}
+
+type program = class_decl list
 (* Pretty-printing functions *)
 
 let string_of_op = function
@@ -124,7 +133,7 @@ let rec string_of_stmt = function
   | Local(t, id) -> string_of_typ t ^ " " ^ id ^ ";\n"
 
 
-let string_of_vdecl (t, id) = string_of_typ t ^ " " ^ id ^ ";\n"
+let string_of_vdecl (t, id) = string_of_typ t ^ " " ^ id ^ ";"
 
 let string_of_formal (t, id) = string_of_typ t ^ " " ^ id
 
@@ -135,9 +144,20 @@ let string_of_univ = function
 let string_of_fdecl fdecl =
   string_of_typ fdecl.typ ^ " " ^ string_of_univ fdecl.univ ^ 
   fdecl.fname ^ "(" ^ String.concat ", " (List.map string_of_formal fdecl.formals) ^
-  ")\n{\n" ^
+  ") {\n" ^
   String.concat "" (List.map string_of_stmt fdecl.body) ^
-  "}\n"
+  "}"
 
-let string_of_program funcs =
-  String.concat "\n" (List.map string_of_fdecl funcs)
+
+let rec string_of_members = function
+    [] -> ""
+  | (MemberVar(curr) :: rest) -> string_of_vdecl curr ^ "\n" ^ string_of_members rest
+  | (MemberFun(curr) :: rest) -> string_of_fdecl curr ^ "\n" ^ string_of_members rest
+  
+
+let string_of_cdecl cdecl =
+  "class " ^ cdecl.cname ^ " {\n" ^ string_of_members cdecl.mems ^ "}\n"
+
+
+let string_of_program classes =
+  String.concat "\n" (List.map string_of_cdecl classes)

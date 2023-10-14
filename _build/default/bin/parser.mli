@@ -41,6 +41,7 @@ type token =
   | DIVIDE
   | DEQ
   | COMMA
+  | CLASS
   | CHARLIT of (string)
   | CHAR
   | BOOL

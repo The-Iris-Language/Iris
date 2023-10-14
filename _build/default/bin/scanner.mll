@@ -37,6 +37,7 @@ rule token = parse
 | "||"     { OR }
 | "!"      { NOT }
 | "univ"   { UNIV } 
+| "class"  { CLASS } 
 | "if"     { IF }
 | "else"   { ELSE }
 | "for"    { FOR }

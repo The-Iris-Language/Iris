@@ -38,6 +38,7 @@ type token =
   | DIVIDE
   | DEQ
   | COMMA
+  | CLASS
   | CHARLIT of string
   | CHAR
   | BOOL
@@ -45,16 +46,20 @@ type token =
   | ASSIGN
   | AND
 val menhir_begin_marker : int
+val xv_var_decl : Ast.bind
 val xv_typ : Ast.typ
 val xv_stmt_list : Ast.stmt list
 val xv_stmt : Ast.stmt
 val xv_program : Ast.program
+val xv_member : Ast.member
+val xv_mem_decls : Ast.member list
+val xv_fun_decl : Ast.func_decl
 val xv_formals_opt : Ast.bind list
 val xv_formal_list : Ast.bind list
-val xv_fdecl : Ast.func_decl
 val xv_expr_opt : Ast.expr
 val xv_expr : Ast.expr
-val xv_decls : Ast.program
+val xv_class_decls : Ast.program
+val xv_class_decl : Ast.class_decl
 val xv_args_opt : Ast.expr list
 val xv_args_list : Ast.expr list
 val menhir_end_marker : int
