@@ -1,7 +1,9 @@
-int main()
-{
+class Main { 
+int main() {
 string s;
 s = "'a'";
 s = "";
+s = " ";
 return 0;
+}
 }

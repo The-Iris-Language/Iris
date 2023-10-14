@@ -99,7 +99,7 @@ fdecl_list:
 //     CLASS ID p_class LBRACE members
 //     univ_opt typ ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
 //       { { typ = $1;
-//           fname = $2;
+//           fname = $2;          
 //           formals = List.rev $4;
 //           locals = List.rev $7;
 //           body = List.rev $8 } }
@@ -141,8 +141,8 @@ p_class:
     /* nothing */  { "Object" }
   | OF ID          { $2 }
 
-encap:
-  fdecl list            { ("public:", $1)  }
-  | PUBLIC COLON fdecl list    { ("public:", $3) }
-  | PERMIT COLON fdecl list  { ("permit:", $3) }
-  | PRIVATE COLON fdecl list   { ("private:", $3) }
+encap_opt:
+  mem_decls_opt                   { ("public:", $1)  }
+  | PUBLIC COLON mem_decls_opt    { ("public:", $3)  }
+  | PERMIT COLON mem_decls_opt    { ("permit:", $3)  }
+  | PRIVATE COLON mem_decls_opt   { ("private:", $3) }

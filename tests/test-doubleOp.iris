@@ -1,13 +1,14 @@
-int main()
-{
+class Main {
+  int main() {
     int i;
     i = 1;
     i++;
     i--;
 
     for (i = 0; i < 10; i++) {
-        i--;
+      i--;
     }
-    
+        
     return 0;
+  }
 }

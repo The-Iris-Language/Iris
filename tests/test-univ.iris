@@ -1,17 +1,11 @@
-int univ main()
-{
-  int i;
-  int j;
+class Main {
+  int univ main() {
+    int i;
+    int j;
 
-  i = 1;
-  return 0;
+    i = 1;
+    return 0;
+  }
 }
 
-int main()
-{
-  int i;
-  int j;
-  
-  i = 1;
-  return 0;
-}
+

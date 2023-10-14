@@ -26,10 +26,6 @@ type expr =
   | OpAssign of string * op_assign * expr
   | Call of string * expr list
   | Noexpr
-(* 
-type univ =
-  Univ of bool
- | NoUniv of bo *)
 
 type bind = typ * string
 
@@ -52,11 +48,13 @@ type func_decl = {
 
 type member =
     MemberVar of bind
-  | MemberFun of func_decl    
+  | MemberFun of func_decl 
+  
+type encap = string * member list
 
 type class_decl = {
   cname : string;
-  mems : member list
+  mems: encap list;
 }
 
 type program = class_decl list
@@ -127,7 +125,7 @@ let rec string_of_stmt = function
   | If(e, s1, s2) ->  "if (" ^ string_of_expr e ^ ")\n" ^
       string_of_stmt s1 ^ "else\n" ^ string_of_stmt s2
   | For(e1, e2, e3, s) ->
-      "for (" ^ string_of_expr e1  ^ "; " ^ string_of_expr e2 ^ "; " ^
+       "for (" ^ string_of_expr e1  ^ "; " ^ string_of_expr e2 ^ "; " ^
       string_of_expr e3  ^ ") " ^ string_of_stmt s
   | While(e, s) -> "while (" ^ string_of_expr e ^ ") " ^ string_of_stmt s
   | Local(t, id) -> string_of_typ t ^ " " ^ id ^ ";\n"
@@ -150,13 +148,20 @@ let string_of_fdecl fdecl =
 
 
 let rec string_of_members = function
-    [] -> ""
+    []                        -> ""
   | (MemberVar(curr) :: rest) -> string_of_vdecl curr ^ "\n" ^ string_of_members rest
   | (MemberFun(curr) :: rest) -> string_of_fdecl curr ^ "\n" ^ string_of_members rest
+ 
+  
+let rec string_of_encaps = function
+    []                  -> ""
+  | (str, mems) :: rest -> str ^ "\n" ^ string_of_members mems ^ string_of_encaps rest
   
 
 let string_of_cdecl cdecl =
-  "class " ^ cdecl.cname ^ " {\n" ^ string_of_members cdecl.mems ^ "}\n"
+  "class " ^ cdecl.cname ^ " {\n" ^ 
+       string_of_encaps cdecl.mems ^
+  "}\n"
 
 
 let string_of_program classes =

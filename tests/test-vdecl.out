@@ -1,8 +1,9 @@
-int main()
-{
+class Main {
+int main() {
 int i;
 bool b;
 char c;
 string s;
 return 0;
+}
 }

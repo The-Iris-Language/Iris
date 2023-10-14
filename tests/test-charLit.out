@@ -1,7 +1,8 @@
-int main()
-{
+class Main {
+int main() {
 char c;
 c = 'a';
 c = '\r';
 return 0;
+}
 }

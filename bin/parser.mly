@@ -4,9 +4,10 @@
 open Ast
 %}
 
-%token SEMI LPAREN RPAREN LBRACE RBRACE COMMA PLUS MINUS TIMES DIVIDE ASSIGN PEQ MEQ TEQ DEQ
+%token SEMI COLON LPAREN RPAREN LBRACE RBRACE COMMA PLUS MINUS TIMES DIVIDE ASSIGN PEQ MEQ TEQ DEQ
 %token NOT EQ NEQ LT LEQ GT GEQ AND OR PPLUS MMINUS
-%token RETURN IF ELSE FOR WHILE INT BOOL FLOAT VOID CHAR STRING UNIV CLASS
+%token RETURN IF ELSE FOR WHILE INT BOOL FLOAT VOID CHAR STRING UNIV 
+%token CLASS PUBLIC PERMIT PRIVATE
 %token <int> LITERAL
 %token <bool> BLIT
 %token <string> ID FLIT CHARLIT STRINGLIT 
@@ -38,25 +39,53 @@ a *= 5
 */
 
 program:
-  class_decls EOF { $1 }
+  class_decls_opt EOF { List.rev $1 }
 
-class_decls:
+class_decls_opt:
     /* nothing */ { [] }
-  | class_decls class_decl { $2 :: $1 }
+  | class_decls_opt class_decl { $2 :: $1 }
 
 /* TODO later: add permit() classes 
                add encapsulation public/permit/private
                add inheritance (OF ____) from parents */
 class_decl: 
-  CLASS ID LBRACE mem_decls RBRACE 
-  { {
-    cname = $2;
-    mems = List.rev $4;
-  } }
+    CLASS ID LBRACE encap_opt_list RBRACE 
+    { {
+      cname = $2;
+      mems  = List.rev $4;
+    } }
 
-mem_decls:
+
+encap_opt_list:
+  /* nothing */ { [] } 
+  | encap_opt_list encap_opt { (fst $2, List.rev (snd $2)) :: $1 }
+
+/* 
+
+mems = [("public: ", [members])
+        ("private: ", [members])
+        ("private: ", [members])
+        ("private: ", [members])
+        ("private: ", [members])
+        ("private: ", [members])
+        ("private: ", [members])]
+
+*/
+
+encap_opt:
+    /*mem_decls_opt                 { ("", $1)  }*/
+  | PUBLIC COLON mem_decls_opt    { ("public:", $3)  }
+  | PERMIT COLON mem_decls_opt    { ("permit:", $3)  }
+  | PRIVATE COLON mem_decls_opt   { ("private:", $3) }
+
+mem_decls_opt:
    /* nothing */ { [] } 
- | mem_decls member { ($2::$1) } 
+ | mem_decls_opt member { $2 :: $1 } 
+
+
+// mem_decls_req:
+//     member               { $1 :: [] }
+//   | mem_decls_req member { $2 :: $1 }
 
 member:
   | var_decl { MemberVar($1) }
@@ -178,3 +207,5 @@ args_opt:
 args_list:
     expr                    { [$1] }
   | args_list COMMA expr { $3 :: $1 }
+
+

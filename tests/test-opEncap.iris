@@ -34,6 +34,12 @@ class Main {
   private:
 }
 
-class Empty {
+class Empty {}
 
+class private {
+    private:
+}
+
+class public {
+    public:
 }
