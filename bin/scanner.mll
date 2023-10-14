@@ -4,10 +4,12 @@
 
 let digit = ['0' - '9']
 let digits = digit+
+let char = ['\\']?[' ' - '~' '\161' - '\255']
 
 rule token = parse
   [' ' '\t' '\r' '\n'] { token lexbuf } (* Whitespace *)
-| "/*"     { comment lexbuf }           (* Comments *)
+| ".."     { singleComment lexbuf }           (* Comments *)
+| ".~*"    { multiComment lexbuf }           (* Comments *)
 | '('      { LPAREN }
 | ')'      { RPAREN }
 | '{'      { LBRACE }
@@ -18,7 +20,13 @@ rule token = parse
 | '-'      { MINUS }
 | '*'      { TIMES }
 | '/'      { DIVIDE }
+| "++"     { PPLUS }
+| "--"     { MMINUS }
 | '='      { ASSIGN }
+| "+="     { PEQ }
+| "-="     { MEQ }
+| "*="     { TEQ }
+| "/="     { DEQ }
 | "=="     { EQ }
 | "!="     { NEQ }
 | '<'      { LT }
@@ -28,6 +36,7 @@ rule token = parse
 | "&&"     { AND }
 | "||"     { OR }
 | "!"      { NOT }
+| "univ"   { UNIV } 
 | "if"     { IF }
 | "else"   { ELSE }
 | "for"    { FOR }
@@ -45,9 +54,14 @@ rule token = parse
 | digits '.'  digit* as lxm { FLIT(lxm) }
 | ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']* as lxm { ID(lxm) }
 | eof { EOF }
-(* | '\''['\\']?[' ' - '~' '\161' - '\255'] as lxm { CHARLIT(lxm) }  *)
-| _ as char { raise (Failure("illegal character " ^ Char.escaped char)) }
+| ['\'']char['\''] as lxm { CHARLIT(lxm) } 
+| ['\"']char*['\"'] as lxm { STRINGLIT(lxm) }
+| _ as character { raise (Failure("illegal character " ^ Char.escaped character)) }
 
-and comment = parse
-  "*/" { token lexbuf }
-| _    { comment lexbuf }
+and multiComment = parse
+  "*~." { token lexbuf }
+| _    { multiComment lexbuf }
+
+and singleComment = parse 
+  "\n"  { token lexbuf }
+| _     { singleComment lexbuf }

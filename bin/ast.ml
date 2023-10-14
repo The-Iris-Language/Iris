@@ -1,26 +1,37 @@
 (* Abstract Syntax Tree and functions for printing it *)
 
 type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq |
-          And | Or
+          And | Or  
+
+type op_assign = Peq | Meq | Teq | Deq 
 
 type uop = Neg | Not
 
-type typ = Int | Bool | Float | Void | Char | String
+type doubleop = PPlus | MMinus
 
-type bind = typ * string
+type typ = Int | Bool | Float | Void | Char | String
 
 type expr =
     Literal of int
   | Fliteral of string
   | BoolLit of bool
-  (* | StringLit of string *)
-  (* | CharLit of string  *)
+  | StringLit of string
+  | CharLit of string 
   | Id of string
   | Binop of expr * op * expr
   | Unop of uop * expr
+  | DoubleOp of string * doubleop
   | Assign of string * expr
+  (* | DeclAssign of typ * string * expr *)
+  | OpAssign of string * op_assign * expr
   | Call of string * expr list
   | Noexpr
+(* 
+type univ =
+  Univ of bool
+ | NoUniv of bo *)
+
+type bind = typ * string
 
 type stmt =
     Block of stmt list
@@ -31,6 +42,7 @@ type stmt =
   | While of expr * stmt
 
 type func_decl = {
+    univ : bool; 
     typ : typ;
     fname : string;
     formals : bind list;
@@ -39,7 +51,6 @@ type func_decl = {
   }
 
 type program = bind list * func_decl list
-
 (* Pretty-printing functions *)
 
 let string_of_op = function
@@ -56,24 +67,38 @@ let string_of_op = function
   | And -> "&&"
   | Or -> "||"
 
+let string_of_opAssign = function
+    Peq -> "+="
+  | Meq -> "-="
+  | Teq -> "*="
+  | Deq -> "/="
+
 let string_of_uop = function
     Neg -> "-"
   | Not -> "!"
+
+let string_of_doubleop = function
+    MMinus -> "--"
+  | PPlus -> "++"
 
 let rec string_of_expr = function
     Literal(l) -> string_of_int l
   | Fliteral(l) -> l
   | BoolLit(true) -> "true"
   | BoolLit(false) -> "false"
-  (* | StringLit(l) -> l *)
-  (* | CharLit(l) -> l *)
+  | StringLit(l) -> l
+  | CharLit(l) -> l
   | Id(s) -> s
   | Binop(e1, o, e2) ->
       string_of_expr e1 ^ " " ^ string_of_op o ^ " " ^ string_of_expr e2
   | Unop(o, e) -> string_of_uop o ^ string_of_expr e
   | Assign(v, e) -> v ^ " = " ^ string_of_expr e
+  (* | DeclAssign(t, v, e) -> 
+      string_of_typ t ^ " " ^ v ^ string_of_expr e *)
+  | OpAssign(s, o, e) -> s ^ " " ^ string_of_opAssign o ^ " " ^ string_of_expr e
   | Call(f, el) ->
       f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
+  | DoubleOp(v, o) -> v ^ string_of_doubleop o
   | Noexpr -> ""
 
 let rec string_of_stmt = function
@@ -99,8 +124,12 @@ let string_of_typ = function
 
 let string_of_vdecl (t, id) = string_of_typ t ^ " " ^ id ^ ";\n"
 
+let string_of_univ = function
+    true  -> "univ " 
+  | false -> ""
+
 let string_of_fdecl fdecl =
-  string_of_typ fdecl.typ ^ " " ^
+  string_of_typ fdecl.typ ^ " " ^ string_of_univ fdecl.univ ^ 
   fdecl.fname ^ "(" ^ String.concat ", " (List.map snd fdecl.formals) ^
   ")\n{\n" ^
   String.concat "" (List.map string_of_vdecl fdecl.locals) ^

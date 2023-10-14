@@ -4,20 +4,20 @@
 open Ast
 %}
 
-%token SEMI LPAREN RPAREN LBRACE RBRACE COMMA PLUS MINUS TIMES DIVIDE ASSIGN
-%token NOT EQ NEQ LT LEQ GT GEQ AND OR
-%token RETURN IF ELSE FOR WHILE INT BOOL FLOAT VOID CHAR STRING 
+%token SEMI LPAREN RPAREN LBRACE RBRACE COMMA PLUS MINUS TIMES DIVIDE ASSIGN PEQ MEQ TEQ DEQ
+%token NOT EQ NEQ LT LEQ GT GEQ AND OR PPLUS MMINUS
+%token RETURN IF ELSE FOR WHILE INT BOOL FLOAT VOID CHAR STRING UNIV 
 %token <int> LITERAL
 %token <bool> BLIT
-%token <string> ID FLIT //CHARLIT STRINGLIT 
+%token <string> ID FLIT CHARLIT STRINGLIT 
 %token EOF
 
 %start program
 %type <Ast.program> program
 
-%nonassoc NOELSE
-%nonassoc ELSE
-%right ASSIGN
+%nonassoc NOELSE 
+%nonassoc ELSE 
+%right ASSIGN PEQ MEQ TEQ DEQ
 %left OR
 %left AND
 %left EQ NEQ
@@ -26,8 +26,15 @@ open Ast
 %left TIMES DIVIDE
 %right NOT
 
-%%
 
+
+%%
+/* NOTES
+a *= 2 + 3
+a *= 5
+
+(a = a * 2) + 3
+*/
 program:
   decls EOF { $1 }
 
@@ -36,14 +43,50 @@ decls:
  | decls vdecl { (($2 :: fst $1), snd $1) } 
  | decls fdecl { (fst $1, ($2 :: snd $1)) }
 
-fdecl:
-   typ ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
-     { { typ = $1;
-	 fname = $2;
-	 formals = List.rev $4;
-	 locals = List.rev $7;
-	 body = List.rev $8 } }
 
+
+fdecl:
+   typ UNIV ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
+     { { 
+      univ = true;
+      typ = $1;
+      fname = $3;
+      formals = List.rev $5;
+      locals = List.rev $8;
+      body = List.rev $9 } }
+  | typ ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
+     { { 
+      univ = false;
+      typ = $1;
+      fname = $2;
+      formals = List.rev $4;
+      locals = List.rev $7;
+      body = List.rev $8 } }
+
+/* fdecl:
+    univ_opt typ ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE 
+     { { 
+      univ = $1;   
+      typ = $2;
+      fname = $3;
+      formals = List.rev $5;
+      locals = List.rev $8;
+      body = List.rev $9 } }
+    |  typ ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE 
+     { { 
+      univ = true;   
+      typ = $2;
+      fname = $3;
+      formals = List.rev $5;
+      locals = List.rev $8;
+      body = List.rev $9 } }*/
+
+
+//univ_opt:
+ // /* nothing */   { false }
+ // | UNIV          { true }
+  
+    
 formals_opt:
     /* nothing */ { [] }
   | formal_list   { $1 }
@@ -60,14 +103,13 @@ typ:
   | CHAR   { Char  } 
   | STRING { String } 
   
-
 vdecl_list:
     /* nothing */    { [] }
   | vdecl_list vdecl { $2 :: $1 } 
 
 vdecl:
    typ ID SEMI { ($1, $2) }
-
+  /*| typ ID ASSIGN expr SEMI { ($1, $2) } (* vdecl: (Int, "z", 5) *)*/
 
 stmt_list:
     /* nothing */  { [] }
@@ -91,8 +133,8 @@ expr:
     LITERAL          { Literal($1)            }
   | FLIT	           { Fliteral($1)           }
   | BLIT             { BoolLit($1)            }
-  // | CHARLIT	         { CharLit($1)            } 
-  // | STRINGLIT        { StringLit($1)          }
+  | CHARLIT	         { CharLit($1)            } 
+  | STRINGLIT        { StringLit($1)          }
   | ID               { Id($1)                 }
   | expr PLUS   expr { Binop($1, Add,   $3)   }
   | expr MINUS  expr { Binop($1, Sub,   $3)   }
@@ -108,7 +150,14 @@ expr:
   | expr OR     expr { Binop($1, Or,    $3)   }
   | MINUS expr %prec NOT { Unop(Neg, $2)      }
   | NOT expr         { Unop(Not, $2)          }
+  | ID   PPLUS       { DoubleOp($1, PPlus)        }
+  | ID   MMINUS      { DoubleOp($1, MMinus)      }
   | ID ASSIGN expr   { Assign($1, $3)         }
+  /*| typ ID ASSIGN expr %prec NOT  { DeclAssign($1, $3)         }*/
+  | ID   PEQ    expr { OpAssign($1, Peq, $3)   }
+  | ID   MEQ    expr { OpAssign($1, Meq, $3)   }
+  | ID   TEQ    expr { OpAssign($1, Teq, $3)   }
+  | ID   DEQ    expr { OpAssign($1, Deq, $3)   }
   | ID LPAREN args_opt RPAREN { Call($1, $3)  }
   | LPAREN expr RPAREN { $2                   }
 

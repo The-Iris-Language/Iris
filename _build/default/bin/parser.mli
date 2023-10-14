@@ -4,17 +4,24 @@
 type token = 
   | WHILE
   | VOID
+  | UNIV
   | TIMES
+  | TEQ
+  | STRINGLIT of (string)
   | STRING
   | SEMI
   | RPAREN
   | RETURN
   | RBRACE
+  | PPLUS
   | PLUS
+  | PEQ
   | OR
   | NOT
   | NEQ
+  | MMINUS
   | MINUS
+  | MEQ
   | LT
   | LPAREN
   | LITERAL of (int)
@@ -32,7 +39,9 @@ type token =
   | EOF
   | ELSE
   | DIVIDE
+  | DEQ
   | COMMA
+  | CHARLIT of (string)
   | CHAR
   | BOOL
   | BLIT of (bool)
