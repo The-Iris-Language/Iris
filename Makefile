@@ -34,18 +34,20 @@ clean :
 
 TESTS = \
 	multiAssign univ charLitRight opAssign strLit vDecAss comments assignFunc \
-	doubleOp permitted inherit funcDecl self vdecl univFuncCall opEncap help \
-	classMain dotAssign
-  
+	doubleOp permitted inherit funcDecl self vdecl listConstructor \
+	univFuncCall opEncap classMain dotAssign
+
 
 FAILS = \
-	emptyChar noColonEncap permitted opAssign noEncap
+	emptyChar noColonEncap missingSemi var+ classPublic permitted noEncap \
+	opAssign 
 
-TESTFILES = $(TESTS:%=%.iris) $(TESTS:%=%.out) \
+
+TESTFILES = $(TESTS:%=test-%.iris) $(TESTS:%=test-%.out) \
 	    $(FAILS:%=fail-%.iris) $(FAILS:%=fail-%.err)
 
-ZIPFILES = bin Dockerfile dune-project lib Makefile \
-	README testall.sh \
+ZIPFILES = bin dune-project lib Makefile \
+	README testsyntax.sh \
 	$(TESTFILES:%=tests/%) 
 
 iris.zip : $(ZIPFILES)
