@@ -1,10 +1,11 @@
-/* Ocamlyacc parser for MicroC */
+/* Ocamlyacc parser for Iris */
+/*  Ayda Aricanli, Trevor Sullivan, Valerie Zhang, Josh Kim, Tim Valk */ 
 
 %{
 open Ast
 %}
 
-%token SEMI COLON DOT LPAREN RPAREN LBRACE RBRACE COMMA PLUS MINUS TIMES DIVIDE ASSIGN PEQ MEQ TEQ DEQ
+%token SEMI COLON DOT LPAREN RPAREN LBRACE RBRACE LBRACK RBRACK COMMA PLUS MINUS TIMES DIVIDE ASSIGN PEQ MEQ TEQ DEQ
 %token NOT EQ NEQ LT LEQ GT GEQ AND OR PPLUS MMINUS
 %token RETURN IF ELSE FOR WHILE INT BOOL FLOAT VOID CHAR STRING UNIV 
 %token CLASS PUBLIC PERMIT PRIVATE OF NEW
@@ -18,7 +19,6 @@ open Ast
 
 %nonassoc NOELSE 
 %nonassoc ELSE 
-// %nonassoc FDOT
 %right ASSIGN PEQ MEQ TEQ DEQ
 %right DASSIGN
 %left OR
@@ -29,15 +29,7 @@ open Ast
 %left TIMES DIVIDE
 %right NOT
 
-
-
 %%
-/* NOTES
-a *= 2 + 3
-a *= 5
-
-(a = a * 2) + 3
-*/
 
 program:
   class_decls_opt EOF { List.rev $1 }
@@ -46,20 +38,6 @@ class_decls_opt:
     /* nothing */ { [] }
   | class_decls_opt class_decl { $2 :: $1 }
 
-/* TODO later: add permit() classes 
-               add inheritance (OF ____) from parents 
-               
-               Class Dog of Animal 
-               (Food, Jungle)
-               {
-                  public:
-                  permit:
-                  private:
-                  
-
-                  }
-                  
-               */
 class_decl: 
 
     CLASS ID of_opt LPAREN class_opt RPAREN LBRACE encap_opt_list RBRACE
@@ -69,12 +47,6 @@ class_decl:
       permitted       = $5;
       mems            = List.rev $8;
     } }
-  // | CLASS ID OF ID LPAREN class_opt RPAREN LBRACE encap_opt_list RBRACE
-  //   { {
-  //     cname     = $2;
-  //     permitted = $4;
-  //     mems      = List.rev $7;
-  //   } } 
 
 of_opt: 
   /* nothing */ { "Object" }
@@ -88,25 +60,12 @@ class_list:
     ID                  { [$1] }
   | class_list COMMA ID { $3 :: $1 }
 
-
 encap_opt_list:
   /* nothing */ { [] } 
   | encap_opt_list encap_opt { (fst $2, List.rev (snd $2)) :: $1 }
 
-/* 
-
-mems = [("public: ", [members])
-        ("private: ", [members])
-        ("private: ", [members])
-        ("private: ", [members])
-        ("private: ", [members])
-        ("private: ", [members])
-        ("private: ", [members])]
-
-*/
-
 encap_opt:
-    /*mem_decls_opt                 { ("", $1)  }*/
+    /* mem_decls_opt                 { ("", $1)  } */
   | PUBLIC COLON mem_decls_opt    { ("public:", $3)  }
   | PERMIT COLON mem_decls_opt    { ("permit:", $3)  }
   | PRIVATE COLON mem_decls_opt   { ("private:", $3) }
@@ -114,11 +73,6 @@ encap_opt:
 mem_decls_opt:
    /* nothing */ { [] } 
  | mem_decls_opt member { $2 :: $1 } 
-
-
-// mem_decls_req:
-//     member               { $1 :: [] }
-//   | mem_decls_req member { $2 :: $1 }
 
 member:
   | var_decl { MemberVar($1) }
@@ -182,7 +136,6 @@ var_decls:
 
 var_decl:
    typ ID SEMI { ($1, $2) }
-  /*| typ ID ASSIGN expr SEMI { ($1, $2) } (* var_decl: (Int, "z", 5) *)*/
 
 stmt_list:
     /* nothing */  { [] }
@@ -197,7 +150,10 @@ stmt:
   | FOR LPAREN expr_opt SEMI expr SEMI expr_opt RPAREN stmt
                                             { For($3, $5, $7, $9)   }
   | WHILE LPAREN expr RPAREN stmt           { While($3, $5)         }
-  | typ ID SEMI                             { Local($1, $2) } 
+  | typ ID SEMI                             { Local($1, $2)         }
+
+ /* int y = 1; --> evaluates to 1 */ 
+ /* int y; --> doesn't evaluate to anything */
 
 expr_opt:
     /* nothing */ { Noexpr }    
@@ -236,17 +192,16 @@ expr:
   | ID DOT ID                         { ClassVar($1, $3)           }
   | ID DOT ID LPAREN args_opt RPAREN  { Call($1, $3, $5)           }
   | ID LPAREN args_opt RPAREN         { Call("self", $1, $3)       }
-  | NEW ID LPAREN args_opt RPAREN     { Call($2, $2, $4)       }
-
-/* hi(); */
-  | LPAREN expr RPAREN { $2                   }
+  | NEW ID LPAREN args_opt RPAREN     { Call($2, $2, $4)           }
+  | LBRACK args_opt RBRACK            { Call("List", "List", $2)   }
+  | LPAREN expr RPAREN                { $2 }
 
 args_opt:
     /* nothing */ { [] }
-  | args_list  { List.rev $1 }
+  | args_list     { List.rev $1 }
 
 args_list:
     expr                    { [$1] }
-  | args_list COMMA expr { $3 :: $1 }
+  | args_list COMMA expr    { $3 :: $1 }
 
 

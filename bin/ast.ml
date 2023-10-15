@@ -1,4 +1,8 @@
-(* Abstract Syntax Tree and functions for printing it *)
+(* Ocamlyacc parser for Iris 
+   Ayda Aricanli, Trevor Sullivan, Valerie Zhang, Josh Kim, Tim Valk *)
+
+
+(* Iris Abstract Syntax Tree and functions for printing it *)
 
 type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq |
           And | Or  
@@ -20,7 +24,7 @@ type expr =
   | StringLit of string
   | CharLit of string 
   | Id of string
-  | Binop of expr * op * expr
+  | Binop of expr * op * expr 
   | Unop of uop * expr
   | DoubleOp of string * doubleop
   | Assign of string * expr

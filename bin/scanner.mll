@@ -1,4 +1,5 @@
-(* Ocamllex scanner for MicroC *)
+(* Ocamllex scanner for Iris *)
+(* Written by Ayda Aricanli, Trevor Sullivan, Valerie Zhang, Josh Kim, Tim Valk *)
 
 { open Parser }
 
@@ -15,6 +16,8 @@ rule token = parse
 | ')'       { RPAREN }
 | '{'       { LBRACE }
 | '}'       { RBRACE }
+| '['       { LBRACK }
+| ']'       { RBRACK }
 | ';'       { SEMI }
 | ':'       { COLON }
 | ','       { COMMA }
