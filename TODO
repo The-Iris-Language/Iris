@@ -1,0 +1,44 @@
+# . as an operator
+Scenario:
+
+# #############################
+class Main() { 
+    univ int main() {
+        Hotdog weiner = new Hotdog("mustard");
+        .~* multiple periods aren't allowed! *~.
+        Olympus.print(weiner.condiment.condimentType);
+    }
+}
+
+class Condiment() {
+    string condimentType;
+
+    string getCondiment() {
+        return condimentType;
+    }
+    .. other functions
+}
+
+class Hotdog() {
+    Condiment condiment;
+
+    void Hotdog(string cond) {
+        condiment = cond;
+    }
+    .. other functions
+}
+# #############################
+
+Potential Solution:
+    implement . as an operator that evaluates ids left to right
+
+# List literals and function calls?
+Consider adding the following: [4, 5, 6].push(7);
+
+# Do we make ints, strings, and other primitive types objects?
+    If not, do we add classes corresponding to each? or just store them in 
+    Olympus?
+
+# potentially add univ to class variables?
+
+# NULL

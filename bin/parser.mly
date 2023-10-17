@@ -161,7 +161,7 @@ expr_opt:
     
 expr:    
     LITERAL                           { Literal($1)                }
-  | FLIT	                            { Fliteral($1)               }
+  | FLIT	                          { Fliteral($1)               }
   | BLIT                              { BoolLit($1)                }
   | CHARLIT	                          { CharLit($1)                } 
   | STRINGLIT                         { StringLit($1)              }
