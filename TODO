@@ -1,7 +1,23 @@
+# List literals and function calls?
+Consider adding the following: [4, 5, 6].push(7);
+
+# Do we make ints, strings, and other primitive types objects?
+    If not, do we add classes corresponding to each? or just store them in 
+    Olympus?
+
+# potentially add univ to class variables?
+
+# NULL
+
+# use OCaml arrays (instead of lists) to store class members so that they aren't extendable
+
+# look into OCaml option type
+
+# maybe add the ability to include other files? (if we have time/ not necessary)
+
 # . as an operator
 Scenario:
 
-# #############################
 class Main() { 
     univ int main() {
         Hotdog weiner = new Hotdog("mustard");
@@ -27,18 +43,6 @@ class Hotdog() {
     }
     .. other functions
 }
-# #############################
 
 Potential Solution:
     implement . as an operator that evaluates ids left to right
-
-# List literals and function calls?
-Consider adding the following: [4, 5, 6].push(7);
-
-# Do we make ints, strings, and other primitive types objects?
-    If not, do we add classes corresponding to each? or just store them in 
-    Olympus?
-
-# potentially add univ to class variables?
-
-# NULL
