@@ -15,11 +15,14 @@ type uop = Neg | Not
 (*   ++   --   *)
 type doubleop = PPlus | MMinus
 
-type typ = Int | Bool | Float | Void | Char | String | Object of string
+type class_name = string
+type instance_name = string
+
+type typ = Int | Bool | Float | Void | Char | String | Object of class_name (* Class name *)
 
 type expr =
     Literal of int
-  | Fliteral of string
+  | Fliteral of string (* change to float *)
   | BoolLit of bool
   | StringLit of string
   | CharLit of string 
@@ -29,9 +32,9 @@ type expr =
   | DoubleOp of string * doubleop
   | Assign of string * expr
   | DeclAssign of typ * string * expr
-  | ClassVarAssign of string * string * expr
+  | ClassVarAssign of instance_name * string * expr (* string is variable name *)
   | OpAssign of string * op_assign * expr
-  | Call of string * string * expr list
+  | Call of string * string * expr list 
   | ClassVar of string * string
   | Noexpr
 

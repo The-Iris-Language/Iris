@@ -8,9 +8,47 @@ module StringMap = Map.Make(String)
 (* Semantic checking of the AST. Returns an SAST if successful,
    throws an exception if something is wrong.
 
-   Check each global variable, then check each function *)
+   Check each defined class *)
 
-let check (globals, functions) =
+let check (classes) =
+
+  (* let check_classes () *)
+
+  (* ARCHITECTURE :P 
+   1. check if main exists
+          - make sure univ int main() exists
+          - are we allowing Main.main() to be called in another class (or in Main?)
+
+   2. build global class environment (names and shit)
+          - add built-in stuff: Olympus, Object, List to symbol table 
+          - add user-defined classes
+          - check for duplicate class names
+
+   3. build inheritance tree (fail if anything inherits from main/olympus?) 
+          - check that parent class exists
+          - can things inherit from main? olympus?   :O   ???????
+          - are we allowing permit and private in main? non-class methods?
+          - can they instantiate an instance of main? NO.
+
+
+   4. check each class individually with inheritance in mind (build new env for each)-- DFS thru inheritance tree
+          - check for duplicate labels (public, permit, private)
+          - permit classes exist
+          - check member variables + typ23z732es (local and permitted, raise errors for private or unpermitted)
+          - check methods + types (univ, local, and permitted, raise errors for private or unpermitted) (new env for each function)
+              - member var and member func of same name is allowed, also overriding from parent allowed
+          - 
+  *)
+ 
+  
+  (* Implementation Plan :P 
+   *   1. Implement semant & sast
+   *   2. Implement codegen
+   *   3. Test
+   *   4. wahoo
+   *)
+
+  (* ______________________________________________________________________ *)
 
   (* Check if a certain kind of binding has void type or is a duplicate
      of another, previously checked binding *)
@@ -102,6 +140,7 @@ let check (globals, functions) =
         Literal  l -> (Int, SLiteral l)
       | Fliteral l -> (Float, SFliteral l)
       | BoolLit l  -> (Bool, SBoolLit l)
+      | StringLit l -> (String, SStringLit l)
       | Noexpr     -> (Void, SNoexpr)
       | Id s       -> (type_of_identifier s, SId s)
       | Assign(var, e) as ex -> 

@@ -191,7 +191,7 @@ expr:
   | ID DOT ID ASSIGN expr             { ClassVarAssign($1, $3, $5) }
   | ID DOT ID                         { ClassVar($1, $3)           }
   | ID DOT ID LPAREN args_opt RPAREN  { Call($1, $3, $5)           }
-  | ID LPAREN args_opt RPAREN         { Call("self", $1, $3)       }
+  | ID LPAREN args_opt RPAREN         { Call("self", $1, $3)       } /* call on function within class */
   | NEW ID LPAREN args_opt RPAREN     { Call($2, $2, $4)           }
   | LBRACK args_opt RBRACK            { Call("List", "List", $2)   }
   | LPAREN expr RPAREN                { $2 }

@@ -1,3 +1,5 @@
+# FIX LRM (look at canvas comments)
+
 # List literals and function calls?
 Consider adding the following: [4, 5, 6].push(7);
 

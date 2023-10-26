@@ -7,12 +7,38 @@ and sx =
     SLiteral of int
   | SFliteral of string
   | SBoolLit of bool
+  | SStringLit of string
+  (* | SCharList of string *)
   | SId of string
   | SBinop of sexpr * op * sexpr
   | SUnop of uop * sexpr
+  (* | SDoubleOp of string * doubleop
   | SAssign of string * sexpr
+  | SDeclAssign of typ * string * sexpr
+  | SClassVarAssign of string * string * sexpr
+  | SOpAssign of string * op_assign * sexpr *)
   | SCall of string * sexpr list
+  (* |SClassVar of string * string *)
   | SNoexpr
+(*
+  type expr =
+    Literal of int
+  | Fliteral of string
+  | BoolLit of bool
+  | StringLit of string
+  | CharLit of string 
+  | Id of string
+  | Binop of expr * op * expr 
+  | Unop of uop * expr
+  | DoubleOp of string * doubleop
+  | Assign of string * expr
+  | DeclAssign of typ * string * expr
+  | ClassVarAssign of string * string * expr
+  | OpAssign of string * op_assign * expr
+  | Call of string * string * expr list
+  | ClassVar of string * string
+  | Noexpr
+*)
 
 type sstmt =
     SBlock of sstmt list
@@ -23,6 +49,7 @@ type sstmt =
   | SWhile of sexpr * sstmt
 
 type sfunc_decl = {
+    (* suniv : bool; *)
     styp : typ;
     sfname : string;
     sformals : bind list;
@@ -30,7 +57,28 @@ type sfunc_decl = {
     sbody : sstmt list;
   }
 
-type sprogram = bind list * sfunc_decl list
+(* a member of a class is either a function or a variable *)
+(* type member =
+    MemberVar of bind
+  | MemberFun of func_decl  *)
+  
+(* each encapsulation label (public, permit, private) has a list of members *)
+(* type encap = string * member list *)
+
+(* 
+  class_name: name of the class
+  parent_name: name of the parent class (defaults to Object)
+  mems: list of encaps
+  permitted: names of classes with access to permit members  
+*)
+type sclass_decl = {
+  class_name : string;
+  parent_name : string;
+  permitted: string list;
+  mems: encap list;
+}
+
+type sprogram = sclass_decl list
 
 (* Pretty-printing functions *)
 
@@ -40,6 +88,8 @@ let rec string_of_sexpr (t, e) =
   | SBoolLit(true) -> "true"
   | SBoolLit(false) -> "false"
   | SFliteral(l) -> l
+  (* | SStringLit(l) -> l *)
+  (*| SSCharList(l) -> l *)
   | SId(s) -> s
   | SBinop(e1, o, e2) ->
       string_of_sexpr e1 ^ " " ^ string_of_op o ^ " " ^ string_of_sexpr e2
