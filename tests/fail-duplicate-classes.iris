@@ -6,16 +6,14 @@ class Animal of Organism () {
     }
 }
 
-.~*
 class Animal () {
   public:
     int age;
-} 
-*~.
+}
 
 class Main () {
   public:
-    int univ main() {
+    int main() {
       List l = new List();
       List ll = new List(1, 2, 3, 4, 5, c.age, "lala");
       List lll = [1, 2, 3];

@@ -90,17 +90,15 @@ let check classes =
   in let find_func (func : func_decl) (funcs : func_decl list) = 
     let func_not_found = "function of name " ^ func.fname ^ " not found" in 
     let check_funcs a_func = 
-         (func.univ = a_func.univ) 
-      && (func.typ = a_func.typ) 
-      && (func.fname = a_func.fname) 
-      && (List.length func.formals = List.length a_func.formals)
-      && (List.fold_left (fun acc ((typ1, _), (typ2, _)) -> acc && (typ1 = typ2)) true (List.combine func.formals a_func.formals))
+          (func.univ = a_func.univ) 
+      and (func.typ = a_func.typ) 
+      and (func.fname = a_func.fname) 
+      and (List.fold_left (fun ) true (combine func.formals a_func.formals))
     in 
       try List.find check_funcs funcs
       with Not_found -> raise (Failure func_not_found)
     
-  (* in find_func ({univ : true; typ : int; fname : "Main"; formals : []; body : _; }) (snd main.encap) *)
-    in 
+  in find_func ({univ : true; typ : int; fname : "Main"; formals : []; body : _; }) (snd main.encap)
 in classes'
 
 (* in List.fold_left [] (fun c -> sclass_decl { sclass_name : c.class_name; *)
