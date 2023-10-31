@@ -10,37 +10,36 @@ module StringMap = Map.Make(String)
 
    Check each defined class *)
 
-let check classes =
+let check classes = (* if main exist, semantically check all *)
 
   (* ARCHITECTURE :P 
-  - add built in stuff
+  - add built-in stuff 
   - check for dup classes 
-  - make sure nothing inherits from Olympus/List/Main
+  - make sure nothing inherits from Olympus/List/Main 
   then: 
 
-   1. check if main exists
-          - make sure univ int main() exists
-          - are we allowing Main.main() to be called in another class (or in Main?)
-
-   2. build global class environment (names and shit)
+   1. build global class environment (names and shit)
           - add built-in stuff: Olympus, Object, List to symbol table 
           - add user-defined classes
           - check for duplicate class names
 
-   3. build inheritance tree (fail if anything inherits from main/olympus?) 
+   2. build inheritance tree (fail if anything inherits from main/olympus?) 
           - check that parent class exists
           - can things inherit from main? olympus?   :O   ???????
           - are we allowing permit and private in main? non-class methods?
           - can they instantiate an instance of main? NO.
 
 
-   4. check each class individually with inheritance in mind (build new env for each)-- DFS thru inheritance tree
+   3. check each class individually with inheritance in mind (build new env for each)-- DFS thru inheritance tree
           - check for duplicate labels (public, permit, private)
           - permit classes exist
           - check member variables + typ23z732es (local and permitted, raise errors for private or unpermitted)
           - check methods + types (univ, local, and permitted, raise errors for private or unpermitted) (new env for each function)
               - member var and member func of same name is allowed, also overriding from parent allowed
           - 
+    4. check if main exists
+          - make sure univ int main() exists
+          - are we allowing Main.main() to be called in another class (or in Main?)
   *)
  
   
@@ -53,29 +52,35 @@ let check classes =
 
   (* ______________________________________________________________________ *)
 
-(*
- TRY CATCH !!!!!
- 
-  try
-    <expression1>
-  with
-    | Not_found -> raise (MLFailure "abc")
-    | Divide_by_zero -> max_int
-    | _ -> raise (Invalid_argument "def")
-*)
 
-
+  (* build SAST. then if main() and Main exist: return SAST, else throw error *)
   let check_classes classes = 
 
-    let name_compare c1 c2 = compare c1.class_name c2.class_name in
-    let check_dups checked a_class = 
-      let dup_err = "duplicate class " ^ a_class.class_name
-      in match checked with
-        (* No duplicate bindings *)
-        (first_class :: _) when a_class.class_name = first_class.class_name -> raise (Failure dup_err)
-        | _ -> a_class :: checked
-    in List.fold_left check_dups [] (List.sort name_compare classes)
-    in let classes' = check_classes classes 
+
+    (* 
+      1. Semantically check classes
+          - semantically member variables
+          - semantically check member functions
+            - semantically check expr, stmt, lamow
+            
+        - sematically check encap list (put things into private, public, or permitted, 
+                at this point we will build exactly 1 of each)
+        - 
+
+        - second pass: check inheritance and any function calls for permitted stuff (or possibly, 
+            check permits while we check functions??? idk TODO decide )
+    *)
+
+  let name_compare c1 c2 = compare c1.class_name c2.class_name in
+  let check_dups checked a_class = 
+    let dup_err = "duplicate class " ^ a_class.class_name
+    in match checked with
+      (* No duplicate bindings *)
+      (first_class :: _) when a_class.class_name = first_class.class_name -> 
+             raise (Failure dup_err)
+      | _ -> a_class :: checked
+  in List.fold_left check_dups [] (List.sort name_compare classes)
+  in let classes' = check_classes classes 
     
   
   in  let find_class class_name classes = 
@@ -85,22 +90,44 @@ let check classes =
       with Not_found -> raise (Failure class_not_found_err)
 
 
-    in let main = find_class "Main" classes'
-(* finds a function given a name and list of functions  *)
-  in let find_func (func : func_decl) (funcs : func_decl list) = 
+    in let main_class = find_class "Main" classes'
+
+(* find_func: finds a function given a function declaration and list of functions *)
+  in let find_func (func : func_decl) (mems : member list) = 
     let func_not_found = "function of name " ^ func.fname ^ " not found" in 
-    let check_funcs a_func = 
-         (func.univ = a_func.univ) 
-      && (func.typ = a_func.typ) 
-      && (func.fname = a_func.fname) 
-      && (List.length func.formals = List.length a_func.formals)
-      && (List.fold_left (fun acc ((typ1, _), (typ2, _)) -> acc && (typ1 = typ2)) true (List.combine func.formals a_func.formals))
+    let check_mems a_mem = 
+      match a_mem with 
+          MemberVar(_) -> false
+        | MemberFun(a_func) -> 
+               (func.univ = a_func.univ) 
+            && (func.typ = a_func.typ) 
+            && (func.fname = a_func.fname) 
+            && (List.length func.formals = List.length a_func.formals)
+            && (List.fold_left 
+                      (fun acc ((typ1, _), (typ2, _)) -> acc && (typ1 = typ2)) 
+                       true 
+                      (List.combine func.formals a_func.formals))
     in 
-      try List.find check_funcs funcs
+      try List.find check_mems mems
       with Not_found -> raise (Failure func_not_found)
-    
-  (* in find_func ({univ : true; typ : int; fname : "Main"; formals : []; body : _; }) (snd main.encap) *)
+  
+  (* find_var: given a list of members, find a given member variable *)
+  in let find_var ((bind_typ, bind_name) : bind) (mems : member list) = 
+    let var_not_found = "var of name " ^ bind_name ^ " not found" in 
+    let check_mems a_mem = 
+      match a_mem with 
+          MemberVar((a_bind_typ, a_bind_name)) -> 
+               (a_bind_typ = bind_typ) 
+            && (a_bind_name = bind_name) 
+        | MemberFun(_) -> false
     in 
+      try List.find check_mems mems
+      with Not_found -> raise (Failure var_not_found)
+    
+  in let main_func (* maybe can be wildcard *) = 
+            find_func ({univ = true; typ = Int; fname = "main"; formals = []; body = []; }) 
+                      (snd (List.nth main_class.mems 0))    (* TODO: need to change bc this may not be public 
+                                                          (maybe want to enforce ordering for encap to public, permit, private or smth) *)
 in classes'
 
 (* in List.fold_left [] (fun c -> sclass_decl { sclass_name : c.class_name; *)
