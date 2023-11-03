@@ -1,0 +1,79 @@
+type token =
+    WHILE
+  | VOID
+  | UNIV
+  | TIMES
+  | TEQ
+  | STRINGLIT of string
+  | STRING
+  | SEMI
+  | RPAREN
+  | RETURN
+  | RBRACK
+  | RBRACE
+  | PUBLIC
+  | PRIVATE
+  | PPLUS
+  | PLUS
+  | PERMIT
+  | PEQ
+  | OR
+  | OF
+  | NOT
+  | NEW
+  | NEQ
+  | MMINUS
+  | MINUS
+  | MEQ
+  | LT
+  | LPAREN
+  | LITERAL of int
+  | LEQ
+  | LBRACK
+  | LBRACE
+  | INT
+  | IF
+  | ID of string
+  | GT
+  | GEQ
+  | FOR
+  | FLOAT
+  | FLIT of string
+  | EQ
+  | EOF
+  | ELSE
+  | DOT
+  | DIVIDE
+  | DEQ
+  | COMMA
+  | COLON
+  | CLASS
+  | CHARLIT of string
+  | CHAR
+  | BOOL
+  | BLIT of bool
+  | ASSIGN
+  | AND
+val menhir_begin_marker : int
+val xv_var_decl : Ast.bind
+val xv_typ : Ast.typ
+val xv_stmt_list : Ast.stmt list
+val xv_stmt : Ast.stmt
+val xv_program : Ast.program
+val xv_of_opt : string
+val xv_member : Ast.member
+val xv_mem_decls_opt : Ast.member list
+val xv_fun_decl : Ast.func_decl
+val xv_formals_opt : Ast.bind list
+val xv_formal_list : Ast.bind list
+val xv_expr_opt : Ast.expr
+val xv_expr : Ast.expr
+val xv_encap_opt_list : Ast.encap list
+val xv_encap_opt : string * Ast.member list
+val xv_class_opt : string list
+val xv_class_list : string list
+val xv_class_decls_opt : Ast.class_decl list
+val xv_class_decl : Ast.class_decl
+val xv_args_opt : Ast.expr list
+val xv_args_list : Ast.expr list
+val menhir_end_marker : int

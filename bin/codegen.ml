@@ -19,6 +19,14 @@ open Sast
 
 module StringMap = Map.Make(String)
 
+(* TODO for hello world deliverable:
+  1. types
+  2. func_decls
+  3. build some expr(func call, str literal)
+  4. build some stmt(basically just expr)
+  5. build class type for main(see helloworld.ll for the C++ program with class D)
+*)
+
 (* Code Generation from the SAST. Returns an LLVM module if successful,
    throws an exception if something is wrong. *)
 let translate (globals, functions) =

@@ -1,0 +1,167 @@
+# dune build
+# OCAMLPARAM: unset
+# Shared cache: disabled
+# Workspace root: /Users/Ayda/Desktop/Life/Tufts/cs107/Iris
+# Auto-detected concurrency: 8
+$ /Users/Ayda/.opam/4.14.1/bin/ocamlc.opt -config > /var/folders/z8/9rc93th15p34qg59b83_fdm40000gn/T/dune_9f6a64_output
+# Dune context:
+#  { name = "default"
+#  ; kind = "default"
+#  ; profile = Dev
+#  ; merlin = true
+#  ; for_host = None
+#  ; fdo_target_exe = None
+#  ; build_dir = In_build_dir "default"
+#  ; ocaml_bin = External "/Users/Ayda/.opam/4.14.1/bin"
+#  ; ocaml = Ok External "/Users/Ayda/.opam/4.14.1/bin/ocaml"
+#  ; ocamlc = External "/Users/Ayda/.opam/4.14.1/bin/ocamlc.opt"
+#  ; ocamlopt = Ok External "/Users/Ayda/.opam/4.14.1/bin/ocamlopt.opt"
+#  ; ocamldep = Ok External "/Users/Ayda/.opam/4.14.1/bin/ocamldep.opt"
+#  ; ocamlmklib = Ok External "/Users/Ayda/.opam/4.14.1/bin/ocamlmklib.opt"
+#  ; env =
+#      map
+#        { "DUNE_OCAML_HARDCODED" : "/Users/Ayda/.opam/4.14.1/lib"
+#        ; "DUNE_OCAML_STDLIB" : "/Users/Ayda/.opam/4.14.1/lib/ocaml"
+#        ; "DUNE_SOURCEROOT" : "/Users/Ayda/Desktop/Life/Tufts/cs107/Iris"
+#        ; "INSIDE_DUNE" :
+#            "/Users/Ayda/Desktop/Life/Tufts/cs107/Iris/_build/default"
+#        ; "OCAMLFIND_IGNORE_DUPS_IN" :
+#            "/Users/Ayda/Desktop/Life/Tufts/cs107/Iris/_build/install/default/lib"
+#        ; "OCAMLPATH" :
+#            "/Users/Ayda/Desktop/Life/Tufts/cs107/Iris/_build/install/default/lib"
+#        ; "OCAMLTOP_INCLUDE_PATH" :
+#            "/Users/Ayda/Desktop/Life/Tufts/cs107/Iris/_build/install/default/lib/toplevel"
+#        ; "OCAML_COLOR" : "always"
+#        ; "OPAMCOLOR" : "always"
+#        }
+#  ; findlib_paths = [ External "/Users/Ayda/.opam/4.14.1/lib" ]
+#  ; natdynlink_supported = true
+#  ; supports_shared_libraries = true
+#  ; ocaml_config =
+#      { version = "4.14.1"
+#      ; standard_library_default = "/Users/Ayda/.opam/4.14.1/lib/ocaml"
+#      ; standard_library = "/Users/Ayda/.opam/4.14.1/lib/ocaml"
+#      ; standard_runtime = "the_standard_runtime_variable_was_deleted"
+#      ; ccomp_type = "cc"
+#      ; c_compiler = "cc"
+#      ; ocamlc_cflags =
+#          [ "-O2"; "-fno-strict-aliasing"; "-fwrapv"; "-pthread" ]
+#      ; ocamlc_cppflags = [ "-D_FILE_OFFSET_BITS=64" ]
+#      ; ocamlopt_cflags =
+#          [ "-O2"; "-fno-strict-aliasing"; "-fwrapv"; "-pthread" ]
+#      ; ocamlopt_cppflags = [ "-D_FILE_OFFSET_BITS=64" ]
+#      ; bytecomp_c_compiler =
+#          [ "cc"
+#          ; "-O2"
+#          ; "-fno-strict-aliasing"
+#          ; "-fwrapv"
+#          ; "-pthread"
+#          ; "-D_FILE_OFFSET_BITS=64"
+#          ]
+#      ; bytecomp_c_libraries = [ "-lm"; "-lpthread" ]
+#      ; native_c_compiler =
+#          [ "cc"
+#          ; "-O2"
+#          ; "-fno-strict-aliasing"
+#          ; "-fwrapv"
+#          ; "-pthread"
+#          ; "-D_FILE_OFFSET_BITS=64"
+#          ]
+#      ; native_c_libraries = [ "-lm" ]
+#      ; native_pack_linker = [ "ld"; "-r"; "-o" ]
+#      ; cc_profile = []
+#      ; architecture = "arm64"
+#      ; model = "default"
+#      ; int_size = 63
+#      ; word_size = 64
+#      ; system = "macosx"
+#      ; asm = [ "cc"; "-c"; "-Wno-trigraphs" ]
+#      ; asm_cfi_supported = true
+#      ; with_frame_pointers = false
+#      ; ext_exe = ""
+#      ; ext_obj = ".o"
+#      ; ext_asm = ".s"
+#      ; ext_lib = ".a"
+#      ; ext_dll = ".so"
+#      ; os_type = "Unix"
+#      ; default_executable_name = "a.out"
+#      ; systhread_supported = true
+#      ; host = "aarch64-apple-darwin22.3.0"
+#      ; target = "aarch64-apple-darwin22.3.0"
+#      ; profiling = false
+#      ; flambda = false
+#      ; spacetime = false
+#      ; safe_string = true
+#      ; exec_magic_number = "Caml1999X031"
+#      ; cmi_magic_number = "Caml1999I031"
+#      ; cmo_magic_number = "Caml1999O031"
+#      ; cma_magic_number = "Caml1999A031"
+#      ; cmx_magic_number = "Caml1999Y031"
+#      ; cmxa_magic_number = "Caml1999Z031"
+#      ; ast_impl_magic_number = "Caml1999M031"
+#      ; ast_intf_magic_number = "Caml1999N031"
+#      ; cmxs_magic_number = "Caml1999D031"
+#      ; cmt_magic_number = "Caml1999T031"
+#      ; natdynlink_supported = true
+#      ; supports_shared_libraries = true
+#      ; windows_unicode = false
+#      }
+#  }
+# Promoting "_build/default/iris.opam" to "iris.opam"
+$ (cd _build/.sandbox/74cc3b9f7c5f198352de644ef49100a7/default && /Users/Ayda/.opam/4.14.1/bin/menhir bin/parser.mly --base bin/parser --infer-write-query bin/parser__mock.ml.mock)
+$ (cd _build/default && /Users/Ayda/.opam/4.14.1/bin/ocamlc.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62@67@69-40 -strict-sequence -strict-formats -short-paths -keep-locs -w -49 -nopervasives -nostdlib -g -bin-annot -I lib/.iris.objs/byte -no-alias-deps -opaque -o lib/.iris.objs/byte/iris.cmo -c -impl lib/iris.ml-gen)
+$ (cd _build/default && /Users/Ayda/.opam/4.14.1/bin/ocamlc.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62@67@69-40 -strict-sequence -strict-formats -short-paths -keep-locs -g -a -o lib/iris.cma lib/.iris.objs/byte/iris.cmo)
+$ (cd _build/default && /Users/Ayda/.opam/4.14.1/bin/ocamllex -q -o bin/scanner.ml bin/scanner.mll)
+$ (cd _build/default && /Users/Ayda/.opam/4.14.1/bin/ocamldep.opt -modules -impl bin/iris.ml) > _build/default/bin/.iris.eobjs/dune__exe__Iris.impl.d
+$ (cd _build/default && /Users/Ayda/.opam/4.14.1/bin/ocamldep.opt -modules -impl bin/parser__mock.ml.mock) > _build/default/bin/.iris.eobjs/parser__mock.impl.d
+$ (cd _build/default && /Users/Ayda/.opam/4.14.1/bin/ocamldep.opt -modules -impl bin/scanner.ml) > _build/default/bin/.iris.eobjs/dune__exe__Scanner.impl.d
+$ (cd _build/default && /Users/Ayda/.opam/4.14.1/bin/ocamldep.opt -modules -impl bin/ast.ml) > _build/default/bin/.iris.eobjs/dune__exe__Ast.impl.d
+$ (cd _build/default && /Users/Ayda/.opam/4.14.1/bin/ocamldep.opt -modules -impl bin/semant.ml) > _build/default/bin/.iris.eobjs/dune__exe__Semant.impl.d
+$ (cd _build/default && /Users/Ayda/.opam/4.14.1/bin/ocamldep.opt -modules -impl bin/sast.ml) > _build/default/bin/.iris.eobjs/dune__exe__Sast.impl.d
+$ (cd _build/default && /Users/Ayda/.opam/4.14.1/bin/ocamlc.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62@67@69-40 -strict-sequence -strict-formats -short-paths -keep-locs -w -49 -nopervasives -nostdlib -g -bin-annot -I bin/.iris.eobjs/byte -no-alias-deps -opaque -o bin/.iris.eobjs/byte/dune__exe.cmo -c -impl bin/.iris.eobjs/dune__exe.ml-gen)
+$ (cd _build/default && /Users/Ayda/.opam/4.14.1/bin/ocamlc.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62@67@69-40 -strict-sequence -strict-formats -short-paths -keep-locs -warn-error -A -g -bin-annot -I bin/.iris.eobjs/byte -I /Users/Ayda/.opam/4.14.1/lib/llvm -I lib/.iris.objs/byte -no-alias-deps -opaque -open Dune__exe -o bin/.iris.eobjs/byte/dune__exe__Ast.cmo -c -impl bin/ast.ml)
+$ (cd _build/.sandbox/38399a3892a4889491a24f07e139c294/default && /Users/Ayda/.opam/4.14.1/bin/ocamlc.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62@67@69-40 -strict-sequence -strict-formats -short-paths -keep-locs -warn-error -A -g -I bin/.iris.eobjs/byte -I /Users/Ayda/.opam/4.14.1/lib/llvm -I lib/.iris.objs/byte -open Dune__exe -short-paths -i -impl bin/parser__mock.ml.mock) > _build/.sandbox/38399a3892a4889491a24f07e139c294/default/bin/parser__mock.mli.inferred
+$ (cd _build/.sandbox/9ddcefa4a44bc2cd9a9df824e2d456e7/default && /Users/Ayda/.opam/4.14.1/bin/menhir bin/parser.mly --base bin/parser --infer-read-reply bin/parser__mock.mli.inferred)
+$ (cd _build/default && /Users/Ayda/.opam/4.14.1/bin/ocamldep.opt -modules -intf bin/parser.mli) > _build/default/bin/.iris.eobjs/dune__exe__Parser.intf.d
+$ (cd _build/default && /Users/Ayda/.opam/4.14.1/bin/ocamldep.opt -modules -impl bin/parser.ml) > _build/default/bin/.iris.eobjs/dune__exe__Parser.impl.d
+$ (cd _build/default && /Users/Ayda/.opam/4.14.1/bin/ocamlc.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62@67@69-40 -strict-sequence -strict-formats -short-paths -keep-locs -warn-error -A -g -bin-annot -I bin/.iris.eobjs/byte -I /Users/Ayda/.opam/4.14.1/lib/llvm -I lib/.iris.objs/byte -no-alias-deps -opaque -open Dune__exe -o bin/.iris.eobjs/byte/dune__exe__Parser.cmi -c -intf bin/parser.mli)
+$ (cd _build/default && /Users/Ayda/.opam/4.14.1/bin/ocamlc.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62@67@69-40 -strict-sequence -strict-formats -short-paths -keep-locs -warn-error -A -g -bin-annot -I bin/.iris.eobjs/byte -I /Users/Ayda/.opam/4.14.1/lib/llvm -I lib/.iris.objs/byte -no-alias-deps -opaque -open Dune__exe -o bin/.iris.eobjs/byte/dune__exe__Sast.cmo -c -impl bin/sast.ml)
+$ (cd _build/default && /Users/Ayda/.opam/4.14.1/bin/ocamldep.opt -modules -intf bin/iris.mli) > _build/default/bin/.iris.eobjs/dune__exe__Iris.intf.d
+$ (cd _build/default && /Users/Ayda/.opam/4.14.1/bin/ocamlc.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62@67@69-40 -strict-sequence -strict-formats -short-paths -keep-locs -warn-error -A -g -bin-annot -I bin/.iris.eobjs/byte -I /Users/Ayda/.opam/4.14.1/lib/llvm -I lib/.iris.objs/byte -no-alias-deps -opaque -open Dune__exe -o bin/.iris.eobjs/byte/dune__exe__Scanner.cmo -c -impl bin/scanner.ml)
+$ (cd _build/default && /Users/Ayda/.opam/4.14.1/bin/ocamlc.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62@67@69-40 -strict-sequence -strict-formats -short-paths -keep-locs -warn-error -A -g -bin-annot -I bin/.iris.eobjs/byte -I /Users/Ayda/.opam/4.14.1/lib/llvm -I lib/.iris.objs/byte -no-alias-deps -opaque -open Dune__exe -o bin/.iris.eobjs/byte/dune__exe__Iris.cmi -c -intf bin/iris.mli)
+$ (cd _build/default && /Users/Ayda/.opam/4.14.1/bin/ocamlc.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62@67@69-40 -strict-sequence -strict-formats -short-paths -keep-locs -warn-error -A -g -bin-annot -I bin/.iris.eobjs/byte -I /Users/Ayda/.opam/4.14.1/lib/llvm -I lib/.iris.objs/byte -no-alias-deps -opaque -open Dune__exe -o bin/.iris.eobjs/byte/dune__exe__Semant.cmo -c -impl bin/semant.ml)
+> File "bin/semant.ml", line 4, characters 0-9:
+> 4 | open Sast
+>     ^^^^^^^^^
+> Warning 33 [unused-open]: unused open Dune__exe.Sast.
+> File "bin/semant.ml", line 115, characters 9-17:
+> 115 |   in let find_var ((bind_typ, bind_name) : bind) (mems : member list) = 
+>                ^^^^^^^^
+> Warning 26 [unused-var]: unused variable find_var.
+> File "bin/semant.ml", line 127, characters 9-18:
+> 127 |   in let main_func (* maybe can be wildcard *) = 
+>                ^^^^^^^^^
+> Warning 26 [unused-var]: unused variable main_func.
+$ (cd _build/default && /Users/Ayda/.opam/4.14.1/bin/ocamlopt.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62@67@69-40 -strict-sequence -strict-formats -short-paths -keep-locs -w -49 -nopervasives -nostdlib -g -I bin/.iris.eobjs/byte -I bin/.iris.eobjs/native -intf-suffix .ml-gen -no-alias-deps -opaque -o bin/.iris.eobjs/native/dune__exe.cmx -c -impl bin/.iris.eobjs/dune__exe.ml-gen)
+$ (cd _build/default && /Users/Ayda/.opam/4.14.1/bin/ocamlopt.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62@67@69-40 -strict-sequence -strict-formats -short-paths -keep-locs -w -49 -nopervasives -nostdlib -g -I lib/.iris.objs/byte -I lib/.iris.objs/native -intf-suffix .ml-gen -no-alias-deps -opaque -o lib/.iris.objs/native/iris.cmx -c -impl lib/iris.ml-gen)
+$ (cd _build/default && /Users/Ayda/.opam/4.14.1/bin/ocamlopt.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62@67@69-40 -strict-sequence -strict-formats -short-paths -keep-locs -warn-error -A -g -I bin/.iris.eobjs/byte -I bin/.iris.eobjs/native -I /Users/Ayda/.opam/4.14.1/lib/llvm -I lib/.iris.objs/byte -I lib/.iris.objs/native -intf-suffix .ml -no-alias-deps -opaque -open Dune__exe -o bin/.iris.eobjs/native/dune__exe__Ast.cmx -c -impl bin/ast.ml)
+$ (cd _build/default && /Users/Ayda/.opam/4.14.1/bin/ocamlopt.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62@67@69-40 -strict-sequence -strict-formats -short-paths -keep-locs -warn-error -A -g -I bin/.iris.eobjs/byte -I bin/.iris.eobjs/native -I /Users/Ayda/.opam/4.14.1/lib/llvm -I lib/.iris.objs/byte -I lib/.iris.objs/native -intf-suffix .ml -no-alias-deps -opaque -open Dune__exe -o bin/.iris.eobjs/native/dune__exe__Sast.cmx -c -impl bin/sast.ml)
+$ (cd _build/default && /Users/Ayda/.opam/4.14.1/bin/ocamlopt.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62@67@69-40 -strict-sequence -strict-formats -short-paths -keep-locs -warn-error -A -g -I bin/.iris.eobjs/byte -I bin/.iris.eobjs/native -I /Users/Ayda/.opam/4.14.1/lib/llvm -I lib/.iris.objs/byte -I lib/.iris.objs/native -intf-suffix .ml -no-alias-deps -opaque -open Dune__exe -o bin/.iris.eobjs/native/dune__exe__Iris.cmx -c -impl bin/iris.ml)
+$ (cd _build/default && /Users/Ayda/.opam/4.14.1/bin/ocamlopt.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62@67@69-40 -strict-sequence -strict-formats -short-paths -keep-locs -warn-error -A -g -I bin/.iris.eobjs/byte -I bin/.iris.eobjs/native -I /Users/Ayda/.opam/4.14.1/lib/llvm -I lib/.iris.objs/byte -I lib/.iris.objs/native -intf-suffix .ml -no-alias-deps -opaque -open Dune__exe -o bin/.iris.eobjs/native/dune__exe__Semant.cmx -c -impl bin/semant.ml)
+> File "bin/semant.ml", line 4, characters 0-9:
+> 4 | open Sast
+>     ^^^^^^^^^
+> Warning 33 [unused-open]: unused open Dune__exe.Sast.
+> File "bin/semant.ml", line 115, characters 9-17:
+> 115 |   in let find_var ((bind_typ, bind_name) : bind) (mems : member list) = 
+>                ^^^^^^^^
+> Warning 26 [unused-var]: unused variable find_var.
+> File "bin/semant.ml", line 127, characters 9-18:
+> 127 |   in let main_func (* maybe can be wildcard *) = 
+>                ^^^^^^^^^
+> Warning 26 [unused-var]: unused variable main_func.
+$ (cd _build/default && /Users/Ayda/.opam/4.14.1/bin/ocamlopt.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62@67@69-40 -strict-sequence -strict-formats -short-paths -keep-locs -warn-error -A -g -I bin/.iris.eobjs/byte -I bin/.iris.eobjs/native -I /Users/Ayda/.opam/4.14.1/lib/llvm -I lib/.iris.objs/byte -I lib/.iris.objs/native -intf-suffix .ml -no-alias-deps -opaque -open Dune__exe -o bin/.iris.eobjs/native/dune__exe__Scanner.cmx -c -impl bin/scanner.ml)
+$ (cd _build/default && /Users/Ayda/.opam/4.14.1/bin/ocamlopt.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62@67@69-40 -strict-sequence -strict-formats -short-paths -keep-locs -g -a -o lib/iris.cmxa lib/.iris.objs/native/iris.cmx)
+$ (cd _build/default && /Users/Ayda/.opam/4.14.1/bin/ocamlopt.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62@67@69-40 -strict-sequence -strict-formats -short-paths -keep-locs -g -shared -linkall -I lib -o lib/iris.cmxs lib/iris.cmxa)
+$ (cd _build/default && /Users/Ayda/.opam/4.14.1/bin/ocamlopt.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62@67@69-40 -strict-sequence -strict-formats -short-paths -keep-locs -warn-error -A -g -I bin/.iris.eobjs/byte -I bin/.iris.eobjs/native -I /Users/Ayda/.opam/4.14.1/lib/llvm -I lib/.iris.objs/byte -I lib/.iris.objs/native -intf-suffix .ml -no-alias-deps -opaque -open Dune__exe -o bin/.iris.eobjs/native/dune__exe__Parser.cmx -c -impl bin/parser.ml)
+$ (cd _build/default && /Users/Ayda/.opam/4.14.1/bin/ocamlopt.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62@67@69-40 -strict-sequence -strict-formats -short-paths -keep-locs -warn-error -A -g -o bin/iris.exe /Users/Ayda/.opam/4.14.1/lib/llvm/shared/llvm.cmxa -I /Users/Ayda/.opam/4.14.1/lib/llvm /Users/Ayda/.opam/4.14.1/lib/llvm/shared/llvm_analysis.cmxa -I /Users/Ayda/.opam/4.14.1/lib/llvm lib/iris.cmxa bin/.iris.eobjs/native/dune__exe.cmx bin/.iris.eobjs/native/dune__exe__Ast.cmx bin/.iris.eobjs/native/dune__exe__Parser.cmx bin/.iris.eobjs/native/dune__exe__Sast.cmx bin/.iris.eobjs/native/dune__exe__Scanner.cmx bin/.iris.eobjs/native/dune__exe__Semant.cmx bin/.iris.eobjs/native/dune__exe__Iris.cmx)

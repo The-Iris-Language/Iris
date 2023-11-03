@@ -40,7 +40,6 @@ let check classes = (* if main exist, semantically check all *)
     4. check if main exists
           - make sure univ int main() exists
           - are we allowing Main.main() to be called in another class (or in Main?)
-    5. return a sprogram type that is a tuple of a list of classes and the main class (class_decl list, sfunc_decl)
   *)
  
   
