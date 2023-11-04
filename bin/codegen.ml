@@ -27,6 +27,46 @@ module StringMap = Map.Make(String)
   5. build class type for main(see helloworld.ll for the C++ program with class D)
 *)
 
+
+let translate (classes) = 
+  let context    = L.global_context () in
+  (* Add types to the context so we can use them in our LLVM code *)
+  let i32_t      = L.i32_type    context
+  and i8_t       = L.i8_type     context
+  and i1_t       = L.i1_type     context
+  and float_t    = L.double_type context
+  and void_t     = L.void_type   context 
+  and string_t   = [| i8_t |]    context  
+  (* Create an LLVM module -- this is a "container" into which we'll 
+     generate actual code *)
+  and the_module = L.create_module context "Iris" in
+
+  let ltype_of_typ = function
+      A.Int            -> i32_t
+    | A.Bool           -> i1_t
+    | A.Float          -> float_t
+    | A.Void           -> void_t
+    | A.String         -> string_t
+    | A.Char           -> i8_t
+    | A.Object (cname) -> cname
+  
+  (* Int -> "int"
+  | Bool -> "bool"
+  | Float -> "float"
+  | Void -> "void"
+  | Char -> "char"
+  | String -> "string"
+  | Object(o) -> o *)
+  
+     (* let main_class = find_class "Main" classes in  *)
+
+
+  in
+  the_module
+
+
+
+(* 
 (* Code Generation from the SAST. Returns an LLVM module if successful,
    throws an exception if something is wrong. *)
 let translate (globals, functions) =
@@ -276,4 +316,4 @@ let translate (globals, functions) =
   in
 
   List.iter build_function_body functions;
-  the_module
+  the_module *)

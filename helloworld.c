@@ -5,14 +5,17 @@ struct D {
     int poop;
 };
 
-void print_smth(char *s) {
-    printf("%s", s);
-}
-
 int main() {
-    print_smth("Hello world!\n");
+    printf("%s\n", "Hello world!");
 
     struct D dog = { 1, 0 };
 
     return 0;
+}
+Class Josh {
+    
+    Trevor one_mem;
+} 
+Class Trevor {  
+    Josh one_mem;
 }

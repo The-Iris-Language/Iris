@@ -16,10 +16,8 @@ test :
 testall : all testall.sh
 	./testall.sh
 
-# "make" will just compile the Iris compiler along with printbig.c
-
-# bin/codegen.ml bin/semant.ml
-./_build/default/bin/iris.exe : bin/parser.mly bin/scanner.mll bin/ast.ml bin/sast.ml bin/semant.ml bin/iris.ml
+# "make" will just compile the Iris compiler
+./_build/default/bin/iris.exe : bin/ast.ml bin/parser.mly bin/scanner.mll bin/sast.ml bin/semant.ml bin/codegen.ml bin/iris.ml 
 	dune build
 
 # "make clean" removes all generated files
