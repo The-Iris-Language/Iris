@@ -25,7 +25,7 @@ type expr =
   | Fliteral of string (* change to float *)
   | BoolLit of bool
   | StringLit of string
-  | CharLit of string 
+  | CharLit of string
   | Id of string
   | Binop of expr * op * expr 
   | Unop of uop * expr

@@ -17,7 +17,10 @@ let () =
 (* Top-level of the Iris compiler:
    scan & parse the input, perform semantic checks,
    pretty-print the SAST *)
-let () =
+
+
+
+   (* let () =
 (* Deal with command line *)
   let usage_msg = "usage: ./iris.native [file.iris]" in
   let channel = ref stdin in
@@ -27,11 +30,11 @@ let () =
   let ast = Parser.program Scanner.token lexbuf in
   let sast = Semant.check ast in
   print_string (Ast.string_of_program sast) (* NEED TO CHANGE BACK TO SAST !! *)
-
+ *)
 
 (* FULL COMPILER (COPIED FROM MICROC)
 
-(* Top-level of the Iris compiler: scan & parse the input,
+Top-level of the Iris compiler: scan & parse the input,
    check the resulting AST and generate an SAST from it, generate LLVM IR,
    and dump the module *)
 
@@ -58,8 +61,8 @@ let () =
      | _ -> let sast = Semant.check ast in
        match !action with
          Ast     -> ()
-       | Sast    -> print_string (Sast.string_of_sprogram sast)
+       | Sast    -> print_string (Ast.string_of_program sast) (* needs to be SAST CHANGE CHANGE CHANGE ------------------------------------------- *)
        | LLVM_IR -> print_string (Llvm.string_of_llmodule (Codegen.translate sast))
        | Compile -> let m = Codegen.translate sast in
      Llvm_analysis.assert_valid_module m;
-     print_string (Llvm.string_of_llmodule m)  *)
+     print_string (Llvm.string_of_llmodule m) 
