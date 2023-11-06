@@ -15,7 +15,9 @@ http://llvm.moe/ocaml/
 (* We'll refer to Llvm and Ast constructs with module names *)
 module L = Llvm
 module A = Ast
+module S = Sast
 open Sast 
+(* open Ast *)
 
 module StringMap = Map.Make(String)
 
@@ -28,7 +30,7 @@ module StringMap = Map.Make(String)
 *)
 
 
-let translate (classes) = 
+let translate (classes : sclass_decl list) = 
   let context    = L.global_context () in
   (* Add types to the context so we can use them in our LLVM code *)
   let i32_t    = L.i32_type    context
@@ -59,15 +61,131 @@ let translate (classes) =
   | String -> "string"
   | Object(o) -> o *)
   
-     (* let main_class = find_class "Main" classes in  *)
+  (* let main_class = find_class "Main" classes in  *)
+
+(* HALLO *)
+  in let print_t : L.lltype = 
+    L.var_arg_function_type i32_t [| L.pointer_type i8_t |]
+  in let print_func : L.llvalue = 
+    L.declare_function "Olympus_print" print_t the_module in
+    
+  let main_class = (List.nth classes 0) in
+  let encaps = (List.nth main_class.smems 0) in
+  let main_mem = (List.nth (snd encaps) 0) in
+  let get_func one_mem =
+    let var_err = "variable not allowed yet! grrrr" in 
+    match one_mem with
+      SMemberFun(f) -> f
+    | _            -> raise (Failure var_err)
+  in let main_func = get_func main_mem in
+     let ftype = L.function_type (ltype_of_typ main_func.styp) [||] in
+     let main_func_ll = (L.define_function "main" ftype the_module, main_func) in
+  
+
+(* Fill in the body of the given function *)
+  let build_function_body (func_ll : (L.llvalue * sfunc_decl)) =
+    (* let (the_function, _) = StringMap.find fdecl.sfname function_decls in *)
+    let builder = L.builder_at_end context (L.entry_block (fst func_ll)) in
+
+    let int_format_str = L.build_global_stringptr "%d\n" "fmt" builder in
+    (* and float_format_str = L.build_global_stringptr "%g\n" "fmt" builder in *)
 
 
-  in
-  the_module
+    let rec expr builder ((_, e) : sexpr) = 
+        let not_implemented_err = "not implemented yet!" in
+      match e with
+          SStringLit s -> L.build_global_stringptr s s builder
+        | SCall ("Olympus", "Olympus_print", [e]) -> 
+          L.build_call print_func [| int_format_str ; (expr builder e) |]
+          "printf" builder
+        | _ -> raise (Failure not_implemented_err)
+
+      in 
+      
+      (* Each basic block in a program ends with a "terminator" instruction i.e.
+      one that ends the basic block. By definition, these instructions must
+      indicate which basic block comes next -- they typically yield "void" value
+      and produce control flow, not values *)
+      (* Invoke "instr builder" if the current block doesn't already
+         have a terminator (e.g., a branch). *)
+      let add_terminal builder instr =
+                             (* The current block where we're inserting instr *)
+        match L.block_terminator (L.insertion_block builder) with
+          Some _ -> ()
+        | None -> ignore (instr builder) in
+      (* Imperative nature of statement processing entails imperative OCaml *)
+      let rec stmt builder = function
+          SBlock sl -> List.fold_left stmt builder sl
+          (* Generate code for this expression, return resulting builder *)
+        | SExpr e -> let _ = expr builder e in builder 
+        | SReturn e -> let _ = match (snd func_ll).styp with
+                                (* Special "return nothing" instr *)
+                                A.Void -> L.build_ret_void builder 
+                                (* Build return statement *)
+                              | _ -> L.build_ret (expr builder e) builder 
+                      in builder
+        | _ -> let not_implemented_err = "not implemented yet!" in 
+              raise (Failure not_implemented_err) in
+
+        (* Build the code for each statement in the function *)
+    let builder = stmt builder (SBlock (snd func_ll).sbody) in
+
+    (* Add a return if the last block falls off the end *)
+    add_terminal builder (match (snd func_ll).styp with
+        A.Void -> L.build_ret_void
+      | A.Float -> L.build_ret (L.const_float float_t 0.0)
+      | t -> L.build_ret (L.const_int (ltype_of_typ t) 0))
+
+    in let _ = build_function_body main_func_ll
+  in the_module
+       
 
 
+  (* Construct the function's "locals": formal arguments and locally
+     declared variables.  Allocate each on the stack, initialize their
+     value, if appropriate, and remember their values in the "locals" map *)
 
-(* 
+
+  (* let local_vars =
+    let add_formal m (t, n) p = 
+    let () = L.set_value_name n p in
+    let local = L.build_alloca (ltype_of_typ t) n builder in
+      let _  = L.build_store p local builder in
+      StringMap.add n local m 
+    in
+      (* Allocate space for any locally declared variables and add the
+       * resulting registers to our map *)
+    let add_local m (t, n) =
+    let local_var = L.build_alloca (ltype_of_typ t) n builder
+    in StringMap.add n local_var m 
+      in
+         let formals = List.fold_left2 add_formal StringMap.empty fdecl.sformals
+             (Array.to_list (L.params the_function)) in
+         List.fold_left add_local formals fdecl.slocals 
+       in
+   *)
+   
+       (* Return the value for a variable or formal argument. First check
+        * locals, then globals *)
+       (* let lookup n = try StringMap.find n local_vars
+                      with Not_found -> StringMap.find n global_vars
+                    in *)
+
+          
+  (* StringMap.add name (L.define_function name ftype the_module, fdecl) m  *)
+  
+  (* TODO: change back to SAST version *)
+  (* let function_decls : (L.llvalue * func_decl) StringMap.t =
+    let function_decl m fdecl =
+      let name = fdecl.fname
+      and formal_types = Array.of_list (List.map (fun (t,_) -> ltype_of_typ t) fdecl.formals)
+      in let ftype = L.function_type (ltype_of_typ fdecl.typ) formal_types 
+    in StringMap.add name (L.define_function name ftype the_module, fdecl) m 
+  in List.fold_left function_decl StringMap.empty functions  *)
+  
+
+
+  (* 
 (* Code Generation from the SAST. Returns an LLVM module if successful,
    throws an exception if something is wrong. *)
 let translate (globals, functions) =

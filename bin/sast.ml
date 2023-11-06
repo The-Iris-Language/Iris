@@ -7,7 +7,7 @@ and sx =
     SLiteral of int
   | SFliteral of string
   | SBoolLit of bool
-  (* | SStringLit of string * int *)
+  | SStringLit of string
   (* | SCharList of string *)
   | SId of string
   | SBinop of sexpr * op * sexpr
@@ -17,7 +17,7 @@ and sx =
   | SDeclAssign of typ * string * sexpr
   | SClassVarAssign of string * string * sexpr
   | SOpAssign of string * op_assign * sexpr *)
-  | SCall of string * sexpr list
+  | SCall of string * string * sexpr list
   (* | SClassVar of string * string *)
   | SNoexpr
 (*
@@ -75,7 +75,7 @@ type sclass_decl = {
   sclass_name : string;
   sparent_name : string;
   spermitted: string list;
-  smems: encap list;
+  smems: sencap list;
 }
 
 type sprogram = sclass_decl list
@@ -88,17 +88,17 @@ let rec string_of_sexpr (t, e) =
   | SBoolLit(true) -> "true"
   | SBoolLit(false) -> "false"
   | SFliteral(l) -> l
-  (* | SStringLit(l) -> l *)
+  | SStringLit(l) -> l
   (*| SSCharList(l) -> l *)
   | SId(s) -> s
   | SBinop(e1, o, e2) ->
       string_of_sexpr e1 ^ " " ^ string_of_op o ^ " " ^ string_of_sexpr e2
   (* | SUnop(o, e) -> string_of_uop o ^ string_of_sexpr e *)
   (* | SAssign(v, e) -> v ^ " = " ^ string_of_sexpr e *)
-  | SCall(f, el) ->
-      f ^ "(" ^ String.concat ", " (List.map string_of_sexpr el) ^ ")"
+  | SCall(cname, fname, el) ->
+      cname ^ "." ^ fname ^ "(" ^ String.concat ", " (List.map string_of_sexpr el) ^ ")"
   | SNoexpr -> ""
-				  ) ^ ")"				     
+				  ) ^ ")"				    
 
 let rec string_of_sstmt = function
     SBlock(stmts) ->
@@ -140,8 +140,8 @@ let string_of_scdecl cdecl =
   "class " ^ cdecl.sclass_name ^ " of " ^ cdecl.sparent_name ^
       " (" ^ String.concat ", " cdecl.spermitted ^ ")" ^
       " {\n" ^ 
-     string_of_encaps cdecl.smems ^       
-  "}\n"
+      string_of_sencaps cdecl.smems ^ 
+      "}\n"
 
 
 let string_of_sprogram classes =
