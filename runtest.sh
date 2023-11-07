@@ -1,11 +1,30 @@
-#!/bin/sh
+#! /bin/sh
 
-# Test script for Iris scanner and parser 
-# Ayda Aricanli, Tim Valk, Josh Kim, Valerie Zhang, Trevor Sullivan
 
-# Path to the IRIS compiler.  Usually "./IRIS.native"
-# Try "_build/IRIS.native" if ocamlbuild was unable to create a symbolic link.
+# parse arguments 
+    # if arg provided, passed in
+    # else, run all tests in tests/
+
+
+# Regression testing script for Iris
+# Step through a list of files
+#  Compile, run, and check the output of each expected-to-work test
+#  Compile and check the error of each expected-to-fail test
+
+# Path to the LLVM interpreter
+# LLI="lli"
+LLI="/opt/homebrew/opt/llvm@14/bin/lli"
+
+# Path to the LLVM compiler
+LLC="/opt/homebrew/opt/llvm@14/bin/llc"
+
+# Path to the C compiler
+CC="cc"
+
+# Path to the iris compiler.  Usually "./iris.native"
+# Try "_build/iris.native" if ocamlbuild was unable to create a symbolic link.
 IRIS="iris"
+#IRIS="_build/iris.native"
 
 # Set time limit for all operations
 ulimit -t 30
@@ -53,6 +72,17 @@ Run() {
     }
 }
 
+# RunFail <args>
+# Report the command, run it, and expect an error
+RunFail() {
+    echo $* 1>&2
+    eval $* && {
+	SignalError "failed: $* did not report an error"
+	return 1
+    }
+    return 0
+}
+
 Check() {
     error=0
     basename=`echo $1 | sed 's/.*\\///
@@ -68,7 +98,10 @@ Check() {
     generatedfiles=""
 
     generatedfiles="$generatedfiles ${basename}.ll ${basename}.s ${basename}.exe ${basename}.out" &&
-    Run "dune exec $IRIS" "$1" ">" "${basename}.out" &&
+    Run "dune exec $IRIS" "$1" ">" "${basename}.ll" &&
+    Run "$LLC" "-relocation-model=pic" "${basename}.ll" ">" "${basename}.s" &&
+    Run "$CC" "-o" "${basename}.exe" "${basename}.s" "Olympus.o" &&
+    Run "./${basename}.exe" > "${basename}.out" &&
     Compare ${basename}.out ${reffile}.out ${basename}.diff
 
     # Report the status and clean up the generated files
@@ -128,11 +161,29 @@ while getopts kdpsh c; do
     esac
 done
 
+shift `expr $OPTIND - 1`
+
+LLIFail() {
+  echo "Could not find the LLVM interpreter \"$LLI\"."
+  echo "Check your LLVM installation and/or modify the LLI variable in testall.sh"
+  exit 1
+}
+
+which "$LLI" >> $globallog || LLIFail
+
+if [ ! -f Olympus.o ]
+then
+    echo "Could not find Olympus.o"
+    echo "Try \"make Olympus.o\""
+    exit 1
+fi
+
 if [ $# -ge 1 ]
 then
     files=$@
 else
-    files="tests/test-*.iris tests/fail-*.iris"
+    # files="tests/test-*.iris tests/fail-*.iris"
+    files="tests/test-*.iris"
 fi
 
 for file in $files

@@ -3,12 +3,15 @@
 # to test linking external code
 
 .PHONY : all
-all : ./_build/default/bin/iris.exe Olympus.o
-
+all : ./_build/default/bin/iris.exe Olympus.o 
+		
 
 .PHONY : test
 test : 
-	dune exec --no-build iris $(file)
+	dune exec --no-build iris tests/hello-world.iris >  hello-world.ll
+	/opt/homebrew/opt/llvm@14/bin/llc hello-world.ll > hello-world.s
+	cc -o hello-world.exe hello-world.s Olympus.o
+
 
 # "make test" Compiles everything and runs the regression tests
 
@@ -34,21 +37,22 @@ clean :
 # Building the zip
 
 TESTS = \
-	multiAssign univ charLitRight opAssign strLit vDecAss comments assignFunc \
-	doubleOp permitted inherit funcDecl self vdecl listConstructor \
-	univFuncCall opEncap classMain dotAssign
+	hello-world
+# multiAssign univ charLitRight opAssign strLit vDecAss comments assignFunc \
+# doubleOp permitted inherit funcDecl self vdecl listConstructor \
+# univFuncCall opEncap classMain dotAssign
 
 
 FAILS = \
-	emptyChar noColonEncap missingSemi var+ classPublic permitted noEncap \
-	opAssign 
+# emptyChar noColonEncap missingSemi var+ classPublic permitted noEncap \
+# opAssign 
 
 
 TESTFILES = $(TESTS:%=test-%.iris) $(TESTS:%=test-%.out) \
 	    $(FAILS:%=fail-%.iris) $(FAILS:%=fail-%.err)
 
 ZIPFILES = bin dune-project lib Makefile \
-	README testsyntax.sh \
+	README Olympus.c runtest.sh \
 	$(TESTFILES:%=tests/%) 
 
 iris.zip : $(ZIPFILES)

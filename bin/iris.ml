@@ -72,6 +72,7 @@ Top-level of the Iris compiler: scan & parse the input,
         cc -o helloworld.exe helloworld.s Olympus.o &&
         ./helloworld.exe
       
-      
-      make && dune exec --no-build iris tests/hello-world.iris | /opt/homebrew/opt/llvm@14/bin/llc > helloworld.s && cc -o helloworld.exe helloworld.s Olympus.o && ./helloworld.exe  *)
+      copy this whole line:
+      make && dune exec --no-build iris tests/hello-world.iris | /opt/homebrew/opt/llvm@14/bin/llc > helloworld.s && cc -o helloworld.exe helloworld.s Olympus.o && ./helloworld.exe  
+      *)
      
