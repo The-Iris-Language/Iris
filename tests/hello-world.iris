@@ -1,7 +1,7 @@
 class Main () {
     public: 
         int univ main() {
-            Olympus.print("Hello world!\n");
+            Olympus.print("Hello world!");
             return 0;
         }
 }

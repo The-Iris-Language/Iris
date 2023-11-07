@@ -18,10 +18,10 @@ let () =
    scan & parse the input, perform semantic checks,
    pretty-print the SAST *)
 
-
-
-   (* let () =
-(* Deal with command line *)
+(* 
+(* 
+   let () =
+Deal with command line *)
   let usage_msg = "usage: ./iris.native [file.iris]" in
   let channel = ref stdin in
   Arg.parse [] (fun file -> channel := open_in file) usage_msg;
@@ -29,8 +29,8 @@ let () =
   let lexbuf = Lexing.from_channel !channel in
   let ast = Parser.program Scanner.token lexbuf in
   let sast = Semant.check ast in
-  print_string (Ast.string_of_program sast) (* NEED TO CHANGE BACK TO SAST !! *)
- *)
+  print_string (Sast.string_of_sprogram sast)  *)
+
 
 (* FULL COMPILER (COPIED FROM MICROC)
 
@@ -66,3 +66,12 @@ Top-level of the Iris compiler: scan & parse the input,
        | Compile -> let m = Codegen.translate sast in
      Llvm_analysis.assert_valid_module m;
      print_string (Llvm.string_of_llmodule m) 
+
+     (* make && 
+        dune exec --no-build iris tests/hello-world.iris | /opt/homebrew/opt/llvm@14/bin/llc > helloworld.s &&
+        cc -o helloworld.exe helloworld.s Olympus.o &&
+        ./helloworld.exe
+      
+      
+      make && dune exec --no-build iris tests/hello-world.iris | /opt/homebrew/opt/llvm@14/bin/llc > helloworld.s && cc -o helloworld.exe helloworld.s Olympus.o && ./helloworld.exe  *)
+     

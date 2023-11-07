@@ -3,7 +3,7 @@
 # to test linking external code
 
 .PHONY : all
-all : ./_build/default/bin/iris.exe
+all : ./_build/default/bin/iris.exe Olympus.o
 
 
 .PHONY : test
@@ -20,12 +20,15 @@ testall : all testall.sh
 ./_build/default/bin/iris.exe : bin/parser.mly bin/scanner.mll bin/codegen.ml bin/semant.ml bin/iris.ml 
 	dune build
 
+Olympus : Olympus.c
+	cc -o Olympus -DBUILD_TEST Olympus.c
+
 # "make clean" removes all generated files
 
 .PHONY : clean
 clean :
 	dune clean
-	rm -rf testall.log *.diff *.ll *.s iris.opam
+	rm -rf testall.log *.diff *.ll *.s *.exe *.o iris.opam
 
 
 # Building the zip

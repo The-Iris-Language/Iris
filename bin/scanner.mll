@@ -66,7 +66,7 @@ rule token = parse
 | ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']* as lxm { ID(lxm) }
 | eof { EOF }
 | ['\'']char['\''] as lxm { CHARLIT(lxm) } 
-| ['\"']char*['\"'] as lxm { STRINGLIT(lxm) }
+| ['\"']char*['\"'] as lxm { STRINGLIT(String.sub lxm 1 (String.length lxm - 2)) }
 | _ as character { raise (Failure("illegal character " ^ Char.escaped character)) }
 
 and multiComment = parse

@@ -67,7 +67,7 @@ let translate (classes : sclass_decl list) =
   in let print_t : L.lltype = 
     L.var_arg_function_type i32_t [| L.pointer_type i8_t |]
   in let print_func : L.llvalue = 
-    L.declare_function "Olympus_print" print_t the_module in
+    L.declare_function "printf" print_t the_module in
     
   let main_class = (List.nth classes 0) in
   let encaps = (List.nth main_class.smems 0) in
@@ -88,16 +88,18 @@ let translate (classes : sclass_decl list) =
     (* let (the_function, _) = StringMap.find fdecl.sfname function_decls in *)
     let builder = L.builder_at_end context (L.entry_block (fst func_ll)) in
 
-    let int_format_str = L.build_global_stringptr "%d\n" "fmt" builder in
+    let format_str = L.build_global_stringptr "%s\n" "fmt" builder in
     (* and float_format_str = L.build_global_stringptr "%g\n" "fmt" builder in *)
 
 
-    let rec expr builder ((_, e) : sexpr) = 
-        let not_implemented_err = "not implemented yet!" in
+    let rec expr builder ((t, e) : sexpr) = 
+        let not_implemented_err = "not implemented yet! " ^ (string_of_sexpr (t, e)) in
       match e with
-          SStringLit s -> L.build_global_stringptr s s builder
-        | SCall ("Olympus", "Olympus_print", [e]) -> 
-          L.build_call print_func [| int_format_str ; (expr builder e) |]
+          SLiteral i -> L.const_int i32_t i
+        | SStringLit s -> L.build_global_stringptr s s builder
+        | SNoexpr -> L.const_int i32_t 0
+        | SCall ("Olympus", "print", [e]) -> 
+          L.build_call print_func [| format_str ; (expr builder e) |]
           "printf" builder
         | _ -> raise (Failure not_implemented_err)
 
