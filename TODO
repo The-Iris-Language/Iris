@@ -48,3 +48,11 @@ class Hotdog() {
 
 Potential Solution:
     implement . as an operator that evaluates ids left to right
+
+
+
+
+INHERTIANCE
+
+- check for no cycles :O
+- let cyclical class definitions go
