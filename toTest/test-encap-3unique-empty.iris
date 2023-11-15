@@ -1,0 +1,16 @@
+.. Tests for class declaration with the 3 groups that are empty
+class Dog () {
+    public: 
+
+    permit: 
+
+    private:
+
+}
+
+class Main() {
+    public:
+        int univ main() {
+            Olympus.print("Dog has 3 encap groups that are empty\n");
+        }
+ }

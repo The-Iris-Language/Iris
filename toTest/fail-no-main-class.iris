@@ -1,0 +1,10 @@
+.. Tests for no main class with no existing main method defintion
+class Dog () {
+    public:
+        void univ bark() {
+            Olympus.print("bork bork\n");
+        }
+    private:
+        int name;
+        int age; 
+}

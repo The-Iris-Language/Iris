@@ -1,0 +1,24 @@
+.. Tests for class declaration with the 3 groups that have member variables and methods
+class Dog () {
+    public: 
+        void univ bark() {
+            Olympus.print("bork bork\n");
+        }
+    permit: 
+        void sit() {
+            Olympus.print("Richard is sitting\n");
+        }
+        void string name() {
+            return name;
+        }
+    private:
+        string name = "Richard";
+        int age;
+}
+
+class Main() {
+    public:
+        int univ main() {
+            Olympus.print("Dog has 3 encap groups\n");
+        }
+}

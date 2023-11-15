@@ -1,0 +1,19 @@
+/opt/homebrew/opt/llvm@14/bin/lli
+
+###### Testing test-hello-world
+dune exec iris tests/test-hello-world.iris > test-hello-world.ll
+/opt/homebrew/opt/llvm@14/bin/llc -relocation-model=pic test-hello-world.ll > test-hello-world.s
+cc -o test-hello-world.exe test-hello-world.s Olympus.o
+./test-hello-world.exe
+diff -b test-hello-world.out tests/test-hello-world.out > test-hello-world.diff
+###### SUCCESS
+
+###### Testing fail-duplicate-classes
+dune exec iris < tests/fail-duplicate-classes.iris 2> fail-duplicate-classes.err >> testall.log
+diff -b fail-duplicate-classes.err tests/fail-duplicate-classes.err > fail-duplicate-classes.diff
+###### SUCCESS
+
+###### Testing fail-duplicate-other-classes
+dune exec iris < tests/fail-duplicate-other-classes.iris 2> fail-duplicate-other-classes.err >> testall.log
+diff -b fail-duplicate-other-classes.err tests/fail-duplicate-other-classes.err > fail-duplicate-other-classes.diff
+###### SUCCESS

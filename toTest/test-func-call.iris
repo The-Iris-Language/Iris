@@ -1,0 +1,12 @@
+class Main () {
+    public:
+        int univ main() {
+
+            printStatement();
+            return 0;
+        }
+    private:
+        void printStatement() {
+            Olympus.print("Called a private function");
+        }
+}

@@ -1,0 +1,14 @@
+.. Tests for Custom Object instantiation
+class Dog () {
+    public:
+        int name;
+}
+
+class Main () {
+    public: 
+        int univ main() {
+            Dog d = new Dog();
+            Olympus.print("Made dog!\n");
+            return 0;
+        }
+}

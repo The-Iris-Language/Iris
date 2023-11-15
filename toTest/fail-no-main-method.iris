@@ -1,0 +1,7 @@
+.. Tests for Main class with no defined main method
+class Main () {
+    public:
+        void notMain() {
+            Olympus.print("rip\n");
+        } 
+}

@@ -20,7 +20,7 @@ testall : all testall.sh
 	./testall.sh
 
 # "make" will just compile the Iris compiler
-./_build/default/bin/iris.exe : bin/parser.mly bin/scanner.mll bin/codegen.ml bin/semant.ml bin/iris.ml 
+./_build/default/bin/iris.exe : bin/parser.mly bin/scanner.mll bin/codegen.ml bin/semant.ml bin/iris.ml bin/ast.ml
 	dune build
 
 Olympus : Olympus.c

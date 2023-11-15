@@ -1,0 +1,23 @@
+.. Tests for Arithmetic Operations
+class Main () {
+    public: 
+        int univ main() {
+            .. ans should be 10
+            int ans = 10;
+            Olympus.print(Olympus.intToString(ans));
+
+            .. ans should be 25
+            ans = ans + 15;
+            Olympus.print(Olympus.intToString(ans));
+
+            .. ans should be 100
+            ans = ans * 4;
+            Olympus.print(Olympus.intToString(ans));
+
+            .. ans should be 33
+            ans = ans / 3;
+            Olympus.print(Olympus.intToString(ans));
+
+            return 0;
+        }
+}

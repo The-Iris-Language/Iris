@@ -182,8 +182,8 @@ if [ $# -ge 1 ]
 then
     files=$@
 else
-    # files="tests/test-*.iris tests/fail-*.iris"
-    files="tests/test-*.iris"
+    files="tests/test-*.iris tests/fail-*.iris"
+    #files="tests/test-*.iris"
 fi
 
 for file in $files

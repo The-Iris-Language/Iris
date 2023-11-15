@@ -1,2 +1,4 @@
-Semantially check character/string literals (i.e. '\z' isn't allowed)?
-
+- Semantically check character/string literals (i.e. '\z' isn't allowed)?
+- are our testsuite tests sufficient
+    - what constituates a test for a unique feature of our language (ie. classes? encap? inheritance?)
+- is it possible to allow classes to both reference each other (cyclic)
