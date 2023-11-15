@@ -134,7 +134,7 @@ let translate (classes : sclass_decl list) =
               raise (Failure not_implemented_err) in
 
         (* Build the code for each statement in the function *)
-    let (builder, map) = stmt (StringMap.empty, builder) (SBlock the_function.sbody) in
+    let (builder, map) = stmt StringMap.empty builder (SBlock the_function.sbody) in
     (* Add a return if the last block falls off the end *)
     add_terminal builder (match the_function.styp with
         A.Void -> L.build_ret_void
