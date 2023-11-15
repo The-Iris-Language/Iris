@@ -1,4 +1,6 @@
 - Semantically check character/string literals (i.e. '\z' isn't allowed)?
-- are our testsuite tests sufficient
-    - what constituates a test for a unique feature of our language (ie. classes? encap? inheritance?)
+    > should check in scanner parser
+- are our testsuite tests sufficient? what constituates a test for a unique feature of our language (ie. classes? encap? inheritance?)
+    > the more tests the better, can include testing for class declaration stuff
 - is it possible to allow classes to both reference each other (cyclic)
+    > check for inheritance cycles but not method cycles -> too complicated
