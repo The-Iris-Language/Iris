@@ -1,1 +1,1 @@
-Compilation error: no Main class defined in this program.
+Fatal error: exception Failure("Compilation error: no Main class defined in this program")

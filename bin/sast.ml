@@ -12,11 +12,11 @@ and sx =
   | SId of string
   | SBinop of sexpr * op * sexpr
   (* | SUnop of uop * sexpr *)
-  (* | SDoubleOp of string * doubleop
+  (* | SDoubleOp of string * doubleop *)
   | SAssign of string * sexpr
-  | SDeclAssign of typ * string * sexpr
-  | SClassVarAssign of string * string * sexpr
-  | SOpAssign of string * op_assign * sexpr *)
+  (* | SDeclAssign of typ * string * sexpr *)
+  (* | SClassVarAssign of string * string * sexpr *)
+  (* | SOpAssign of string * op_assign * sexpr *)
   | SCall of string * string * sexpr list
   (* | SClassVar of string * string *)
   | SNoexpr
@@ -47,6 +47,7 @@ type sstmt =
   | SIf of sexpr * sstmt * sstmt
   | SFor of sexpr * sexpr * sexpr * sstmt
   | SWhile of sexpr * sstmt
+  | SLocal of bind
 
 type sfunc_decl = {
     suniv : bool;
@@ -93,7 +94,7 @@ let rec string_of_sexpr (t, e) =
   | SBinop(e1, o, e2) ->
       string_of_sexpr e1 ^ " " ^ string_of_op o ^ " " ^ string_of_sexpr e2
   (* | SUnop(o, e) -> string_of_uop o ^ string_of_sexpr e *)
-  (* | SAssign(v, e) -> v ^ " = " ^ string_of_sexpr e *)
+  | SAssign(v, e) -> v ^ " = " ^ string_of_sexpr e
   | SCall(cname, fname, el) ->
       cname ^ "." ^ fname ^ "(" ^ String.concat ", " (List.map string_of_sexpr el) ^ ")"
   | SNoexpr -> ""
@@ -112,6 +113,7 @@ let rec string_of_sstmt = function
       "for (" ^ string_of_sexpr e1  ^ " ; " ^ string_of_sexpr e2 ^ " ; " ^
       string_of_sexpr e3  ^ ") " ^ string_of_sstmt s
   | SWhile(e, s) -> "while (" ^ string_of_sexpr e ^ ") " ^ string_of_sstmt s
+  | SLocal(t, s) -> string_of_typ t ^ s
 
 let string_of_suniv = function
     true  -> "univ " 

@@ -89,7 +89,8 @@ let translate (classes : sclass_decl list) =
     let builder = L.builder_at_end context (L.entry_block (fst func_ll)) in
 
     let format_str = L.build_global_stringptr "%s\n" "fmt" builder in
-    (* and float_format_str = L.build_global_stringptr "%g\n" "fmt" builder in *)
+    (* and int_format_str = L.build_global_stringptr "%d\n" "fmt" builder
+    and float_format_str = L.build_global_stringptr "%g\n" "fmt" builder in *)
 
 
     let rec expr builder ((t, e) : sexpr) = 
@@ -127,6 +128,7 @@ let translate (classes : sclass_decl list) =
                                 (* Build return statement *)
                               | _ -> L.build_ret (expr builder e) builder 
                       in builder
+        | SLocal (t, n) -> 
         | _ -> let not_implemented_err = "not implemented yet!" in 
               raise (Failure not_implemented_err) in
 

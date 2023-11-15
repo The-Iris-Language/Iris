@@ -5,7 +5,6 @@ open Sast
 
 module StringMap = Map.Make(String)
 
- 
 
 
      (* 
@@ -100,11 +99,23 @@ module StringMap = Map.Make(String)
                             typ = Void;
                             fname = "print";
                             formals = [(String, "out")];
-                            body = [Expr(Noexpr)]}  
+                            body = [Expr(Noexpr)]}                        
+    (* and olympus_int_to_string = { univ = true;
+                                  typ = String;
+                                  fname = "int_to_string";
+                                  formals = [(Int, "num")];
+                                  body = [Expr(Noexpr)]} 
+    and olympus_float_to_string = { univ = true;
+                                  typ = String;
+                                  fname = "float_to_string";
+                                  formals = [(Float, "num")];
+                                  body = [Expr(Noexpr)]
+    } *)
+
     in let olympus_class = { class_name = "Olympus"; 
                              parent_name = "Object"; 
                              permitted = [];
-                             mems = [("public", (MemberFun olympus_print)::[])] }
+                             mems = [("public", (MemberFun olympus_print) (*:: (MemberFun olympus_int_to_string) :: (MemberFun olympus_float_to_string)*) ::[])] }
     in let classes = olympus_class::classes in
 
     let name_compare c1 c2 = compare c1.class_name c2.class_name in
@@ -172,11 +183,6 @@ module StringMap = Map.Make(String)
       with Not_found -> raise (Failure class_not_found_err)
 
 
-    
-
-
-
-
     (* 
       1. Semantically check classes
           - semantically member variables -> wildcard
@@ -221,18 +227,28 @@ module StringMap = Map.Make(String)
           in let func = get_func function_string (snd (List.nth func_class.mems 0)) 
             in let sxpr_list = List.map check_expr args  
               in (func.typ, SCall(class_string, function_string, sxpr_list))
+      (* | Assign (n, e) ->  *)
       | Noexpr -> (Void, SNoexpr)
       | _ -> raise (Failure not_implemented_err)
     
 
     in let check_function (func : func_decl) =
+      
 
+(* Will have StringMap for Class Variables *)
       (* TODO: eventually check formals / binds !! *)
         
-      let rec check_stmt (s : stmt) = 
+      let rec check_stmt (s : stmt) m = 
         let not_implemented_err = "not implemented stmt: " ^ string_of_stmt s
+      in let void_err = "void type cannot be used to declare variable: " ^ string_of_stmt s
       in match s with 
           Expr e -> SExpr (check_expr e)
+        | Local (t, n) -> (match t with
+            Void -> raise (Failure void_err)
+          | Object (cname) -> raise (Failure not_implemented_err)
+          | _ ->  try let _ = StringMap.find n m in
+                     raise (Failure ("local variable " ^ n ^ " already exists"))
+                  with Not_found -> (SLocal (t, n)))
         (* | If(p, b1, b2) -> SIf(check_bool_expr p, check_stmt b1, check_stmt b2)
         | For(e1, e2, e3, st) -> SFor(expr e1, check_bool_expr e2, expr e3, check_stmt st)
         | While(p, s) -> SWhile(check_bool_expr p, check_stmt s) *)
@@ -242,20 +258,25 @@ module StringMap = Map.Make(String)
           else raise (Failure ("return gives " ^ string_of_typ t ^ " expected " ^
                               string_of_typ func.typ ^ " in " ^ string_of_expr e))
         | Block sl -> 
-          let rec check_stmt_list = function
-              [Return _ as s] -> [check_stmt s]
+          let rec check_stmt_list slist map = match slist with 
+              [Return _ as s] -> [check_stmt s m]
             | Return _ :: _   -> raise (Failure "nothing may follow a return")
-            | Block sl :: ss  -> check_stmt_list (sl @ ss) (* Flatten blocks *)
-            | s :: ss         -> check_stmt s :: check_stmt_list ss
+            | Block sl :: ss  -> check_stmt_list (sl @ ss) map (* Flatten blocks *)
+            | Local stmt1 :: ss -> let var = check_stmt (Local (stmt1)) map in 
+                                var :: check_stmt_list ss (StringMap.add (snd stmt1) var map)
+            | stmt1 :: ss         -> (check_stmt stmt1 map) :: check_stmt_list ss map
             | []              -> []
-          in SBlock(check_stmt_list sl)
+          in SBlock(check_stmt_list sl m)
         | _ -> raise (Failure not_implemented_err)
-
+        in let locals = StringMap.empty 
       in {suniv = func.univ;
           styp = func.typ;
           sfname = func.fname;
           sformals = func.formals;
-          sbody = List.map check_stmt func.body}
+          sbody = let checked_block = check_stmt (Block (func.body)) locals
+                  in match(checked_block) with 
+                  SBlock(checked_stmt_list) -> checked_stmt_list
+                  | _ -> raise (Failure "whoops!")}
         
     (* check_encap, check_class... *)
       in let check_member (mem : member) = 
