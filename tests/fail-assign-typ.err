@@ -1,0 +1,1 @@
+Fatal error: exception Failure("variable hello has type int, but an expression with type string was found.")

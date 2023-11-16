@@ -1,7 +1,8 @@
 class Main () {
     public:
         int univ main() {
-            Olympus.print("a\;");
+            .. CHANGE THIS TO ACTUAL TEST
+            Olympus.print("a");
             return 0;
         }
 }
