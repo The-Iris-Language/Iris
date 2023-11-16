@@ -8,9 +8,10 @@ all : ./_build/default/bin/iris.exe Olympus.o
 
 .PHONY : test $(file)
 test : 
-	dune exec --no-build iris tests/$(file)
-	/opt/homebrew/opt/llvm@14/bin/llc $(basename $(file)).ll > $(basename $(file)).s
-	cc -o $(basename $(file)).exe $(basename $(file)).s Olympus.o
+	dune exec --no-build iris tests/$(file).iris > $(file).ll
+	/opt/homebrew/opt/llvm@14/bin/llc $(file).ll > $(file).s
+	cc -o $(file).exe $(file).s Olympus.o
+	./$(file).exe
 
 
 # "make test" Compiles everything and runs the regression tests
