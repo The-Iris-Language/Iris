@@ -1,0 +1,9 @@
+class Main () {
+    public: 
+        int univ main() {
+            int hello;
+            string hello;
+            Olympus.print("Variable Declared");
+            return 0;
+        }
+}

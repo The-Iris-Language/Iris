@@ -5,7 +5,12 @@
 
 let digit = ['0' - '9']
 let digits = digit+
-let char = ['\\']?[' ' - '~' '\161' - '\255']
+let single_char = [' ' '!' '#'-'&' '('-'[' ']'-'~']
+let double_char = ['\\']['\\' 't' 'r' 'n' 'b']
+let single_apo = '\\' '''
+let double_apo = '\\' '"'
+let char = single_char | double_char | single_apo | '"'
+let string_char = single_char | double_char | double_apo | '''
 
 rule token = parse
   [' ' '\t' '\r' '\n'] { token lexbuf } (* Whitespace *)
@@ -66,7 +71,7 @@ rule token = parse
 | ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']* as lxm { ID(lxm) }
 | eof { EOF }
 | ['\'']char['\''] as lxm { CHARLIT(lxm) } 
-| ['\"']char*['\"'] as lxm { STRINGLIT(String.sub lxm 1 (String.length lxm - 2)) }
+| ['\"']string_char*['\"'] as lxm { STRINGLIT(String.sub lxm 1 (String.length lxm - 2)) }
 | _ as character { raise (Failure("illegal character " ^ Char.escaped character)) }
 
 and multiComment = parse

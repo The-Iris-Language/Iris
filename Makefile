@@ -8,7 +8,7 @@ all : ./_build/default/bin/iris.exe Olympus.o
 
 .PHONY : test
 test : 
-	dune exec --no-build iris tests/hello-world.iris >  hello-world.ll
+	dune exec --no-build iris tests/test-hello-world.iris
 	/opt/homebrew/opt/llvm@14/bin/llc hello-world.ll > hello-world.s
 	cc -o hello-world.exe hello-world.s Olympus.o
 
