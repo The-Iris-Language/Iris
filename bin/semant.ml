@@ -221,6 +221,9 @@ module StringMap = Map.Make(String)
       in match e with 
         Literal  l -> ((Int, SLiteral l), m)
       | StringLit s -> ((String, SStringLit(s)), m)
+      | Id n -> (try let (t, _) = StringMap.find n m 
+                    in ((t, SId(n)), m)
+                with Not_found -> raise (Failure ("variable " ^ n ^ " not found")))
       | Call (class_string, function_string, (args : expr list)) -> 
         (* TODO CHANGEEEE check for instance vs class name *)
         let func_class = find_class class_string classes 

@@ -1,0 +1,8 @@
+.. Test accessing uninitialized variable
+class Main () {
+    public: 
+        int univ main() {
+            Olympus.print(hi);
+            return 0;
+        }
+}

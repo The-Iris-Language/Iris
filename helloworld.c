@@ -7,6 +7,8 @@ struct D {
 
 int main() {
     printf("hello world!");
+    struct D d;
+    d.age = 10;
 
     return 0;
 }

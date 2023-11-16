@@ -1,0 +1,26 @@
+class Dog {
+    public: 
+        string color;
+
+        void setColor(string c) {
+            color = c;
+        }
+} 
+
+class Main {
+    public: 
+        univ int main() {
+            .. constructors
+            Dog d = new Dog();
+            d.setColor("brown");
+            Olympus.print(d.color);
+        }
+}
+
+.~* 
+    1. Build SAST classes
+        - may include reordering
+    2. Define struct/class type in codegen
+    3. Add member vars/locals to a string map -> stores registers/address of location of things
+    4. Implement constructors
+*~.

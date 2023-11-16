@@ -1,13 +1,24 @@
 #include <stdio.h>
+#include <string>
 
-class Main {
+using namespace std;
+
+class Dog {
     public: 
-        Main() {
-            printf("Hello world!\n");
+        int weight;
+        string name;
+        
+        Dog() {
+            weight = 10;
+            name = "Bozo";
+        }
+        
+        void woof() {
+            printf("ruh roh!\n");
         }
 };
 
 int main() {
-    Main m = Main();
+    Dog d = Dog();
     return 0;
 }

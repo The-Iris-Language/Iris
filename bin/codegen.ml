@@ -95,19 +95,18 @@ let translate (classes : sclass_decl list) =
     (* let lookup n = try StringMap.find n local_vars
                    with Not_found -> StringMap.find n global_vars
                   in *)
-    let rec expr builder ((t, e) : sexpr) = 
+    let rec expr builder m ((t, e) : sexpr)  = 
         let not_implemented_err = "not implemented yet! " ^ (string_of_sexpr (t, e)) in
       match e with
-          SLiteral i -> L.const_int i32_t i
-        | SStringLit s -> L.build_global_stringptr s s builder
-        | SNoexpr -> L.const_int i32_t 0
-        | SCall ("Olympus", "print", [e]) -> 
-          L.build_call print_func [| format_str ; (expr builder e) |]
-          "printf" builder
-        (* | SAssign (n, e) -> let e' = expr builder e in 
-                              let _ = L.build_store e' (lookup n) builder in e' *)
-          (* let e' = expr builder e in
-                          let _  = L.build_store e' (lookup s) builder in e' *)
+          SLiteral i -> (L.const_int i32_t i, m)
+        | SStringLit s -> (L.build_global_stringptr s s builder, m)
+        | SNoexpr -> (L.const_int i32_t 0, m)
+        | SCall ("Olympus", "print", [e]) ->
+          (L.build_call print_func [| format_str ; (fst (expr builder m e)) |]
+          "printf" builder, m)
+        | SAssign (n, e) -> let e' = fst (expr builder m e) in 
+                              let _ = L.build_store e' (StringMap.find n m) builder in (e', m)
+        | SId n -> (L.build_load (StringMap.find n m) n builder, m)
         | _ -> raise (Failure not_implemented_err)
 
       in 
@@ -128,20 +127,20 @@ let translate (classes : sclass_decl list) =
       let rec stmt (builder, map) = function
           SBlock sl -> List.fold_left stmt (builder, map) sl
           (* Generate code for this expression, return resulting builder *)
-        | SExpr e -> let _ = expr builder e in (builder, map) 
-        | SReturn e -> let _ = match the_function.styp with
-                                (* Special "return nothing" instr *)
+        | SExpr e -> let (_, map') = expr builder map e in (builder, map') 
+        | SReturn e -> let _ = match the_function.styp with 
+                                (* Special "return nothing" instr *) 
                                 A.Void -> L.build_ret_void builder
                                 (* Build return statement *)
-                              | _ -> L.build_ret (expr builder e) builder
+                              | _ -> L.build_ret (fst (expr builder map e)) builder
                           in (builder, map)
                       
-                              (* | SReturn e -> let _ = match fdecl.styp with
-                              (* Special "return nothing" instr *)
+                              (* | SReturn e -> let _ = match fdecl.styp with 
+                              (* Special "return nothing" instr *) 
                               A.Void -> L.build_ret_void builder 
-                              (* Build return statement *)
+                              (* Build return statement *) 
                             | _ -> L.build_ret (expr builder e) builder 
-                     in builder *)
+                     in builder *) 
 
         | SLocal (t, n) -> let local = L.build_alloca (ltype_of_typ t) n builder in
                            (builder, StringMap.add n local map) 
@@ -149,7 +148,7 @@ let translate (classes : sclass_decl list) =
               raise (Failure not_implemented_err) in
 
         (* Build the code for each statement in the function *)
-    let (builder, map) = stmt (builder, StringMap.empty) (SBlock the_function.sbody) in
+    let (builder, _) = stmt (builder, StringMap.empty) (SBlock the_function.sbody) in
     (* Add a return if the last block falls off the end *)
     add_terminal builder (match the_function.styp with
         A.Void -> L.build_ret_void

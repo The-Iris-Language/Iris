@@ -5,10 +5,13 @@
 
 let digit = ['0' - '9']
 let digits = digit+
+
 let single_char = [' ' '!' '#'-'&' '('-'[' ']'-'~']
 let double_char = ['\\']['\\' 't' 'r' 'n' 'b']
+
 let single_apo = '\\' '''
 let double_apo = '\\' '"'
+
 let char = single_char | double_char | single_apo | '"'
 let string_char = single_char | double_char | double_apo | '''
 

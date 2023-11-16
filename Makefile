@@ -9,8 +9,8 @@ all : ./_build/default/bin/iris.exe Olympus.o
 .PHONY : test $(file)
 test : 
 	dune exec --no-build iris tests/$(file)
-	/opt/homebrew/opt/llvm@14/bin/llc $(file).ll > $(file).s
-	cc -o $(file).exe $(file).s Olympus.o
+	/opt/homebrew/opt/llvm@14/bin/llc $(basename $(file)).ll > $(basename $(file)).s
+	cc -o $(basename $(file)).exe $(basename $(file)).s Olympus.o
 
 
 # "make test" Compiles everything and runs the regression tests
@@ -37,7 +37,7 @@ clean :
 # Building the zip
 
 TESTS = \
-local-main hello-world
+local-main hello-world assign1
 # multiAssign univ charLitRight opAssign strLit vDecAss comments assignFunc \
 # doubleOp permitted inherit funcDecl self vdecl listConstructor \
 # univFuncCall opEncap classMain dotAssign

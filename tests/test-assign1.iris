@@ -1,0 +1,9 @@
+class Main () {
+    public:
+        int univ main() {
+            int i;
+            i = 0;
+            Olympus.print("set int!");
+            return 0;
+        }
+}
