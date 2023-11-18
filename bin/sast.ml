@@ -17,7 +17,7 @@ and sx =
   (* | SDeclAssign of typ * string * sexpr *)
   (* | SClassVarAssign of string * string * sexpr *)
   (* | SOpAssign of string * op_assign * sexpr *)
-  | SCall of string * string * sexpr list
+  | SCall of string * string * sexpr list (* TODO: finish *)
   (* | SClassVar of string * string *)
   | SNoexpr
 (*
@@ -58,8 +58,8 @@ type sfunc_decl = {
   }
 
 (* a member of a class is either a function or a variable *)
-type smember =
-    SMemberVar of bind
+type smember = 
+    SMemberVar of bind 
   | SMemberFun of sfunc_decl 
   
 (* each encapsulation label (public, permit, private) has a list of members *)
@@ -71,11 +71,14 @@ type sencap = string * smember list
   mems: list of encaps
   permitted: names of classes with access to permit members  
 *)
+
 type sclass_decl = {
   sclass_name : string;
   sparent_name : string;
   spermitted: string list;
-  smems: sencap list;
+  svars: bind list;
+  smeths: sfunc_decl list
+  (* smems: sencap list; *)
 }
 
 type sprogram = sclass_decl list
@@ -126,22 +129,23 @@ let string_of_sfdecl sfdecl =
   String.concat "" (List.map string_of_sstmt sfdecl.sbody) ^
   "}"
 
-let rec string_of_smembers = function
-  []                        -> ""
-  | (SMemberVar(curr) :: rest) -> string_of_vdecl curr ^ "\n" ^ string_of_smembers rest
-  | (SMemberFun(curr) :: rest) -> string_of_sfdecl curr ^ "\n" ^ string_of_smembers rest 
 
 
- let rec string_of_sencaps = function
+let rec string_of_svars = function
     []                  -> ""
-  | (str, mems) :: rest -> str ^ "\n" ^ string_of_smembers mems ^ string_of_sencaps rest
+  | bind :: rest -> "\n" ^ string_of_vdecl bind ^ string_of_svars rest
+  
+
+let rec string_of_sfuncs = function
+    []                  -> ""
+  | sfdecl :: rest -> "\n" ^ string_of_sfdecl sfdecl ^ string_of_sfuncs rest
 
 
 let string_of_scdecl cdecl =
   "class " ^ cdecl.sclass_name ^ " of " ^ cdecl.sparent_name ^
       " (" ^ String.concat ", " cdecl.spermitted ^ ")" ^
       " {\n" ^ 
-      string_of_sencaps cdecl.smems ^ 
+      string_of_svars cdecl.svars ^ string_of_sfuncs cdecl.smeths ^ "\n" ^
       "}\n"
 
 

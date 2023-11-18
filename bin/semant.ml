@@ -2,6 +2,7 @@
 
 open Ast
 open Sast
+open Symbol
 
 module StringMap = Map.Make(String)
 
@@ -87,7 +88,6 @@ module StringMap = Map.Make(String)
    *)
 
 
-
   
 (* Semantic checking of the AST. Returns an SAST if successful,
    throws an exception if something is wrong.
@@ -121,15 +121,18 @@ module StringMap = Map.Make(String)
     let name_compare c1 c2 = compare c1.class_name c2.class_name in
         let check_dups checked a_class = 
           let dup_err = "Compilation error: Duplicate class name " ^ a_class.class_name
-          in match checked with 
+            in match checked with 
             (* No duplicate bindings *)
             (first_class :: _) when a_class.class_name = first_class.class_name -> 
                   raise (Failure dup_err)
             | _ -> a_class :: checked
-          in let _ = List.fold_left check_dups [] (List.sort name_compare classes) in
+    in let _ = List.fold_left check_dups [] (List.sort name_compare classes) in
 
   (* helper functions !!!! WOOOOOO *)
   
+
+
+
   (* find_func: finds a function given a function declaration and list of functions *)
   (* let find_func (func : func_decl) (mems : member list) = 
     let func_not_found = "function of name " ^ func.fname ^ " not found" in 
