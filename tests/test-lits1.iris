@@ -1,0 +1,16 @@
+.. tests ints, bools, strings
+class Main () {
+    public:
+        int univ main() {
+            .. CHANGE THIS TO ACTUAL TEST
+            int i;
+            i = 0;
+            bool b;
+            b = true;
+            b = false;
+            string s;
+            s = "yo";
+            Olympus.print("success");
+            return 0;
+        }
+}
