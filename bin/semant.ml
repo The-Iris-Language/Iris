@@ -228,6 +228,15 @@ module StringMap = Map.Make(String)
       | Id n -> (try let (t, _) = StringMap.find n m 
                     in ((t, SId(n)), m)
                 with Not_found -> raise (Failure ("variable " ^ n ^ " not found")))
+      | Unop (uop, e) -> let ((t, e'), m') = check_expr m e in
+                          let wrong_type_err = "type: " ^ (string_of_typ t) ^ " is invalid for unop" ^ (string_of_uop Not)
+                          in 
+                            let ty = (match uop with
+                              Neg when t = Int || t = Float -> t
+                            | Not when t = Bool -> Bool
+                            | _  -> raise (Failure wrong_type_err))
+                            in 
+                         ((ty, SUnop(uop, (ty, e'))), m')
       | Call (class_string, function_string, (args : expr list)) -> 
         (* TODO CHANGEEEE check for instance vs class name *)
         let func_class = find_class class_string classes 
@@ -301,7 +310,6 @@ module StringMap = Map.Make(String)
             | stmt1 :: ss       -> (check_stmt map stmt1) :: check_stmt_list map ss
 
             | []                -> []
-
             
           in let ret_stmts = List.map (fun (s, _) -> s) (check_stmt_list m sl)
           in (SBlock(ret_stmts), m)

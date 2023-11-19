@@ -89,8 +89,8 @@ let translate (classes : sclass_decl list) =
     let builder = L.builder_at_end context (L.entry_block (fst func_ll)) in
 
     let format_str = L.build_global_stringptr "%s\n" "fmt" builder in
-    (* and int_format_str = L.build_global_stringptr "%d\n" "fmt" builder
-    and float_format_str = L.build_global_stringptr "%g\n" "fmt" builder in *)
+    (* and int_format_str = L.build_global_stringptr "%d\n" "fmt" builder  *)
+   (* and float_format_str = L.build_global_stringptr "%g\n" "fmt" builder in *)
 
     (* let lookup n = try StringMap.find n local_vars
                    with Not_found -> StringMap.find n global_vars
@@ -101,13 +101,14 @@ let translate (classes : sclass_decl list) =
           SLiteral i -> (L.const_int i32_t i, m)
         | SBoolLit b -> (L.const_int i1_t (if b then 1 else 0), m)
         | SStringLit s -> (L.build_global_stringptr s s builder, m)
-        | SNoexpr -> (L.const_int i32_t 0, m)
+        | SId n -> (L.build_load (StringMap.find n m) n builder, m)
+        | SAssign (n, e) -> let e' = fst (expr builder m e) in 
+                              let _ = L.build_store e' (StringMap.find n m) builder in 
+                            (e', m)
         | SCall ("Olympus", "print", [e]) ->
           (L.build_call print_func [| format_str ; (fst (expr builder m e)) |]
           "printf" builder, m)
-        | SAssign (n, e) -> let e' = fst (expr builder m e) in 
-                              let _ = L.build_store e' (StringMap.find n m) builder in (e', m)
-        | SId n -> (L.build_load (StringMap.find n m) n builder, m)
+        | SNoexpr -> (L.const_int i32_t 0, m)
         | _ -> raise (Failure not_implemented_err)
 
       in 

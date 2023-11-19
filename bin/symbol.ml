@@ -1,6 +1,5 @@
 module StringMap = Map.Make(String)
 open Ast
-open Sast
 
 (* Make chungus str map(assuming encap is checked):
    let build_chungus s c <- c is class_decl, s is chungus
@@ -10,6 +9,7 @@ open Sast
     4. make tuple of ((parent, permitted), (func str map, var str map)) 
     5. add tuple to s *)
 
+(* let big_chungus classes = *) (* needs this to return the structure*)
   let build_chungus symbols c_decl =
     let parent_permit = (c_decl.parent_name, c_decl.permitted)
     in 
@@ -36,7 +36,6 @@ open Sast
         let (var_map, fun_map) = List.fold_left add_encap (StringMap.empty, StringMap.empty) c_decl.mems
         in
           let symbol_value = (parent_permit, (var_map, fun_map))
-    in 
-      StringMap.add c_decl.class_name symbols
-                   
-  (* in let chungus = List.fold_left build_chungus StringMap.empty classes *)
+          in 
+          StringMap.add c_decl.class_name symbol_value symbols
+  (* in List.fold_left build_chungus StringMap.empty classes *) (* returns the structure *)

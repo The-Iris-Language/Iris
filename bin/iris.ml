@@ -18,10 +18,10 @@
    scan & parse the input, perform semantic checks,
    pretty-print the SAST *)
 
-(* 
-(* 
-   let () =
-Deal with command line *)
+
+
+   (* let () =
+(* Deal with command line *)
   let usage_msg = "usage: ./iris.native [file.iris]" in
   let channel = ref stdin in
   Arg.parse [] (fun file -> channel := open_in file) usage_msg;

@@ -10,7 +10,7 @@ type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq |
 (*   +=   -=   *=   /=   *)
 type op_assign = Peq | Meq | Teq | Deq 
 
-type uop = Neg | Not
+type uop = Neg | Not 
 
 (*   ++   --   *)
 type doubleop = PPlus | MMinus
