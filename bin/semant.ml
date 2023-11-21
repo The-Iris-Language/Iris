@@ -117,7 +117,7 @@ module StringMap = Map.Make(String)
                              permitted = [];
                              mems = [("public", (MemberFun olympus_print) (*:: (MemberFun olympus_int_to_string) :: (MemberFun olympus_float_to_string)*) ::[])] }
     in let classes = olympus_class::classes in
-
+    let big_chungus = List.fold_left build_chungus StringMap.empty classes in
     let name_compare c1 c2 = compare c1.class_name c2.class_name in
         let check_dups checked a_class = 
           let dup_err = "Compilation error: Duplicate class name " ^ a_class.class_name
@@ -236,7 +236,7 @@ module StringMap = Map.Make(String)
                             | Not when t = Bool -> Bool
                             | _  -> raise (Failure wrong_type_err))
                             in 
-                         ((ty, SUnop(uop, (ty, e'))), m')
+                         ((ty, SUnop(uop, (ty, e'))), m')                   
       | Call (class_string, function_string, (args : expr list)) -> 
         (* TODO CHANGEEEE check for instance vs class name *)
         let func_class = find_class class_string classes 

@@ -39,3 +39,39 @@ open Ast
           in 
           StringMap.add c_decl.class_name symbol_value symbols
   (* in List.fold_left build_chungus StringMap.empty classes *) (* returns the structure *)
+
+let find_parent_name chungus cname = 
+  let cdecl = StringMap.find cname chungus 
+  in fst (fst cdecl)
+
+
+(* call this whenever a function is not "self", since that is always allowed within a class *)
+  (* caller class is the class that the function call shows up in *)
+  (* target class is the class that the function can be found in ie. Cat.meow() || Cat c = new Cat(); c.meow()*)
+let is_permitted chungus caller_class target_class func_name =
+  let target = StringMap.find target_class chungus in 
+  let (funcs, _) = fst (snd target)
+  in
+    (try let (encap, _) = StringMap.find func_name funcs
+    in
+      (match encap with 
+        "public" -> true 
+      | "private" -> false
+      | _ -> (* "permit" *)
+          (let target_permits = snd (fst target) 
+          in 
+            (try let _ = List.find caller_class target_permits in true with 
+             Not_found -> false)))
+
+    with Not_found -> is_permitt (* MAYBE RECURSIVE CALL TO IS_PERMITTED OF PARENT ???*))
+                      
+
+
+    
+
+
+
+
+
+  (* let (parent, perms) = fst cdecl and
+  (funcs, vars) = snd cdecl  *)
