@@ -1,0 +1,23 @@
+class Animal () {
+    permit:
+        void noise();
+}
+
+class Cat (Main) {
+    permit:
+        void noise();
+}
+
+class Main () {
+    univ int main(){
+        Animal a = helper();
+        a.noise(); .. we don't know if this is a Cat or Animal
+    }
+
+    Animal helper() {
+        if (getchar() == 'c') {
+            return new Cat();
+        }
+        return new Animal();
+    }
+}

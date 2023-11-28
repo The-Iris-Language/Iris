@@ -37,21 +37,39 @@ let translate (classes : sclass_decl list) =
   and i8_t     = L.i8_type     context
   and i1_t     = L.i1_type     context
   and float_t  = L.double_type context
-  and void_t   = L.void_type   context in
+  and void_t   = L.void_type   context 
+  in
   
   let string_t = L.pointer_type i8_t
   (* Create an LLVM module -- this is a "container" into which we'll 
      generate actual code *)
   and the_module = L.create_module context "Iris" in
 
-  let ltype_of_typ = function
-      A.Int            -> i32_t
-    | A.Bool           -> i1_t
-    | A.Float          -> float_t
-    | A.Void           -> void_t
-    | A.String         -> string_t
-    | A.Char           -> i8_t
-    | A.Object (_)     -> void_t
+  
+  let ltype_of_typ tmap = function
+      A.Int               -> i32_t
+    | A.Bool              -> i1_t
+    | A.Float             -> float_t
+    | A.Void              -> void_t
+    | A.String            -> string_t
+    | A.Char              -> i8_t
+    | A.Object (ctyp)     -> 
+      let type_not_found_err = "Class type " ^ ctyp ^ " is not defined."
+      in
+        (try 
+          StringMap.find ctyp tmap
+        with
+        | Not_found -> raise (Failure (type_not_found_err)))
+    
+  in let populate_type_map context tmap sc_decl =
+    let c_name   = sc_decl.sclass_name
+    and all_vars = (sc_decl.svars @ sc_decl.spermittedvars)
+    in 
+      let all_typs = (L.pointer_type i8_t(* jump table type ????? *)) :: (List.map (ltype_of_typ tmap) (fst (List.split all_vars)))
+      in
+        let arr_vars = Array.of_list all_typs
+      in StringMap.add c_name (L.struct_type context arr_vars) tmap
+    in let type_map = List.fold_left (populate_type_map context) StringMap.empty classes
   
   (* Int -> "int"
   | Bool -> "bool"
@@ -70,15 +88,17 @@ let translate (classes : sclass_decl list) =
     L.declare_function "printf" print_t the_module in
     
   let main_class = (List.nth classes 0) in
-  let encaps = (List.nth main_class.smems 0) in
-  let main_mem = (List.nth (snd encaps) 0) in
-  let get_func one_mem =
+  (* let encaps = (List.nth main_class.smems 0) in *)
+  (* let main_mem = (List.nth main_class.smeths 0) in *)
+  (* let get_func one_mem =
     let var_err = "variable not allowed yet! grrrr" in 
     match one_mem with
       SMemberFun(f) -> f
     | _            -> raise (Failure var_err)
-  in let main_func = get_func main_mem in
-     let ftype = L.function_type (ltype_of_typ main_func.styp) [||] in
+  in  *)
+  let ltype_of_typ_with_map = ltype_of_typ type_map in
+  let main_func = (List.nth main_class.smeths 0) in
+     let ftype = L.function_type (ltype_of_typ_with_map main_func.styp) [||] in
      let main_func_ll = (L.define_function "main" ftype the_module, main_func) in
   
 
@@ -144,7 +164,7 @@ let translate (classes : sclass_decl list) =
                             | _ -> L.build_ret (expr builder e) builder 
                      in builder *) 
 
-        | SLocal (t, n) -> let local = L.build_alloca (ltype_of_typ t) n builder in
+        | SLocal (t, n) -> let local = L.build_alloca (ltype_of_typ_with_map t) n builder in
                            (builder, StringMap.add n local map) 
         | _ -> let not_implemented_err = "not implemented yet!" in 
               raise (Failure not_implemented_err) in
@@ -155,7 +175,7 @@ let translate (classes : sclass_decl list) =
     add_terminal builder (match the_function.styp with
         A.Void -> L.build_ret_void
       | A.Float -> L.build_ret (L.const_float float_t 0.0)
-      | t -> L.build_ret (L.const_int (ltype_of_typ t) 0))
+      | t -> L.build_ret (L.const_int (ltype_of_typ_with_map t) 0))
 
     in let _ = build_function_body main_func_ll
   in the_module

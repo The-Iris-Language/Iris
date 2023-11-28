@@ -327,31 +327,69 @@ module StringMap = Map.Make(String)
                   | _ -> raise (Failure "whoops!")}
         
     (* check_encap, check_class... *)
-      in let check_member (mem : member) = 
-        match mem with
-          MemberFun(f) -> SMemberFun(check_function f)
-        | MemberVar(v) -> SMemberVar(v) (* check for valid class name (if class type) and duplicate and ladida *)
+      in let check_mem enc ((vars, perm_vars), (meths, perm_meths)) (mem : member)  =
+          (match mem with
+            MemberFun(f) -> 
+              let sfunc = check_function f
+              in 
+                (match enc with 
+                  "permit" -> ((vars, perm_vars), (meths, sfunc :: perm_meths))
+                  | _        -> ((vars, perm_vars), (sfunc :: meths, perm_meths)))
+          | MemberVar(v) -> 
+            (* TO DO: make sure that the type actually exists and variable?? *)
+            (match enc with 
+              "permit" -> ((vars, v :: perm_vars), (meths, perm_meths))
+              | _ -> ((v :: vars, perm_vars), (meths, perm_meths))))
+      in let check_encap lists ((enc, mems) : encap) = 
+        List.fold_left (check_mem enc) lists mems
+        (* (match mem with
+          MemberFun(f) -> 
+            let sfunc = check_function f
+            in 
+              (match enc with 
+                "permit" -> ((vars, perm_vars), (meths, sfunc :: perm_meths))
+                | _        -> ((vars, perm_vars), (sfunc :: meths, perm_meths)))
+        | MemberVar(v) -> 
+          (* TO DO: make sure that the type actually exists and variable?? *)
+          (match enc with 
+            "permit" -> ((vars, v :: perm_vars), (meths, perm_meths))
+            | _ -> ((v :: vars, perm_vars), (meths, perm_meths)))) check for valid class name (if class type) and duplicate and ladida *)
       
         
         (* maybe we allow for up to 3 encap blocks *)
         (* made one big function because we want to assign each encap into corresponding public, permit, and private *)
-      in let check_encap_list (encaps : encap list) = 
+      (* in let check_encap_list (encaps : encap list) = 
         (* let invalid_encaps_error = "encapsulation is malformed"  *)
           (* if (List.length encaps > 3) then raise (Failure invalid_encaps_error) 
           else                                    TODO: check for dup labels ??? *)
         let first = List.nth encaps 0 in
-          (fst first, List.map check_member (snd first)) :: [] (* eventually need to loop over encaps and check their mems *)
+          (fst first, List.map check_member (snd first)) :: [] eventually need to loop over encaps and check their mems *)
             
       in let check_class (cls : class_decl) = 
-       (* TODO: check permitted list for valid names, *) 
+        let ((vars, perm_vars), (meths, perm_meths)) = List.fold_left check_encap (([], []), ([], [])) cls.mems
+        in (* TODO: check permitted list for valid names, *) 
 
       { sclass_name = cls.class_name;
         sparent_name = cls.parent_name;
         spermitted = cls.permitted;
-        smems =  check_encap_list cls.mems;
+        svars = vars;
+        spermittedvars = perm_vars;
+        smeths = meths; 
+        spermittedmeths = perm_meths
       }
     in List.map check_class cdecls
 
+    (* type sclass_decl = {
+  sclass_name : string;
+  sparent_name : string;
+  spermitted: string list;
+  svars: bind list;
+  spermittedvars: bind list;
+  smeths: string * sfunc_decl list;  (* change to a tuple of (origin class, sfun_decl) *)
+  spermittedmeths: string * sfunc_decl list;
+  (* smems: sencap list; *)
+} *)
+     
   (* semantically check all, then make sure main exists *)
   in let sclasses = build_sast classes
 

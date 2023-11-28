@@ -76,9 +76,11 @@ type sclass_decl = {
   sclass_name : string;
   sparent_name : string;
   spermitted: string list;
-  (* svars: bind list;
-  smeths: sfunc_decl list *)
-  smems: sencap list;
+  svars: bind list;
+  spermittedvars: bind list;
+  smeths: sfunc_decl list;  (* change to a tuple of (origin class, sfun_decl) *)
+  spermittedmeths: sfunc_decl list;
+  (* smems: sencap list; *)
 }
 
 type sprogram = sclass_decl list

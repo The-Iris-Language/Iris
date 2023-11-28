@@ -1,0 +1,10 @@
+.. Test declaring a local variable in Main 
+class Main () {
+    public: 
+        int univ main() {
+            int hello;
+            hello = "hello";
+            Olympus.print("Variable Assigned!");
+            return 0;
+        }
+}
