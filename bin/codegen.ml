@@ -21,6 +21,8 @@ open Sast
 
 module StringMap = Map.Make(String)
 
+(* accessing variable in a struct type: use build_struct_gep *)
+
 (* TODO for hello world deliverable:
   1. types
   2. func_decls
@@ -63,14 +65,25 @@ let translate (classes : sclass_decl list) =
     
   in let populate_type_map context tmap sc_decl =
     let c_name   = sc_decl.sclass_name
+    (* build vritual table *)
+    
     and all_vars = (sc_decl.svars @ sc_decl.spermittedvars)
     in 
-      let all_typs = (L.pointer_type i8_t(* jump table type ????? *)) :: (List.map (ltype_of_typ tmap) (fst (List.split all_vars)))
+    (* i32_t to hold position in array of vtables *)
+      let all_typs = i32_t :: (List.map (ltype_of_typ tmap) (fst (List.split all_vars)))
       in
         let arr_vars = Array.of_list all_typs
       in StringMap.add c_name (L.struct_type context arr_vars) tmap
-    in let type_map = List.fold_left (populate_type_map context) StringMap.empty classes
-  
+    in 
+      let type_map = List.fold_left (populate_type_map context) StringMap.empty classes
+    (* making vtable types *)
+    (* in 
+  let make_vtable_typ context vtmap sc_decl = 
+    let all_funcs = (sc_decl.smeths @ sc_decl.spermittedmeths)
+    and all_ftypes = List.map (fun sfunc -> sfunc.styp) sc_decl.
+    in let arr_ftyps = List.map (ltype_of_typ type_map) (fst (List.split)) *)
+
+  in
   (* Int -> "int"
   | Bool -> "bool"
   | Float -> "float"

@@ -5,8 +5,10 @@ using namespace std;
 
 class Dog {
     public: 
-        int weight;
+        
         string name;
+        int age;
+        int weight;
         
         Dog() {
             weight = 10;
@@ -21,4 +23,8 @@ class Dog {
 int main() {
     Dog d = Dog();
     return 0;
+}
+
+void initDog(Dog d) {
+    d.weight = 3;
 }
