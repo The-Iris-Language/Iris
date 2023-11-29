@@ -244,18 +244,35 @@ module StringMap = Map.Make(String)
             in let sxpr_list = List.map (check_expr m) args 
               in let sl  = List.map (fun ((t, sexpr), _) -> (t, sexpr)) sxpr_list
               in ((func.typ, SCall(class_string, function_string, sl)), m)
-      | Assign (n, e) -> (try let var = StringMap.find n m 
-                          and (sexpr, m') = check_expr m e in
-                            if (fst var == fst sexpr) then 
-                                ((fst sexpr, SAssign(n, sexpr)), m')
-                            else raise (Failure ("variable " ^ n ^ " has type " ^ string_of_typ (fst var) 
-                                                ^ ", but an expression with type " ^ string_of_typ (fst sexpr) 
-                                                ^ " was found."))
-                            with Not_found -> raise (Failure ("variable " ^ n ^ " not found"))) 
+      | Assign (n, e) -> 
+        (try let var = StringMap.find n m 
+             and (sexpr, m') = check_expr m e in
+                if (fst var = fst sexpr) then 
+                    ((fst sexpr, SAssign(n, sexpr)), m')
+                else raise (Failure ("variable " ^ n ^ " has type " ^ string_of_typ (fst var) 
+                                    ^ ", but an expression with type " ^ string_of_typ (fst sexpr) 
+                                    ^ " was found."))
+                with Not_found -> raise (Failure ("variable " ^ n ^ " not found"))) 
                         (* try let _ = StringMap.find n m in
                      raise (Failure ("local variable " ^ n ^ " already exists"))
                   with Not_found -> ((SLocal (t, n)), m)) *)
               (* check for same type and previously defined *)
+      | ClassVarAssign (inst_name, mem, e) -> 
+        let (class_typ, _) = StringMap.find inst_name m 
+        in 
+          let cname = (match class_typ with 
+            Object (c) -> c
+            | _ -> raise (Failure ("variable " ^ inst_name ^ " not an object")))
+          in 
+            (* pull out type from chungus variable *)
+            let (_, (mem_type, _)) = find_var big_chungus cname mem
+          in
+            let (sexpr, m') = (check_expr m e) in
+            if (mem_type = fst sexpr) then 
+              ((mem_type, SClassVarAssign(inst_name, mem, sexpr)), m')
+            else 
+              raise (Failure (inst_name ^ "." ^ mem ^ " expects type " ^ string_of_typ mem_type ^ ", but an expression of type " ^ string_of_typ (fst sexpr) ^ " was supplied"))                                           
+                                                 
       | Noexpr -> ((Void, SNoexpr), m)
       | _ -> raise (Failure not_implemented_err)
     
@@ -274,7 +291,9 @@ module StringMap = Map.Make(String)
            (SExpr(checked_expr), new_m)
           | Local (t, n) -> (match t with
               Void -> raise (Failure void_err)
-            | Object (cname) -> raise (Failure (not_implemented_err ^ ": " ^ cname))
+            | Object (cname) -> try let _ = StringMap.find n m in
+                      raise (Failure ("local variable " ^ n ^ " already exists"))
+                      with Not_found -> ((SLocal (Object (cname), n)), m)
             | _ ->  try let _ = StringMap.find n m in
                       raise (Failure ("local variable " ^ n ^ " already exists"))
                     with Not_found -> ((SLocal (t, n)), m))
@@ -372,8 +391,8 @@ module StringMap = Map.Make(String)
       { sclass_name = cls.class_name;
         sparent_name = cls.parent_name;
         spermitted = cls.permitted;
-        svars = vars;
-        spermittedvars = perm_vars;
+        svars = List.rev vars;
+        spermittedvars = List.rev perm_vars;
         smeths = meths; 
         spermittedmeths = perm_meths
       }

@@ -20,6 +20,8 @@ open Sast
 (* open Ast *)
 
 module StringMap = Map.Make(String)
+module IntMap = Map.Make(Int)
+
 
 (* accessing variable in a struct type: use build_struct_gep *)
 
@@ -62,28 +64,65 @@ let translate (classes : sclass_decl list) =
           StringMap.find ctyp tmap
         with
         | Not_found -> raise (Failure (type_not_found_err)))
+      in 
+  let get_typ_name = function 
+      A.Object (ctyp) -> ctyp 
+      | _ -> raise (Failure "stoopid")
     
-  in let populate_type_map context tmap sc_decl =
-    let c_name   = sc_decl.sclass_name
-    (* build vritual table *)
-    
-    and all_vars = (sc_decl.svars @ sc_decl.spermittedvars)
-    in 
-    (* i32_t to hold position in array of vtables *)
-      let all_typs = i32_t :: (List.map (ltype_of_typ tmap) (fst (List.split all_vars)))
-      in
-        let arr_vars = Array.of_list all_typs
-      in StringMap.add c_name (L.struct_type context arr_vars) tmap
-    in 
-      let type_map = List.fold_left (populate_type_map context) StringMap.empty classes
-    (* making vtable types *)
-    (* in 
-  let make_vtable_typ context vtmap sc_decl = 
-    let all_funcs = (sc_decl.smeths @ sc_decl.spermittedmeths)
-    and all_ftypes = List.map (fun sfunc -> sfunc.styp) sc_decl.
-    in let arr_ftyps = List.map (ltype_of_typ type_map) (fst (List.split)) *)
+  in 
+    let populate_type_map context (tmap, chunguini) sc_decl =
+      let c_name   = sc_decl.sclass_name
+      (* build vritual table *)
+      
+      and all_vars = (sc_decl.svars @ sc_decl.spermittedvars)
+      and perm_len = List.length sc_decl.spermitted
+        in 
+          let perm_arr = L.array_type string_t perm_len
+      in let (typs, vnames) = (List.split all_vars) 
+      (* i32_t to hold position in array of vtables *)
+    in let all_typs = i32_t :: (perm_arr :: (List.map (ltype_of_typ tmap) typs))
+        and  (new_var_index_map, _) = List.fold_left (fun (acc, count) var_name -> ((StringMap.add var_name count acc), count + 1) ) (StringMap.empty, 0) vnames
+        in
+          let arr_vars = Array.of_list all_typs
+          in 
+          (* let new_struct = L.struct_type context arr_vars  *)
+            let new_struct = (L.named_struct_type context c_name)
+            in 
+              let _ = L.struct_set_body new_struct arr_vars false
+              in (StringMap.add c_name new_struct tmap, StringMap.add c_name (new_var_index_map, StringMap.empty) chunguini)
 
+        
+      in 
+        let (type_map, chunguini) = List.fold_left (populate_type_map context) (StringMap.empty, StringMap.empty) classes
+      
+          in let ltype_map = ltype_of_typ type_map 
+          
   in
+  (* making vtable types *)
+  let make_vtable_typ context (vtmap, counter) sc_decl = 
+    let all_funcs = (sc_decl.smeths @ sc_decl.spermittedmeths)
+    in 
+      (* list of function return/formal types (styp) *)
+      let all_ftypes  = List.map (fun sfunc -> sfunc.styp) all_funcs
+      and all_formals = List.map (fun sfunc -> fst (List.split sfunc.sformals)) all_funcs
+      in 
+        (* list of function return/formal lltypes *)
+        let ret_fltyps    = List.map ltype_map all_ftypes
+        and formal_fltyps = (List.map (fun typs -> Array.of_list (List.map ltype_map typs)) all_formals )
+        in 
+          let all_args = List.combine ret_fltyps formal_fltyps
+          in
+            let func_ltypes = List.map (fun (ret, forms) -> (L.pointer_type (L.function_type ret forms))) all_args
+            in 
+              let v_table_struct = L.struct_type context (Array.of_list func_ltypes)
+              in (IntMap.add counter v_table_struct vtmap, counter + 1)
+  
+  in let (vt_map, array_length) = List.fold_left (make_vtable_typ context) (IntMap.empty, 0) classes
+
+
+
+
+  
   (* Int -> "int"
   | Bool -> "bool"
   | Float -> "float"
@@ -91,7 +130,7 @@ let translate (classes : sclass_decl list) =
   | Char -> "char"
   | String -> "string"
   | Object(o) -> o *)
-  
+   
   (* let main_class = find_class "Main" classes in  *)
 
 (* HALLO *)
@@ -109,9 +148,10 @@ let translate (classes : sclass_decl list) =
       SMemberFun(f) -> f
     | _            -> raise (Failure var_err)
   in  *)
-  let ltype_of_typ_with_map = ltype_of_typ type_map in
+  
+
   let main_func = (List.nth main_class.smeths 0) in
-     let ftype = L.function_type (ltype_of_typ_with_map main_func.styp) [||] in
+     let ftype = L.function_type (ltype_map main_func.styp) [||] in
      let main_func_ll = (L.define_function "main" ftype the_module, main_func) in
   
 
@@ -138,6 +178,16 @@ let translate (classes : sclass_decl list) =
         | SAssign (n, e) -> let e' = fst (expr builder m e) in 
                               let _ = L.build_store e' (StringMap.find n m) builder in 
                             (e', m)
+        | SClassVarAssign(name, var, e) -> 
+            let e' = fst (expr builder m e) 
+            and cname = get_typ_name t
+            in 
+              let (vmap, _) = StringMap.find cname chunguini (* TODO: make abstraction for chunguini *)
+              in 
+                let gep = L.build_struct_gep (ltype_map t) (StringMap.find var vmap) "0" builder
+                in
+                  let _ = L.build_store e' gep
+            in (e', m)                      
         | SCall ("Olympus", "print", [e]) ->
           (L.build_call print_func [| format_str ; (fst (expr builder m e)) |]
           "printf" builder, m)
@@ -177,7 +227,7 @@ let translate (classes : sclass_decl list) =
                             | _ -> L.build_ret (expr builder e) builder 
                      in builder *) 
 
-        | SLocal (t, n) -> let local = L.build_alloca (ltype_of_typ_with_map t) n builder in
+        | SLocal (t, n) -> let local = L.build_alloca (ltype_map t) n builder in
                            (builder, StringMap.add n local map) 
         | _ -> let not_implemented_err = "not implemented yet!" in 
               raise (Failure not_implemented_err) in
@@ -188,7 +238,7 @@ let translate (classes : sclass_decl list) =
     add_terminal builder (match the_function.styp with
         A.Void -> L.build_ret_void
       | A.Float -> L.build_ret (L.const_float float_t 0.0)
-      | t -> L.build_ret (L.const_int (ltype_of_typ_with_map t) 0))
+      | t -> L.build_ret (L.const_int (ltype_map t) 0))
 
     in let _ = build_function_body main_func_ll
   in the_module

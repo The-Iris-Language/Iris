@@ -25,6 +25,6 @@ int main() {
     return 0;
 }
 
-void initDog(Dog d) {
+void initDog(Dog d, int i, int j, int q) {
     d.weight = 3;
 }

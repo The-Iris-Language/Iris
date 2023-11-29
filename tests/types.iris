@@ -1,0 +1,36 @@
+class Animal () {
+    public:
+        int legs;
+        int eyes;
+        bool fur;
+        
+        string noise(int volume) {
+            return "ruh roh raggy";
+        }
+
+    permit: 
+        string color;
+        bool alive;
+}
+
+class Josh () {
+    public: 
+        int the_goat() {
+            return 1;
+        }
+    
+    permit:
+        int height;
+        int age;
+}
+
+class Main () {
+    public:
+       int univ main () {
+            Animal a;
+            a.legs = 0;
+            ..a.noise(5);
+            Olympus.print("Hello world!");
+            return 0;
+       }
+}

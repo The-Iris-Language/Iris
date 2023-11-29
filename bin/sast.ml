@@ -15,7 +15,7 @@ and sx =
   (* | SDoubleOp of string * doubleop *)
   | SAssign of string * sexpr
   (* | SDeclAssign of typ * string * sexpr *)
-  (* | SClassVarAssign of string * string * sexpr *)
+  | SClassVarAssign of string * string * sexpr
   (* | SOpAssign of string * op_assign * sexpr *)
   | SCall of string * string * sexpr list (* TODO: finish *)
   (* | SClassVar of string * string *)

@@ -38,7 +38,7 @@ open Ast
           let symbol_value = (parent_permit, (var_map, fun_map))
           in 
           StringMap.add c_decl.class_name symbol_value symbols
-  (* in List.fold_left build_chungus StringMap.empty classes *) (* returns the structure *)
+  (* in List.fold_left build_chungus StringMap.empty classes (* returns the structure *) *)
 
 let find_class chungus cname = 
   let class_not_defined = "class " ^ cname ^ " not defined" in
@@ -58,8 +58,7 @@ let find_func chungus cname fname =
   
 let find_var chungus cname vname = 
   let var_not_found = "variable " ^ vname ^ " not defined " ^ "in class " ^ cname  in 
-  let c = find_class chungus cname in 
-  let (_, vars) = snd (snd c) in
+  let (_, (vars, _)) = find_class chungus cname in 
   (try StringMap.find vname vars with Not_found -> raise (Failure var_not_found))
   
 
