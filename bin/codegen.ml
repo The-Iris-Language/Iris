@@ -180,18 +180,14 @@ let translate (classes : sclass_decl list) =
                             (e', m)
         | SClassVarAssign(name, var, e) -> 
             let e' = fst (expr builder m e) 
-            and (typ, lval) = StringMap.find name m
+            and (typ, lval) = StringMap.find name m (* if not found, need to *)
             in 
-              let cname = get_typ_name typ
+              let cname = get_typ_name typ 
               in 
                 let (vmap, _) = StringMap.find cname chunguini (* TODO: make abstraction for chunguini *)
-              (* in 
-                let ptr = L.build_alloca (ltype_map t) (name ^ "_addr") builder
-            in let _ = L.build_store 
-                let struct1 = L.build_malloc (ltype_map t) name builder *)
-            in let gep = L.build_struct_gep lval (StringMap.find var vmap) "0" builder
+            in let gep = L.build_struct_gep lval (StringMap.find var vmap) (name ^ var) builder
                 in
-                  let _ = L.build_store e' gep
+                  let _ = L.build_store e' gep builder
             in (e', m)                      
         | SCall ("Olympus", "print", [e]) ->
           (L.build_call print_func [| format_str ; (fst (expr builder m e)) |]
@@ -231,9 +227,9 @@ let translate (classes : sclass_decl list) =
                               (* Build return statement *) 
                             | _ -> L.build_ret (expr builder e) builder 
                      in builder *) 
-
+        
         | SLocal (t, n) -> let local = L.build_alloca (ltype_map t) n builder in
-                           (builder, StringMap.add n (t, local) map) 
+                           (builder, StringMap.add n (t, local) map) (* stores type of the local var so can be used in expr ^*)
         | _ -> let not_implemented_err = "not implemented yet!" in 
               raise (Failure not_implemented_err) in
 

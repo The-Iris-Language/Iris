@@ -291,12 +291,11 @@ module StringMap = Map.Make(String)
            (SExpr(checked_expr), new_m)
           | Local (t, n) -> (match t with
               Void -> raise (Failure void_err)
-            | Object (cname) -> try let _ = StringMap.find n m in
-                      raise (Failure ("local variable " ^ n ^ " already exists"))
-                      with Not_found -> ((SLocal (Object (cname), n)), m)
             | _ ->  try let _ = StringMap.find n m in
                       raise (Failure ("local variable " ^ n ^ " already exists"))
-                    with Not_found -> ((SLocal (t, n)), m))
+                    with Not_found -> (match t with 
+                      Object (cname) -> ((SLocal (Object (cname), n)), m) (* need to pattern match here or else get compiler warning*)
+                    | _ -> ((SLocal (t, n)), m)))
         (* | If(p, b1, b2) -> SIf(check_bool_expr p, check_stmt b1, check_stmt b2)
         | For(e1, e2, e3, st) -> SFor(expr e1, check_bool_expr e2, expr e3, check_stmt st)
         | While(p, s) -> SWhile(check_bool_expr p, check_stmt s) *)
