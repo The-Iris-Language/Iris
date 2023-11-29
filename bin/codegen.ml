@@ -174,17 +174,22 @@ let translate (classes : sclass_decl list) =
           SLiteral i -> (L.const_int i32_t i, m)
         | SBoolLit b -> (L.const_int i1_t (if b then 1 else 0), m)
         | SStringLit s -> (L.build_global_stringptr s s builder, m)
-        | SId n -> (L.build_load (StringMap.find n m) n builder, m)
+        | SId n -> (L.build_load (snd (StringMap.find n m)) n builder, m)
         | SAssign (n, e) -> let e' = fst (expr builder m e) in 
-                              let _ = L.build_store e' (StringMap.find n m) builder in 
+                              let _ = L.build_store e' (snd (StringMap.find n m)) builder in 
                             (e', m)
         | SClassVarAssign(name, var, e) -> 
             let e' = fst (expr builder m e) 
-            and cname = get_typ_name t
+            and (typ, lval) = StringMap.find name m
             in 
-              let (vmap, _) = StringMap.find cname chunguini (* TODO: make abstraction for chunguini *)
+              let cname = get_typ_name typ
               in 
-                let gep = L.build_struct_gep (ltype_map t) (StringMap.find var vmap) "0" builder
+                let (vmap, _) = StringMap.find cname chunguini (* TODO: make abstraction for chunguini *)
+              (* in 
+                let ptr = L.build_alloca (ltype_map t) (name ^ "_addr") builder
+            in let _ = L.build_store 
+                let struct1 = L.build_malloc (ltype_map t) name builder *)
+            in let gep = L.build_struct_gep lval (StringMap.find var vmap) "0" builder
                 in
                   let _ = L.build_store e' gep
             in (e', m)                      
@@ -228,7 +233,7 @@ let translate (classes : sclass_decl list) =
                      in builder *) 
 
         | SLocal (t, n) -> let local = L.build_alloca (ltype_map t) n builder in
-                           (builder, StringMap.add n local map) 
+                           (builder, StringMap.add n (t, local) map) 
         | _ -> let not_implemented_err = "not implemented yet!" in 
               raise (Failure not_implemented_err) in
 

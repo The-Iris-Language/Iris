@@ -6,13 +6,13 @@ using namespace std;
 class Dog {
     public: 
         
-        string name;
         int age;
         int weight;
+        char name[];
         
         Dog() {
             weight = 10;
-            name = "Bozo";
+            // name = "Bozo";
         }
         
         void woof() {
@@ -25,6 +25,6 @@ int main() {
     return 0;
 }
 
-void initDog(Dog d, int i, int j, int q) {
+void initDog(Dog d) {
     d.weight = 3;
 }

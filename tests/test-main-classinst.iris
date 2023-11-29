@@ -28,8 +28,7 @@ class Main () {
     public:
        int univ main () {
             Animal a;
-            a.legs = 0;
-            Olympus.print("Set a.legs to 0");
+            Olympus.print("Animal declared in main");
             return 0;
        }
 }
