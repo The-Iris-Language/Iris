@@ -1,0 +1,18 @@
+.. Assign a member to an expression of a different type
+
+class Dog () {
+    private: 
+        int age;
+        string color;
+} 
+
+class Main () {
+    public: 
+        int univ main() {
+            .. constructors
+            Dog d;
+            d.age = 5;
+            ..d.age;
+            Olympus.print("Assignment succesful!");
+        }
+}

@@ -275,8 +275,8 @@ module StringMap = Map.Make(String)
             let (encap_level, (mem_type, _)) = find_var big_chungus cname mem 
             in 
               (match encap_level with 
-                "private" -> raise (Failure ("variable " ^ inst_name ^ " not an object"))
-                | _       -> ((mem_type, SClassVar(inst_name, mem)), m))
+                "private:" -> raise (Failure ("member " ^ mem ^ " is not accessible"))
+                | _       ->  ((mem_type, SClassVar(inst_name, mem)), m))
           
       | ClassVarAssign (inst_name, mem, e) -> 
         let (class_typ, _) = StringMap.find inst_name m 
@@ -286,13 +286,15 @@ module StringMap = Map.Make(String)
             | _ -> raise (Failure ("variable " ^ inst_name ^ " not an object")))
           in 
             (* pull out type from chungus variable *)
-            let (_, (mem_type, _)) = find_var big_chungus cname mem
+            let (encap_level, (mem_type, _)) = find_var big_chungus cname mem
           in
-            let (sexpr, m') = (check_expr m e) in
+            (match encap_level with 
+              "private:" -> raise (Failure ("member " ^ mem ^ " is not accessible"))
+            | _         -> let (sexpr, m') = (check_expr m e) in
             if (mem_type = fst sexpr) then 
               ((mem_type, SClassVarAssign(inst_name, mem, sexpr)), m')
             else 
-              raise (Failure (inst_name ^ "." ^ mem ^ " expects type " ^ string_of_typ mem_type ^ ", but an expression of type " ^ string_of_typ (fst sexpr) ^ " was supplied"))                                           
+              raise (Failure (inst_name ^ "." ^ mem ^ " expects type " ^ string_of_typ mem_type ^ ", but an expression of type " ^ string_of_typ (fst sexpr) ^ " was supplied")))                                         
                                                  
       | Noexpr -> ((Void, SNoexpr), m)
       | _ -> raise (Failure not_implemented_err)

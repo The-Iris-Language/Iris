@@ -1,0 +1,1 @@
+Fatal error: exception Failure("d.color expects type string, but an expression of type int was supplied")

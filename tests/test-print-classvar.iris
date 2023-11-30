@@ -29,7 +29,7 @@ class Main () {
     public:
        int univ main () {
             Animal a;
-            a.name = "josh"; 
+            a.name = "animal name is josh"; 
             Olympus.print(a.name);
             return 0; 
        }

@@ -1,3 +1,4 @@
+.. Test declaring and assigning local int variable in Main 
 class Main () {
     public:
         int univ main() {

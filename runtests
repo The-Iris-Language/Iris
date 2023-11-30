@@ -37,7 +37,7 @@ globalerror=0
 keep=0
 
 Usage() {
-    echo "Usage: testall.sh [options] [.iris files]"
+    echo "Usage: sh runtests [options] [.iris files]"
     echo "-k    Keep intermediate files"
     echo "-h    Print this help"
     exit 1

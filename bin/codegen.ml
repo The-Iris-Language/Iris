@@ -117,7 +117,8 @@ let translate (classes : sclass_decl list) =
               let v_table_struct = L.struct_type context (Array.of_list func_ltypes)
               in (IntMap.add counter v_table_struct vtmap, (counter + 1))
   
-  in let (vt_map, array_length) = List.fold_left (make_vtable_typ context) (IntMap.empty, 0) classes
+  in let (_, _) = List.fold_left (make_vtable_typ context) (IntMap.empty, 0) classes
+        (*vmap, array_length *)
 
 
 

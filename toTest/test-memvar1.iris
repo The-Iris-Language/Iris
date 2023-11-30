@@ -3,7 +3,7 @@ class Dog {
         string color;
 
         void setColor(string c) {
-            color = c;
+            color = c; .. this should be self.color which we haven't implemented yet
         }
 } 
 
@@ -12,7 +12,7 @@ class Main {
         univ int main() {
             .. constructors
             Dog d = new Dog();
-            d.setColor("brown");
+            ..d.setColor("brown"); .. need to implement this
             Olympus.print(d.color);
         }
 }
