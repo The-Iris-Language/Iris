@@ -38,23 +38,19 @@ clean :
 # Building the zip
 
 TESTS = \
-local-main hello-world assign1
-# multiAssign univ charLitRight opAssign strLit vDecAss comments assignFunc \
-# doubleOp permitted inherit funcDecl self vdecl listConstructor \
-# univFuncCall opEncap classMain dotAssign
-
+assign-and-access assign1 assign2 hello-world lits1 local-main main-classinst \
+main-inst-mem-assign print-classvar
 
 FAILS = \
-assign-typ assign-undeclared local-decl local-dup 
-# emptyChar noColonEncap missingSemi var+ classPublic permitted noEncap \
-# opAssign 
+assign-typ assign-undeclared classvar-int classvar-priv classvar-typ-assign \
+duplicate-classes duplicate-other-classes id-DNE local-decl local-dup
 
 
 TESTFILES = $(TESTS:%=test-%.iris) $(TESTS:%=test-%.out) \
 	    $(FAILS:%=fail-%.iris) $(FAILS:%=fail-%.err)
 
 ZIPFILES = bin dune-project lib Makefile \
-	README Olympus.c runtest.sh \
+	README Olympus.c runtests \
 	$(TESTFILES:%=tests/%) 
 
 iris.zip : $(ZIPFILES)
