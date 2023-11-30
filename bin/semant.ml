@@ -257,6 +257,27 @@ module StringMap = Map.Make(String)
                      raise (Failure ("local variable " ^ n ^ " already exists"))
                   with Not_found -> ((SLocal (t, n)), m)) *)
               (* check for same type and previously defined *)
+      | DeclAssign (t, n, e) -> 
+        let (sexpr, m') = (check_expr m e) in 
+          if (t = fst sexpr) then 
+            let m' = StringMap.add n (t, n) m' in
+            ((fst sexpr, SDeclAssign(t, n, sexpr)), m')
+          else raise (Failure ("variable " ^ n ^ " has type " ^ string_of_typ t 
+                      ^ ", but an expression with type " ^ string_of_typ (fst sexpr) 
+                      ^ " was found."))
+      | ClassVar (inst_name, mem) -> 
+        let (class_typ, _) = StringMap.find inst_name m 
+        in 
+          let cname = (match class_typ with 
+            Object (c) -> c
+            | _ -> raise (Failure ("variable " ^ inst_name ^ " not an object")))
+          in 
+            let (encap_level, (mem_type, _)) = find_var big_chungus cname mem 
+            in 
+              (match encap_level with 
+                "private" -> raise (Failure ("variable " ^ inst_name ^ " not an object"))
+                | _       -> ((mem_type, SClassVar(inst_name, mem)), m))
+          
       | ClassVarAssign (inst_name, mem, e) -> 
         let (class_typ, _) = StringMap.find inst_name m 
         in 
@@ -289,7 +310,7 @@ module StringMap = Map.Make(String)
       in match s with 
         Expr e -> let (checked_expr, new_m) = check_expr m e in
            (SExpr(checked_expr), new_m)
-          | Local (t, n) -> (match t with
+        | Local (t, n) -> (match t with
               Void -> raise (Failure void_err)
             | _ ->  try let _ = StringMap.find n m in
                       raise (Failure ("local variable " ^ n ^ " already exists"))

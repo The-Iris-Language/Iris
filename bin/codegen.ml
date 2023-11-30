@@ -81,7 +81,7 @@ let translate (classes : sclass_decl list) =
       in let (typs, vnames) = (List.split all_vars) 
       (* i32_t to hold position in array of vtables *)
     in let all_typs = i32_t :: (perm_arr :: (List.map (ltype_of_typ tmap) typs))
-        and  (new_var_index_map, _) = List.fold_left (fun (acc, count) var_name -> ((StringMap.add var_name count acc), count + 1) ) (StringMap.empty, 0) vnames
+        and (new_var_index_map, _) = List.fold_left (fun (acc, count) var_name -> ((StringMap.add var_name count acc), (count + 1)) ) (StringMap.empty, 2) vnames
         in
           let arr_vars = Array.of_list all_typs
           in 
@@ -115,7 +115,7 @@ let translate (classes : sclass_decl list) =
             let func_ltypes = List.map (fun (ret, forms) -> (L.pointer_type (L.function_type ret forms))) all_args
             in 
               let v_table_struct = L.struct_type context (Array.of_list func_ltypes)
-              in (IntMap.add counter v_table_struct vtmap, counter + 1)
+              in (IntMap.add counter v_table_struct vtmap, (counter + 1))
   
   in let (vt_map, array_length) = List.fold_left (make_vtable_typ context) (IntMap.empty, 0) classes
 
@@ -185,13 +185,25 @@ let translate (classes : sclass_decl list) =
               let cname = get_typ_name typ 
               in 
                 let (vmap, _) = StringMap.find cname chunguini (* TODO: make abstraction for chunguini *)
-            in let gep = L.build_struct_gep lval (StringMap.find var vmap) (name ^ var) builder
-                in
-                  let _ = L.build_store e' gep builder
+                in 
+                  let gep = L.build_struct_gep lval (StringMap.find var vmap) (name ^ var) builder
+                  in
+                    let _ = L.build_store e' gep builder
             in (e', m)                      
         | SCall ("Olympus", "print", [e]) ->
           (L.build_call print_func [| format_str ; (fst (expr builder m e)) |]
           "printf" builder, m)
+        | SClassVar(name, var) -> 
+          let (typ, lval) = StringMap.find name m
+          in 
+            let cname = get_typ_name typ
+            in 
+              let (vmap, _ ) = StringMap.find cname chunguini
+              in
+                let gep = L.build_struct_gep lval (StringMap.find var vmap) (name ^ var) builder
+                in 
+                  (L.build_load gep (name ^ var) builder, m)
+                  (* (L.build_load (snd (StringMap.find n m)) n builder, m) *)
         | SNoexpr -> (L.const_int i32_t 0, m)
         | _ -> raise (Failure not_implemented_err)
 

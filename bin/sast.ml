@@ -14,11 +14,11 @@ and sx =
   | SUnop of uop * sexpr
   (* | SDoubleOp of string * doubleop *)
   | SAssign of string * sexpr
-  (* | SDeclAssign of typ * string * sexpr *)
+  | SDeclAssign of typ * string * sexpr
   | SClassVarAssign of string * string * sexpr
   (* | SOpAssign of string * op_assign * sexpr *)
   | SCall of string * string * sexpr list (* TODO: finish *)
-  (* | SClassVar of string * string *)
+  | SClassVar of string * string
   | SNoexpr
 (*
   type expr =
@@ -103,8 +103,9 @@ let rec string_of_sexpr (t, e) =
   | SClassVarAssign(_, _, _) -> "unimplemented"
   | SCall(cname, fname, el) ->
       cname ^ "." ^ fname ^ "(" ^ String.concat ", " (List.map string_of_sexpr el) ^ ")"
-  | SNoexpr -> ""
-				  ) ^ ")"				    
+  | SClassVar(_, _) -> "classvar"
+  | SNoexpr -> ""		
+  | _ -> "hi")	   ^ ")"  
 
 let rec string_of_sstmt = function
     SBlock(stmts) ->
