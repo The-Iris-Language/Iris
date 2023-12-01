@@ -20,25 +20,6 @@ and sx =
   | SCall of string * string * sexpr list (* TODO: finish *)
   | SClassVar of string * string
   | SNoexpr
-(*
-  type expr =
-    Literal of int
-  | Fliteral of string
-  | BoolLit of bool
-  | StringLit of string
-  | CharLit of string 
-  | Id of string
-  | Binop of expr * op * expr 
-  | Unop of uop * expr
-  | DoubleOp of string * doubleop
-  | Assign of string * expr
-  | DeclAssign of typ * string * expr
-  | ClassVarAssign of string * string * expr
-  | OpAssign of string * op_assign * expr
-  | Call of string * string * expr list
-  | ClassVar of string * string
-  | Noexpr
-*)
 
 type sstmt =
     SBlock of sstmt list

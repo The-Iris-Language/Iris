@@ -225,6 +225,7 @@ module StringMap = Map.Make(String)
         Literal l -> ((Int, SLiteral l), m)
       | BoolLit b -> ((Bool, SBoolLit b), m)
       | StringLit s -> ((String, SStringLit(s)), m)
+      | Fliteral f -> ((Float, SFliteral(f)), m)
       | Id n -> (try let (t, _) = StringMap.find n m 
                     in ((t, SId(n)), m)
                 with Not_found -> raise (Failure ("variable " ^ n ^ " not found")))
@@ -236,7 +237,26 @@ module StringMap = Map.Make(String)
                             | Not when t = Bool -> Bool
                             | _  -> raise (Failure wrong_type_err))
                             in 
-                         ((ty, SUnop(uop, (ty, e'))), m')                   
+                         ((ty, SUnop(uop, (ty, e'))), m')
+       | Binop (e1, op, e2) -> 
+        let ((t1, e1'), m') = check_expr m e1 
+        in
+          let ((t2, e2'), m'') = check_expr m' e2 in
+        (* All binary operators require operands of the same type *)
+        let same = t1 = t2 in
+        (* Determine expression type based on operator and operand types *)
+        let ty = match op with
+          Add | Sub | Mult | Div when same && t1 = Int   -> Int
+        | Add | Sub | Mult | Div when same && t1 = Float -> Float
+        | Equal | Neq            when same               -> Bool
+        | Less | Leq | Greater | Geq
+                   when same && (t1 = Int || t1 = Float) -> Bool
+        | And | Or when same && t1 = Bool -> Bool
+        | _ -> raise (
+      Failure ("illegal binary operator " ^
+                     string_of_typ t1 ^ " " ^ string_of_op op ^ " " ^
+                     string_of_typ t2 ^ " in " ^ string_of_expr e))
+        in ((ty, SBinop((t1, e1'), op, (t2, e2'))), m'')              
       | Call (class_string, function_string, (args : expr list)) -> 
         (* TODO CHANGEEEE check for instance vs class name *)
         let func_class = find_class class_string classes 
@@ -260,8 +280,8 @@ module StringMap = Map.Make(String)
       | DeclAssign (t, n, e) -> 
         let (sexpr, m') = (check_expr m e) in 
           if (t = fst sexpr) then 
-            let m' = StringMap.add n (t, n) m' in
-            ((fst sexpr, SDeclAssign(t, n, sexpr)), m')
+            let m'' = StringMap.add n (t, n) m' in
+            ((fst sexpr, SDeclAssign(t, n, sexpr)), m'')
           else raise (Failure ("variable " ^ n ^ " has type " ^ string_of_typ t 
                       ^ ", but an expression with type " ^ string_of_typ (fst sexpr) 
                       ^ " was found."))
@@ -348,9 +368,12 @@ module StringMap = Map.Make(String)
                 let (ret_list, map'') = check_stmt_list (StringMap.add (fst stmt1) svar map') ss in
                   (svar :: ret_list) *)
 
-            | stmt1 :: ss       -> (check_stmt map stmt1) :: check_stmt_list map ss
+            | stmt1 :: ss -> 
+              let (checked_stmt, map') = (check_stmt map stmt1) 
+              in 
+                (checked_stmt, map') :: check_stmt_list map' ss
 
-            | []                -> []
+            | []          -> []
             
           in let ret_stmts = List.map (fun (s, _) -> s) (check_stmt_list m sl)
           in (SBlock(ret_stmts), m)

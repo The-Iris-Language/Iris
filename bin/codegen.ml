@@ -175,10 +175,23 @@ let translate (classes : sclass_decl list) =
           SLiteral i -> (L.const_int i32_t i, m)
         | SBoolLit b -> (L.const_int i1_t (if b then 1 else 0), m)
         | SStringLit s -> (L.build_global_stringptr s s builder, m)
+        | SFliteral s -> 
+          let f = Float.of_string s 
+          in
+            (L.const_float float_t f, m)
         | SId n -> (L.build_load (snd (StringMap.find n m)) n builder, m)
         | SAssign (n, e) -> let e' = fst (expr builder m e) in 
                               let _ = L.build_store e' (snd (StringMap.find n m)) builder in 
                             (e', m)
+        | SDeclAssign (_, n, e) -> 
+          let local = L.build_alloca (ltype_map t) n builder 
+          in
+            let m' = StringMap.add n (t, local) m
+            in 
+              let e' = fst (expr builder m e) 
+              in 
+                let _ = L.build_store e' local builder 
+                in (e', m')
         | SClassVarAssign(name, var, e) -> 
             let e' = fst (expr builder m e) 
             and (typ, lval) = StringMap.find name m (* if not found, need to *)

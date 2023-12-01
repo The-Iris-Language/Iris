@@ -1,0 +1,10 @@
+.. testing float literals
+
+class Main () {
+    public:
+        int univ main() {
+            float number = 5.3;
+            Olympus.print("slay");
+            return 0;
+        }
+}
