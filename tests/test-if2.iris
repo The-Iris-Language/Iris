@@ -1,0 +1,14 @@
+.. test true case of if-else statement
+class Main () {
+    public:
+        int univ main () {
+            bool b = true;
+            if (b) {
+                Olympus.print("True case(then)");
+            } else {
+                Olympus.print("False case(else)");
+            }
+            return 0;
+        }
+        
+}

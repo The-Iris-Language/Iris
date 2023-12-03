@@ -5,7 +5,6 @@ class Main () {
 
             .. variable is not defined
             int cube;
-            ..cube.size;
             cube.size = 4;
 
 

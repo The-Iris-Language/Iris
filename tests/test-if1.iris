@@ -1,0 +1,11 @@
+.. test true case of if (no else)
+class Main () {
+    public:
+        int univ main () {
+            bool b = true;
+            if (b) {
+                Olympus.print("true then case");
+            } 
+            return 0;
+        }
+}

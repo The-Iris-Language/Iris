@@ -1,0 +1,103 @@
+# README: Iris Compiler
+
+Ayda Aricanli              ayda.aricanli@tufts.edu
+Trevor Sullivan            trevor.sullivan@tufts.edu
+Tim Valk                   timothy.valk@tufts.edu
+Valerie Zhang              valerie.zhang@tufts.edu
+Josh Kim                   joshua.kim634361@tufts.edu
+
+# How to compile and execute
+
+After downloading and unzipping the zip file, run 'make' in terminal. 
+This will compile the compiler into an executable. Building Iris requires 
+the same environment as MicroC.
+
+# How to run test script
+
+Running the test script may require changing the LLC and LLI variables. 
+"$(which llc)" was giving us trouble on our local machines.
+
+To run the testing script that runs the test suite, run "sh runtests" in 
+terminal. You can also run 'sh runtests tests/$filename$' to run a specific test.
+To keep intermediary files, run with the '-k' flag. The default options will 
+run our test-hello-world.iris test, which is the only test in the suite right
+now.
+
+The test script diffs the output of the program against a golden standard 
+provided in the test suite. All golden standard files contain the 
+corresponding test name and terminates with '.out' as its name. The test 
+script will not successfully compile a test program when it is incorrect.
+
+# What is in the test suite 
+failure tests:
+
+    assign-typ
+    -- Assign a variable with an expression of a different type
+
+    assign-undeclared 
+    -- Assign an undeclared variable a value
+
+    classvar-int
+    -- Access a member variable from an int
+
+    classvar-priv
+    -- Access a class member that is private
+
+    classvar-typ-assign
+    -- Assign a class member with an expression of a different type
+
+    duplicate-classes
+    -- Define two Mains 
+
+    duplicate-other-classes
+    -- Define two classes with the same name
+
+    id-DNE
+    -- Access an uninitialized variable
+
+    local-decl
+    -- Declare two variables of the same name and type in the same function
+    
+    local-dup
+    -- Declare two variables of the same name of different types in the same function
+
+passing tests:
+    assign-and-access:
+    -- Declare, assign, and print a string variable in three separate statements 
+
+    assign1:
+    -- Declare and assign an int variable in two separate statements
+    
+    assign2:
+    -- Declare and assign a string variable in two separate statements
+
+    assign-and-access: 
+    -- Declare, assign, and print a string variable in three separate statements
+    
+    hello-world;
+    -- Print out the string "Hello world!" using Olympus.print printing function
+    
+    lits1:
+    -- Declare and assign int, bool, and string locals in main(declaration and assign are on 2 lines)
+    
+    local-main:
+    -- Declare a local variable in main
+
+    main-classinst:
+    -- Declare an instance of a class in main
+
+    main-inst-mem-assign:
+    -- Assign a value to a public member variable in a class instance
+
+    print-classvar:
+    -- Access a public string class variable in a call to Olympus.print
+
+
+# What needs to be added
+
+While we have built our inheritance tree and implemented public and private 
+variables, we still need to handle inheriting and overloading parent members, 
+function calls (with encapsulation checking), and permitted members in classes.
+We also have to add smaller features like float and char literals, additional
+binary and unary operators, if/while statements, and a few other MicroC features
+that are included in our langauge.

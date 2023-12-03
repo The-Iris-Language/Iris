@@ -1,4 +1,4 @@
-.. Trying to access a private class var
+.. Trying to access a class var that DNE
 
 class Dog () {
     private: 
@@ -11,8 +11,7 @@ class Main () {
         int univ main() {
             .. constructors
             Dog d;
-            d.age = 5;
-            ..d.age;
+            d.name = "bob";
             Olympus.print("Assignment succesful!");
         }
 }

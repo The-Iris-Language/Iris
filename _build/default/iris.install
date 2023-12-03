@@ -1,0 +1,11 @@
+lib: [
+  "_build/install/default/lib/iris/META"
+  "_build/install/default/lib/iris/dune-package"
+  "_build/install/default/lib/iris/opam"
+]
+bin: [
+  "_build/install/default/bin/iris"
+]
+doc: [
+  "_build/install/default/doc/iris/README"
+]

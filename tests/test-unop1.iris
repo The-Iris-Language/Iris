@@ -1,0 +1,18 @@
+.~* Test unop (!) on bool declaration and assignment, and isolated assignment
+    and (-) on int/float declaration and assignment, and isolated assignment
+*~.
+
+class Main () {
+    public: 
+        int univ main() {
+            bool b = !false;
+            int c = 6;
+            int a = -1;
+            a = -c;
+            b = !b;
+            float f = -1.35;
+            f = -f;
+            Olympus.print("! and - successful");
+            return 0;
+        }
+}
