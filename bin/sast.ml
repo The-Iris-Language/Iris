@@ -8,7 +8,7 @@ and sx =
   | SFliteral of string
   | SBoolLit of bool
   | SStringLit of string
-  (* | SCharList of string *)
+  (* | SCharLit of string *)
   | SId of string
   | SBinop of sexpr * op * sexpr
   | SUnop of uop * sexpr

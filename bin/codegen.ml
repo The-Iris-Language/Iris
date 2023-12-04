@@ -119,19 +119,7 @@ let translate (classes : sclass_decl list) =
   
   in let (_, _) = List.fold_left (make_vtable_typ context) (IntMap.empty, 0) classes
         (*vmap, array_length *)
-
-
-
-
-  
-  (* Int -> "int"
-  | Bool -> "bool"
-  | Float -> "float"
-  | Void -> "void"
-  | Char -> "char"
-  | String -> "string"
-  | Object(o) -> o *)
-   
+        
   (* let main_class = find_class "Main" classes in  *)
 
 (* HALLO *)

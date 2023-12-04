@@ -1,8 +1,0 @@
-class Main () {
-    public: 
-        int univ main() {
-            string hello = "Hello world!";
-            Olympus.print(hello);
-            return 0;
-        }
-}
