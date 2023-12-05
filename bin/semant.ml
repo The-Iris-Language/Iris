@@ -179,11 +179,11 @@ module StringMap = Map.Make(String)
       try List.find check_mems mems
       with Not_found -> raise (Failure var_not_found) *)
 
-    in let find_class class_name classes = 
+    (* in let find_class class_name classes = 
       let class_not_found_err = "class " ^ class_name ^ " not found"
     in 
       try List.find (fun a_class -> (class_name = a_class.class_name)) classes 
-      with Not_found -> raise (Failure class_not_found_err)
+      with Not_found -> raise (Failure class_not_found_err) *)
 
 
     (* 
@@ -255,13 +255,37 @@ module StringMap = Map.Make(String)
                                    string_of_typ t1 ^ " " ^ string_of_op op ^ " " ^
                                    string_of_typ t2 ^ " in " ^ string_of_expr e))
             in ((ty, SBinop((t1, e1'), op, (t2, e2'))), m'')
-      | Call (class_string, function_string, (args : expr list)) -> 
-        (* TODO CHANGEEEE check for instance vs class name *)
-        let func_class = find_class class_string classes 
-          in let func = get_func function_string (snd (List.nth func_class.mems 0)) 
-            in let sxpr_list = List.map (check_expr m) args 
+      | Call (caller, function_string, (args : expr list)) -> 
+        (* TODO CHANGEEEE check for instance vs class name 
+          WE NEED TO CHECK FOR    
+        *)
+        (match caller with 
+        "$elf" -> raise (Failure "Unimplemented")
+        | _    -> let (encap, func_d) = 
+          (try find_func big_chungus caller function_string
+           with _ -> 
+            let (typ, _) = (try StringMap.find caller m  
+              with Not_found -> raise (Failure (caller ^ "is not a class or local variable")))
+            in let cname = (match typ with 
+                | Object (c) -> c
+                | _ -> raise (Failure ("Not an object")))
+          in (try find_func big_chungus cname function_string
+              with _ -> raise (Failure ("function " ^ function_string ^ "not defined in class " ^ cname))))
+          in (match encap with 
+          "private:" -> raise (Failure ("function " ^ function_string ^ " is not accessible"))
+          | _       -> 
+            
+            (* raise (Failure "not implemented yet") *)
+            
+  
+            (* ((mem_type, SCall(caller, function_string, args)), m) *)
+          
+            let sxpr_list = List.map (check_expr m) args 
               in let sl  = List.map (fun ((t, sexpr), _) -> (t, sexpr)) sxpr_list
-              in ((func.typ, SCall(class_string, function_string, sl)), m)
+                in let args = (try List.combine sl func_d.formals
+                            with _ -> raise (Failure "Number of arguments doesn't match"))
+                          in let _ = List.map (fun ((t1, _), (t2, _)) -> if t1 != t2 then raise (Failure "not matching types")) args
+              in ((func_d.typ, SCall(caller, function_string, sl)), m)))
       | Assign (n, e) -> 
         (try let var = StringMap.find n m 
              and (sexpr, m') = check_expr m e in

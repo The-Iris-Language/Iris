@@ -52,7 +52,7 @@ let find_parent_name chungus cname =
 let find_func chungus cname fname =
   let func_not_found = "function " ^ fname ^ " not defined " ^ "in class " ^ cname in 
   let c = find_class chungus cname in 
-  let (funcs, _) = fst (snd c) in
+  let funcs = snd (snd c) in
   (try StringMap.find fname funcs with Not_found -> raise (Failure func_not_found))
 
   

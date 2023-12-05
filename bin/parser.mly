@@ -5,7 +5,7 @@
 open Ast
 %}
 
-%token SEMI COLON DOT LPAREN RPAREN LBRACE RBRACE LBRACK RBRACK COMMA PLUS MINUS TIMES DIVIDE ASSIGN PEQ MEQ TEQ DEQ
+%token SEMI COLON DOT LPAREN RPAREN LBRACE RBRACE LBRACK RBRACK COMMA PLUS MINUS TIMES DIVIDE ASSIGN PEQ MEQ TEQ DEQ SELF
 %token NOT EQ NEQ LT LEQ GT GEQ AND OR PPLUS MMINUS
 %token RETURN IF ELSE FOR WHILE INT BOOL FLOAT VOID CHAR STRING UNIV 
 %token CLASS PUBLIC PERMIT PRIVATE OF NEW
@@ -160,41 +160,42 @@ expr_opt:
   | expr          { $1 }    
     
 expr:    
-    LITERAL                           { Literal($1)                }
-  | FLIT	                            { Fliteral($1)               }
-  | BLIT                              { BoolLit($1)                }
-  | CHARLIT	                          { CharLit($1)                } 
-  | STRINGLIT                         { StringLit($1)              }
-  | ID                                { Id($1)                     }
-  | expr PLUS   expr                  { Binop($1, Add,   $3)       }
-  | expr MINUS  expr                  { Binop($1, Sub,   $3)       }
-  | expr TIMES  expr                  { Binop($1, Mult,  $3)       }
-  | expr DIVIDE expr                  { Binop($1, Div,   $3)       }
-  | expr EQ     expr                  { Binop($1, Equal, $3)       }
-  | expr NEQ    expr                  { Binop($1, Neq,   $3)       }
-  | expr LT     expr                  { Binop($1, Less,  $3)       }
-  | expr LEQ    expr                  { Binop($1, Leq,   $3)       }
-  | expr GT     expr                  { Binop($1, Greater, $3)     }
-  | expr GEQ    expr                  { Binop($1, Geq,   $3)       }
-  | expr AND    expr                  { Binop($1, And,   $3)       }
-  | expr OR     expr                  { Binop($1, Or,    $3)       }
-  | MINUS expr %prec NOT              { Unop(Neg, $2)              }
-  | NOT expr                          { Unop(Not, $2)              }
-  | ID   PPLUS                        { DoubleOp($1, PPlus)        }
-  | ID   MMINUS                       { DoubleOp($1, MMinus)       }
-  | ID   PEQ    expr                  { OpAssign($1, Peq, $3)      }
-  | ID   MEQ    expr                  { OpAssign($1, Meq, $3)      }
-  | ID   TEQ    expr                  { OpAssign($1, Teq, $3)      }
-  | ID   DEQ    expr                  { OpAssign($1, Deq, $3)      }
-  | ID ASSIGN   expr                  { Assign($1, $3)             }
-  | typ ID ASSIGN expr %prec DASSIGN  { DeclAssign($1, $2, $4)     }
-  | ID DOT ID ASSIGN expr             { ClassVarAssign($1, $3, $5) }
-  | ID DOT ID                         { ClassVar($1, $3)           }
-  | ID DOT ID LPAREN args_opt RPAREN  { Call($1, $3, $5)           }
-  | ID LPAREN args_opt RPAREN         { Call("self", $1, $3)       } /* call on function within class */
-  | NEW ID LPAREN args_opt RPAREN     { Call($2, $2, $4)           }
-  | LBRACK args_opt RBRACK            { Call("List", "List", $2)   }
-  | LPAREN expr RPAREN                { $2 }
+    LITERAL                             { Literal($1)                }
+  | FLIT	                              { Fliteral($1)               }
+  | BLIT                                { BoolLit($1)                }
+  | CHARLIT	                            { CharLit($1)                } 
+  | STRINGLIT                           { StringLit($1)              }
+  | ID                                  { Id($1)                     }
+  | expr PLUS   expr                    { Binop($1, Add,   $3)       }
+  | expr MINUS  expr                    { Binop($1, Sub,   $3)       }
+  | expr TIMES  expr                    { Binop($1, Mult,  $3)       }
+  | expr DIVIDE expr                    { Binop($1, Div,   $3)       }
+  | expr EQ     expr                    { Binop($1, Equal, $3)       }
+  | expr NEQ    expr                    { Binop($1, Neq,   $3)       }
+  | expr LT     expr                    { Binop($1, Less,  $3)       }
+  | expr LEQ    expr                    { Binop($1, Leq,   $3)       }
+  | expr GT     expr                    { Binop($1, Greater, $3)     }
+  | expr GEQ    expr                    { Binop($1, Geq,   $3)       }
+  | expr AND    expr                    { Binop($1, And,   $3)       }
+  | expr OR     expr                    { Binop($1, Or,    $3)       }
+  | MINUS expr %prec NOT                { Unop(Neg, $2)              }
+  | NOT expr                            { Unop(Not, $2)              }
+  | ID   PPLUS                          { DoubleOp($1, PPlus)        }
+  | ID   MMINUS                         { DoubleOp($1, MMinus)       }
+  | ID   PEQ    expr                    { OpAssign($1, Peq, $3)      }
+  | ID   MEQ    expr                    { OpAssign($1, Meq, $3)      }
+  | ID   TEQ    expr                    { OpAssign($1, Teq, $3)      }
+  | ID   DEQ    expr                    { OpAssign($1, Deq, $3)      }
+  | ID ASSIGN   expr                    { Assign($1, $3)             }
+  | typ ID ASSIGN expr %prec DASSIGN    { DeclAssign($1, $2, $4)     }
+  | ID DOT ID ASSIGN expr               { ClassVarAssign($1, $3, $5) }
+  | ID DOT ID                           { ClassVar($1, $3)           }
+  | ID DOT ID LPAREN args_opt RPAREN    { Call($1, $3, $5)           }
+  | SELF DOT ID LPAREN args_opt RPAREN  { Call("$elf", $3, $5)           }
+  | ID LPAREN args_opt RPAREN           { Call("$elf", $1, $3)       } /* call on function within class */
+  | NEW ID LPAREN args_opt RPAREN       { Call($2, $2, $4)           }
+  | LBRACK args_opt RBRACK              { Call("List", "List", $2)   }
+  | LPAREN expr RPAREN                  { $2 }
 
 args_opt:
     /* nothing */ { [] }

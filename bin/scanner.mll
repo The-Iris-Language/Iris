@@ -69,6 +69,7 @@ rule token = parse
 | "string"  { STRING }
 | "true"    { BLIT(true)  }
 | "false"   { BLIT(false) }
+| "self"    { SELF }
 | digits as lxm { LITERAL(int_of_string lxm) }
 | digits '.'  digit* as lxm { FLIT(lxm) }
 | ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']* as lxm { ID(lxm) }
