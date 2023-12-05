@@ -1,6 +1,13 @@
 module StringMap = Map.Make(String)
 open Ast
+(* 
+  NOTE!!!!!!!!
+  - We reverese the order of the maps in chungus when we build 
+    -> IT IS NOT THE SAME AS IN THE PHOTO!!!!!!  
+  - the second tuple of chungus is (var_map, func_map) !!!
 
+
+*)
 (* Make chungus str map(assuming encap is checked):
    let build_chungus s c <- c is class_decl, s is chungus
     1. make tuple (parent name, permitted classes list)
