@@ -177,6 +177,7 @@ let translate (classes : sclass_decl list) =
                       | A.Float -> (L.build_fneg lval "tmp" builder, m') 
                       | _ -> raise (Failure "negation only for int or float"))
             | Not -> (L.build_not lval "tmp" builder, m'))
+            
         | SBinop(e1, bnop, e2) ->
             let (e1', m') = expr builder m e1 in 
             let (e2', m'') = expr builder m' e2 in 

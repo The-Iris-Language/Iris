@@ -116,7 +116,11 @@ module StringMap = Map.Make(String)
                              parent_name = "Object"; 
                              permitted = [];
                              mems = [("public", (MemberFun olympus_print) (*:: (MemberFun olympus_int_to_string) :: (MemberFun olympus_float_to_string)*) ::[])] }
-    in let classes = olympus_class::classes in
+    in let object_class =  { class_name = "Object"; 
+            parent_name = ""; 
+            permitted = [];
+            mems = [] }
+    in let classes = object_class :: (olympus_class :: classes) in
     let big_chungus = List.fold_left build_chungus StringMap.empty classes in
     let name_compare c1 c2 = compare c1.class_name c2.class_name in
         let check_dups checked a_class = 
@@ -216,201 +220,214 @@ module StringMap = Map.Make(String)
   (* build SAST. then if main() and Main exist: return SAST, else throw error *)
 
   in let build_sast (cdecls : class_decl list) =
-    (* TODO
-       BIG TODO DO NOT FORGET
-       write check_func function that defines these within it! *)
-    let rec check_expr m (e : expr) = 
-      let not_implemented_err = "not implemented expr: " ^ (string_of_expr e)
-      in match e with 
-        Literal l -> ((Int, SLiteral l), m)
-      | BoolLit b -> ((Bool, SBoolLit b), m)
-      | StringLit s -> ((String, SStringLit(s)), m)
-      | Fliteral f -> ((Float, SFliteral(f)), m)
-      | Id n -> (try let (t, _) = StringMap.find n m 
-                    in ((t, SId(n)), m)
-                with Not_found -> raise (Failure ("variable " ^ n ^ " not found")))
-      | Unop (uop, e) -> let ((t, e'), m') = check_expr m e in
-                          let wrong_type_err = "type: " ^ (string_of_typ t) ^ " is invalid for unop" ^ (string_of_uop Not)
-                          in 
-                            let ty = (match uop with
-                              Neg when t = Int || t = Float -> t
-                            | Not when t = Bool -> Bool
-                            | _  -> raise (Failure wrong_type_err))
+
+    let check_class (cls : class_decl) = 
+      let curr_class = cls.class_name
+
+      (* TODO
+        BIG TODO DO NOT FORGET
+        write check_func function that defines these within it! *)
+      in let rec check_expr m (e : expr) = 
+        let not_implemented_err = "not implemented expr: " ^ (string_of_expr e)
+        in match e with 
+          Literal l -> ((Int, SLiteral l), m)
+        | BoolLit b -> ((Bool, SBoolLit b), m)
+        | StringLit s -> ((String, SStringLit(s)), m)
+        | Fliteral f -> ((Float, SFliteral(f)), m)
+        | Id n -> (try let (t, _) = StringMap.find n m 
+                      in ((t, SId(n)), m)
+                  with Not_found -> raise (Failure ("variable " ^ n ^ " not found")))
+        | Unop (uop, e) -> let ((t, e'), m') = check_expr m e in
+                            let wrong_type_err = "type: " ^ (string_of_typ t) ^ " is invalid for unop" ^ (string_of_uop Not)
                             in 
-                         ((ty, SUnop(uop, (ty, e'))), m')
-       | Binop (e1, op, e2) -> 
-            let ((t1, e1'), m') = check_expr m e1 in
-            let ((t2, e2'), m'') = check_expr m' e2 in
-            (* All binary operators require operands of the same type *)
-            let same = t1 = t2 in
-            (* Determine expression type based on operator and operand types *)
-            let ty = match op with
-              Add | Sub | Mult | Div when same && t1 = Int   -> Int
-            | Add | Sub | Mult | Div when same && t1 = Float -> Float
-            | Equal | Neq            when same               -> Bool
-            | Less | Leq | Greater | Geq
-                      when same && (t1 = Int || t1 = Float) -> Bool
-            | And | Or when same && t1 = Bool               -> Bool
-            | _ -> raise (Failure ("illegal binary operator " ^
-                                   string_of_typ t1 ^ " " ^ string_of_op op ^ " " ^
-                                   string_of_typ t2 ^ " in " ^ string_of_expr e))
-            in ((ty, SBinop((t1, e1'), op, (t2, e2'))), m'')
-      | Call (caller, function_string, (args : expr list)) -> 
-        (* TODO CHANGEEEE check for instance vs class name 
-          WE NEED TO CHECK FOR    
-        *)
-        (match caller with 
-        "$elf" -> raise (Failure "Unimplemented")
-        | _    -> let (encap, func_d) = 
-          (try find_func big_chungus caller function_string
-           with _ -> 
-            let (typ, _) = (try StringMap.find caller m  
-              with Not_found -> raise (Failure (caller ^ "is not a class or local variable")))
-            in let cname = (match typ with 
-                | Object (c) -> c
-                | _ -> raise (Failure ("Not an object")))
-          in (try find_func big_chungus cname function_string
-              with _ -> raise (Failure ("function " ^ function_string ^ "not defined in class " ^ cname))))
+                              let ty = (match uop with
+                                Neg when t = Int || t = Float -> t
+                              | Not when t = Bool -> Bool
+                              | _  -> raise (Failure wrong_type_err))
+                              in 
+                          ((ty, SUnop(uop, (ty, e'))), m')
+        | Binop (e1, op, e2) -> 
+              let ((t1, e1'), m') = check_expr m e1 in
+              let ((t2, e2'), m'') = check_expr m' e2 in
+              (* All binary operators require operands of the same type *)
+              let same = t1 = t2 in
+              (* Determine expression type based on operator and operand types *)
+              let ty = match op with
+                Add | Sub | Mult | Div when same && t1 = Int   -> Int
+              | Add | Sub | Mult | Div when same && t1 = Float -> Float
+              | Equal | Neq            when same               -> Bool
+              | Less | Leq | Greater | Geq
+                        when same && (t1 = Int || t1 = Float) -> Bool
+              | And | Or when same && t1 = Bool               -> Bool
+              | _ -> raise (Failure ("illegal binary operator " ^
+                                    string_of_typ t1 ^ " " ^ string_of_op op ^ " " ^
+                                    string_of_typ t2 ^ " in " ^ string_of_expr e))
+              in ((ty, SBinop((t1, e1'), op, (t2, e2'))), m'')
+        | Call (caller, function_string, (args : expr list)) -> 
+          let (encap, func_d) = 
+          (* TODO CHANGEEEE check for instance vs class name 
+            WE NEED TO CHECK FOR    
+          *)
+          (match caller with 
+          "$elf" -> find_func big_chungus curr_class function_string
+          | _    -> (try find_func big_chungus caller function_string
+            with _ -> 
+              let (typ, _) = (try StringMap.find caller m  
+                with Not_found -> raise (Failure (caller ^ "is not a class or local variable")))
+              in 
+                let cname = (match typ with 
+                  | Object (c) -> c
+                  | _ -> raise (Failure ("Not an object")))
+                in 
+                  find_func big_chungus cname function_string))
           in (match encap with 
-          "private:" -> raise (Failure ("function " ^ function_string ^ " is not accessible"))
-          | _       -> 
-            
-            (* raise (Failure "not implemented yet") *)
-            
-  
-            (* ((mem_type, SCall(caller, function_string, args)), m) *)
-          
-            let sxpr_list = List.map (check_expr m) args 
-              in let sl  = List.map (fun ((t, sexpr), _) -> (t, sexpr)) sxpr_list
-                in let args = (try List.combine sl func_d.formals
-                            with _ -> raise (Failure "Number of arguments doesn't match"))
-                          in let _ = List.map (fun ((t1, _), (t2, _)) -> if t1 != t2 then raise (Failure "not matching types")) args
-              in ((func_d.typ, SCall(caller, function_string, sl)), m)))
-      | Assign (n, e) -> 
-        (try let var = StringMap.find n m 
-             and (sexpr, m') = check_expr m e in
-                if (fst var = fst sexpr) then 
-                    ((fst sexpr, SAssign(n, sexpr)), m')
-                else raise (Failure ("variable " ^ n ^ " has type " ^ string_of_typ (fst var) 
-                                    ^ ", but an expression with type " ^ string_of_typ (fst sexpr) 
-                                    ^ " was found."))
-                with Not_found -> raise (Failure ("variable " ^ n ^ " not found"))) 
-                        (* try let _ = StringMap.find n m in
-                     raise (Failure ("local variable " ^ n ^ " already exists"))
-                  with Not_found -> ((SLocal (t, n)), m)) *)
-              (* check for same type and previously defined *)
-      | DeclAssign (t, n, e) -> 
-        let (sexpr, m') = (check_expr m e) in 
-          if (t = fst sexpr) then 
-            let m'' = StringMap.add n (t, n) m' in
-            ((fst sexpr, SDeclAssign(t, n, sexpr)), m'')
-          else raise (Failure ("variable " ^ n ^ " has type " ^ string_of_typ t 
-                      ^ ", but an expression with type " ^ string_of_typ (fst sexpr) 
-                      ^ " was found."))
-      | ClassVar (inst_name, mem) -> 
-        let (class_typ, _) = StringMap.find inst_name m 
-        in 
-          let cname = (match class_typ with 
-            Object (c) -> c
-            | _ -> raise (Failure ("variable " ^ inst_name ^ " not an object")))
+            "private:" -> raise (Failure ("function " ^ function_string ^ " is not accessible"))
+            | _       ->      
+              let sxpr_list = List.map (check_expr m) args 
+                in let sl  = List.map (fun ((t, sexpr), _) -> (t, sexpr)) sxpr_list
+                  in let args = (try List.combine sl func_d.formals
+                              with _ -> raise (Failure "Number of arguments doesn't match"))
+                            in let _ = List.map (fun ((t1, _), (t2, _)) -> if t1 != t2 then raise (Failure "not matching types")) args
+                in ((func_d.typ, SCall(caller, function_string, sl)), m))
+        | Assign (n, e) -> 
+          (try let var = StringMap.find n m 
+              and (sexpr, m') = check_expr m e in
+                  if (fst var = fst sexpr) then 
+                      ((fst sexpr, SAssign(n, sexpr)), m')
+                  else raise (Failure ("variable " ^ n ^ " has type " ^ string_of_typ (fst var) 
+                                      ^ ", but an expression with type " ^ string_of_typ (fst sexpr) 
+                                      ^ " was found."))
+                  with Not_found -> raise (Failure ("variable " ^ n ^ " not found"))) 
+                          (* try let _ = StringMap.find n m in
+                      raise (Failure ("local variable " ^ n ^ " already exists"))
+                    with Not_found -> ((SLocal (t, n)), m)) *)
+                (* check for same type and previously defined *)
+        | DeclAssign (t, n, e) -> 
+          let (sexpr, m') = (check_expr m e) in 
+            if (t = fst sexpr) then 
+              let m'' = StringMap.add n (t, n) m' in
+              ((fst sexpr, SDeclAssign(t, n, sexpr)), m'')
+            else raise (Failure ("variable " ^ n ^ " has type " ^ string_of_typ t 
+                        ^ ", but an expression with type " ^ string_of_typ (fst sexpr) 
+                        ^ " was found."))
+        | ClassVar (inst_name, mem) -> 
+          let (class_typ, _) = StringMap.find inst_name m 
           in 
-            let (encap_level, (mem_type, _)) = find_var big_chungus cname mem 
+            let cname = (match class_typ with 
+              Object (c) -> c
+              | _ -> raise (Failure ("variable " ^ inst_name ^ " not an object")))
             in 
+              let (encap_level, (mem_type, _)) = find_var big_chungus cname mem 
+              in 
+                (match encap_level with 
+                  "private:" -> raise (Failure ("member " ^ mem ^ " is not accessible"))
+                  | _       ->  ((mem_type, SClassVar(inst_name, mem)), m))
+            
+        | ClassVarAssign (inst_name, mem, e) -> 
+          let (class_typ, _) = StringMap.find inst_name m 
+          in 
+            let cname = (match class_typ with 
+              Object (c) -> c
+              | _ -> raise (Failure ("variable " ^ inst_name ^ " not an object")))
+            in 
+              (* pull out type from chungus variable *)
+              let (encap_level, (mem_type, _)) = find_var big_chungus cname mem
+            in
               (match encap_level with 
                 "private:" -> raise (Failure ("member " ^ mem ^ " is not accessible"))
-                | _       ->  ((mem_type, SClassVar(inst_name, mem)), m))
-          
-      | ClassVarAssign (inst_name, mem, e) -> 
-        let (class_typ, _) = StringMap.find inst_name m 
-        in 
-          let cname = (match class_typ with 
-            Object (c) -> c
-            | _ -> raise (Failure ("variable " ^ inst_name ^ " not an object")))
-          in 
-            (* pull out type from chungus variable *)
-            let (encap_level, (mem_type, _)) = find_var big_chungus cname mem
-          in
-            (match encap_level with 
-              "private:" -> raise (Failure ("member " ^ mem ^ " is not accessible"))
-            | _         -> let (sexpr, m') = (check_expr m e) in
-            if (mem_type = fst sexpr) then 
-              ((mem_type, SClassVarAssign(inst_name, mem, sexpr)), m')
-            else 
-              raise (Failure (inst_name ^ "." ^ mem ^ " expects type " ^ string_of_typ mem_type ^ ", but an expression of type " ^ string_of_typ (fst sexpr) ^ " was supplied")))                                         
-                                                 
-      | Noexpr -> ((Void, SNoexpr), m)
-      | _ -> raise (Failure not_implemented_err)
-    
-
-    in let check_function (func : func_decl) =
+              | _         -> let (sexpr, m') = (check_expr m e) in
+              if (mem_type = fst sexpr) then 
+                ((mem_type, SClassVarAssign(inst_name, mem, sexpr)), m')
+              else 
+                raise (Failure (inst_name ^ "." ^ mem ^ " expects type " ^ string_of_typ mem_type ^ ", but an expression of type " ^ string_of_typ (fst sexpr) ^ " was supplied")))                                         
+                                                  
+        | Noexpr -> ((Void, SNoexpr), m)
+        | _ -> raise (Failure not_implemented_err)
       
 
-(* Will have StringMap for Class Variables *)
-      (* TODO: eventually check formals / binds !! *)
+      in let check_function (func : func_decl) =
         
-      let rec check_stmt m (s : stmt) = 
-        let not_implemented_err = "not implemented stmt: " ^ string_of_stmt s
-      in let void_err = "void type cannot be used to declare variable: " ^ string_of_stmt s
-      in match s with 
-        Expr e -> let (checked_expr, new_m) = check_expr m e in
-           (SExpr(checked_expr), new_m)
-        | Local (t, n) -> (match t with
-              Void -> raise (Failure void_err)
-            | _ ->  try let _ = StringMap.find n m in
-                      raise (Failure ("local variable " ^ n ^ " already exists"))
-                    with Not_found -> (match t with 
-                      Object (cname) -> ((SLocal (Object (cname), n)), m) (* need to pattern match here or else get compiler warning*)
-                    | _ -> ((SLocal (t, n)), m)))
-        | If(p, b1, b2) -> 
-            let (b, m1) = check_expr m p in 
-            let (stmt1, _) = check_stmt m1 b1 in
-            let (stmt2, _) = check_stmt m1 b2 in 
-            (SIf(b, stmt1, stmt2), m)
-        (* | For(e1, e2, e3, st) -> SFor(expr e1, check_bool_expr e2, expr e3, check_stmt st)
-        | While(p, s) -> SWhile(check_bool_expr p, check_stmt s) *)
-        | Return e -> let ((t, e'), m) = check_expr m e
-          (* func is the argument of check_func (to be written) *)
-          in if t = func.typ then (SReturn (t, e'), m)
-          else raise (Failure ("return gives " ^ string_of_typ t ^ " expected " ^
-                              string_of_typ func.typ ^ " in " ^ string_of_expr e))
-        | Block sl -> 
-          let rec check_stmt_list map slist = match slist with 
-              [Return _ as s]   -> [check_stmt m s]
-            | Return _ :: _     -> raise (Failure "nothing may follow a return")
-            | Block sl :: ss    -> check_stmt_list map (sl @ ss)  (* Flatten blocks *)
-            | Local stmt1 :: ss -> 
-              let (svar, map') = check_stmt map (Local stmt1) in
-              let (typ, name) = 
-              (match svar with 
-                (SLocal b)  -> b
-                | _ -> raise (Failure "not reachable wut da fuk r u doing")) 
-              in 
-              (svar, map') :: check_stmt_list (StringMap.add name (typ, name) map') ss
-                (* let (svar, map') = check_stmt map (Local stmt1) in 
-                let (ret_list, map'') = check_stmt_list (StringMap.add (fst stmt1) svar map') ss in
-                  (svar :: ret_list) *)
-            | stmt1 :: ss -> 
-              let (checked_stmt, map') = (check_stmt map stmt1) 
-              in 
-                (checked_stmt, map') :: check_stmt_list map' ss
-            | []          -> [] 
-          in let ret_stmts = List.map (fun (s, _) -> s) (check_stmt_list m sl)
-          in (SBlock(ret_stmts), m)
 
-        | _ -> raise (Failure not_implemented_err)
-        in let locals = StringMap.empty 
-      in {suniv = func.univ;
-          styp = func.typ;
-          sfname = func.fname;
-          sformals = func.formals;
-          sbody = let (checked_block, _) = check_stmt locals (Block (func.body))
-                  in match checked_block with 
-                  SBlock(checked_stmt_list) -> checked_stmt_list
-                  | _ -> raise (Failure "whoops!")}
-        
-    (* check_encap, check_class... *)
-      in let check_mem enc ((vars, perm_vars), (meths, perm_meths)) (mem : member)  =
-          (match mem with
+  (* Will have StringMap for Class Variables *)
+        (* TODO: eventually check formals / binds !! *)
+          
+        let rec check_stmt m (s : stmt) = 
+          let not_implemented_err = "not implemented stmt: " ^ string_of_stmt s
+        in let void_err = "void type cannot be used to declare variable: " ^ string_of_stmt s
+        in match s with 
+          Expr e -> let (checked_expr, new_m) = check_expr m e in
+            (SExpr(checked_expr), new_m)
+          | Local (t, n) -> (match t with
+                Void -> raise (Failure void_err)
+              | _ ->  try let _ = StringMap.find n m in
+                        raise (Failure ("local variable " ^ n ^ " already exists"))
+                      with Not_found -> (match t with 
+                        Object (cname) -> ((SLocal (Object (cname), n)), m) (* need to pattern match here or else get compiler warning*)
+                      | _ -> ((SLocal (t, n)), m)))
+          | If(p, b1, b2) -> 
+              let (b, m1) = check_expr m p in 
+              let (stmt1, _) = check_stmt m1 b1 in
+              let (stmt2, _) = check_stmt m1 b2 in 
+              (SIf(b, stmt1, stmt2), m)
+          (* | For(e1, e2, e3, st) -> SFor(expr e1, check_bool_expr e2, expr e3, check_stmt st)
+          | While(p, s) -> SWhile(check_bool_expr p, check_stmt s) *)
+          | Return e -> let ((t, e'), m) = check_expr m e
+            (* func is the argument of check_func (to be written) *)
+            in if t = func.typ then (SReturn (t, e'), m)
+            else raise (Failure ("return gives " ^ string_of_typ t ^ " expected " ^
+                                string_of_typ func.typ ^ " in " ^ string_of_expr e))
+          | Block sl -> 
+            let rec check_stmt_list map slist = match slist with 
+                [Return _ as s]   -> [check_stmt m s]
+              | Return _ :: _     -> raise (Failure "nothing may follow a return")
+              | Block sl :: ss    -> check_stmt_list map (sl @ ss)  (* Flatten blocks *)
+              | Local stmt1 :: ss -> 
+                let (svar, map') = check_stmt map (Local stmt1) in
+                let (typ, name) = 
+                (match svar with 
+                  (SLocal b)  -> b
+                  | _ -> raise (Failure "not reachable wut da fuk r u doing")) 
+                in 
+                (svar, map') :: check_stmt_list (StringMap.add name (typ, name) map') ss
+                  (* let (svar, map') = check_stmt map (Local stmt1) in 
+                  let (ret_list, map'') = check_stmt_list (StringMap.add (fst stmt1) svar map') ss in
+                    (svar :: ret_list) *)
+              | stmt1 :: ss -> 
+                let (checked_stmt, map') = (check_stmt map stmt1) 
+                in 
+                  (checked_stmt, map') :: check_stmt_list map' ss
+              | []          -> [] 
+            in let ret_stmts = List.map (fun (s, _) -> s) (check_stmt_list m sl)
+            in (SBlock(ret_stmts), m)
+
+          | _ -> raise (Failure not_implemented_err)
+          in let locals = StringMap.empty 
+        in {suniv = func.univ;
+            styp = func.typ;
+            sfname = func.fname;
+            sformals = func.formals;
+            sbody = let (checked_block, _) = check_stmt locals (Block (func.body))
+                    in match checked_block with 
+                    SBlock(checked_stmt_list) -> checked_stmt_list
+                    | _ -> raise (Failure "whoops!")}
+          
+      (* check_encap, check_class... *)
+        in let check_mem enc ((vars, perm_vars), (meths, perm_meths)) (mem : member)  =
+            (match mem with
+              MemberFun(f) -> 
+                let sfunc = check_function f
+                in 
+                  (match enc with 
+                    "permit" -> ((vars, perm_vars), (meths, sfunc :: perm_meths))
+                    | _        -> ((vars, perm_vars), (sfunc :: meths, perm_meths)))
+            | MemberVar(v) -> 
+              (* TO DO: make sure that the type actually exists and variable?? *)
+              (match enc with 
+                "permit" -> ((vars, v :: perm_vars), (meths, perm_meths))
+                | _ -> ((v :: vars, perm_vars), (meths, perm_meths))))
+        in let check_encap lists ((enc, mems) : encap) = 
+          List.fold_left (check_mem enc) lists mems
+          (* (match mem with
             MemberFun(f) -> 
               let sfunc = check_function f
               in 
@@ -421,44 +438,30 @@ module StringMap = Map.Make(String)
             (* TO DO: make sure that the type actually exists and variable?? *)
             (match enc with 
               "permit" -> ((vars, v :: perm_vars), (meths, perm_meths))
-              | _ -> ((v :: vars, perm_vars), (meths, perm_meths))))
-      in let check_encap lists ((enc, mems) : encap) = 
-        List.fold_left (check_mem enc) lists mems
-        (* (match mem with
-          MemberFun(f) -> 
-            let sfunc = check_function f
-            in 
-              (match enc with 
-                "permit" -> ((vars, perm_vars), (meths, sfunc :: perm_meths))
-                | _        -> ((vars, perm_vars), (sfunc :: meths, perm_meths)))
-        | MemberVar(v) -> 
-          (* TO DO: make sure that the type actually exists and variable?? *)
-          (match enc with 
-            "permit" -> ((vars, v :: perm_vars), (meths, perm_meths))
-            | _ -> ((v :: vars, perm_vars), (meths, perm_meths)))) check for valid class name (if class type) and duplicate and ladida *)
-      
+              | _ -> ((v :: vars, perm_vars), (meths, perm_meths)))) check for valid class name (if class type) and duplicate and ladida *)
         
-        (* maybe we allow for up to 3 encap blocks *)
-        (* made one big function because we want to assign each encap into corresponding public, permit, and private *)
-      (* in let check_encap_list (encaps : encap list) = 
-        (* let invalid_encaps_error = "encapsulation is malformed"  *)
-          (* if (List.length encaps > 3) then raise (Failure invalid_encaps_error) 
-          else                                    TODO: check for dup labels ??? *)
-        let first = List.nth encaps 0 in
-          (fst first, List.map check_member (snd first)) :: [] eventually need to loop over encaps and check their mems *)
-            
-      in let check_class (cls : class_decl) = 
-        let ((vars, perm_vars), (meths, perm_meths)) = List.fold_left check_encap (([], []), ([], [])) cls.mems
+          
+          (* maybe we allow for up to 3 encap blocks *)
+          (* made one big function because we want to assign each encap into corresponding public, permit, and private *)
+        (* in let check_encap_list (encaps : encap list) = 
+          (* let invalid_encaps_error = "encapsulation is malformed"  *)
+            (* if (List.length encaps > 3) then raise (Failure invalid_encaps_error) 
+            else                                    TODO: check for dup labels ??? *)
+          let first = List.nth encaps 0 in
+            (fst first, List.map check_member (snd first)) :: [] eventually need to loop over encaps and check their mems *)
+              
+      (* in let check_class (cls : class_decl) =  *)
+        
+          in let ((vars, perm_vars), (meths, perm_meths)) = List.fold_left check_encap (([], []), ([], [])) cls.mems
         in (* TODO: check permitted list for valid names, *) 
-
-      { sclass_name = cls.class_name;
-        sparent_name = cls.parent_name;
-        spermitted = cls.permitted;
-        svars = List.rev vars;
-        spermittedvars = List.rev perm_vars;
-        smeths = meths; 
-        spermittedmeths = perm_meths
-      }
+          { sclass_name = cls.class_name;
+            sparent_name = cls.parent_name;
+            spermitted = cls.permitted;
+            svars = List.rev vars;
+            spermittedvars = List.rev perm_vars;
+            smeths = meths; 
+            spermittedmeths = perm_meths
+          }
     in List.map check_class cdecls
 
     (* type sclass_decl = {
