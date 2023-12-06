@@ -36,6 +36,20 @@ let find_var chungus cname vname =
   let (_, (vars, _)) = find_class chungus cname in 
   (try StringMap.find vname vars with Not_found -> raise (Failure var_not_found))
       
+(* move inside chungus to have access to class name? *)
+let compare_fdecls fdecl1 fdecl2 =
+  let pname = fdecl1.fname and cname = fdecl2.fname 
+  in
+    if (fdecl1.univ <> fdecl2.univ) 
+      then raise (Failure ("Function " ^ cname ^ "must be univ"))
+
+    else if (fdecl1.typ <> fdecl2.typ) 
+      then raise (Failure ("Function " ^ cname ^ "must return " ^ string_of_typ fdecl1.typ))
+    else let all_formals = (try List.combine fdecl1.formals fdecl2.formals 
+      with _ -> raise (Failure ("Number of arguments in " ^ pname ^ " and " ^ cname ^ " do not match")))
+    in List.fold_left (fun _ ((typ1, _), (typ2, _)) -> if (typ1 <> typ2) then raise (Failure ("formal types don't match")) else true) true all_formals 
+
+      
     
 (* let big_chungus classes = *) (* needs this to return the structure*)
   let build_chungus symbols c_decl =
@@ -58,13 +72,29 @@ let find_var chungus cname vname =
                 in
                   (try let _ = StringMap.find f.fname fun_map
                     in raise (Failure (func_already_defined_err))
-                  with Not_found -> (var_map, (StringMap.add f.fname (encap, f) fun_map))))
+                  with Not_found -> 
+                    (var_map, (StringMap.add f.fname (encap, f) fun_map))))
           in 
             List.fold_left add_member (var_m, fun_m) (snd e)         
       in 
         let (var_map, fun_map) = List.fold_left add_encap (StringMap.empty, StringMap.empty) c_decl.mems
-        in
-          let symbol_value = (parent_permit, (var_map, fun_map))
+    
+        in let parent_class_funcs = snd (snd (find_class symbols c_decl.parent_name))
+          in let parent_func_list = StringMap.bindings parent_class_funcs
+          
+          in let add_parent_funcs map (fname, (encap, f_decl)) =  
+              (try 
+                let (child_encap, child_func) = StringMap.find fname map 
+                in let _ = if child_encap <> encap 
+                  then raise (Failure "Encap types do not match")
+                else compare_fdecls child_func f_decl 
+                in map
+                   
+              with Not_found -> StringMap.add fname (encap, f_decl) map)
+            
+          in let full_fmap = List.fold_left add_parent_funcs fun_map parent_func_list
+    
+  in  let symbol_value = (parent_permit, (var_map, fun_map))
           in 
           StringMap.add c_decl.class_name symbol_value symbols
   (* in List.fold_left build_chungus StringMap.empty classes (* returns the structure *) *)
