@@ -1,0 +1,47 @@
+..tests op assign on ints and floats
+class Main () {
+    public:
+        int univ main() {
+            int a = 0;
+            a += 2;
+            if (a == 2) {
+                Olympus.print("successfully added to a");
+            }
+            a *= 3;
+            if (a == 6) {
+                Olympus.print("successfully multiplied a"); 
+            }
+
+            a -= 1;
+            if (a == 5) {
+                Olympus.print("successfully subtracted a"); 
+            }
+
+            a /= 2;
+            if (a == 2) {
+                Olympus.print("successfully divided a"); 
+            }
+
+
+            float f = 4.55;
+            f += 1.0; 
+            if (f == 5.55) {
+                Olympus.print("successfully added to f");
+            }
+
+            f *= 2.0;
+            if (f == 11.1) {
+                Olympus.print("successfully multiplied f");
+            }
+
+            f -= 1.1;
+            if (f == 10.0) {
+                Olympus.print("successfully subtracted f");
+            }
+
+            f /= 2.0;
+            if (f == 5.0) {
+                Olympus.print("successfully divided f");
+            }
+        }
+}

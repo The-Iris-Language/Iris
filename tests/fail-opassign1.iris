@@ -1,0 +1,8 @@
+.. 
+class Main () {
+    public:
+        int univ main() {
+            string s = "hi";
+            s += " bob";
+        }
+}

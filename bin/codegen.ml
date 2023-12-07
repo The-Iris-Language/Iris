@@ -25,15 +25,6 @@ module IntMap = Map.Make(Int)
 
 (* accessing variable in a struct type: use build_struct_gep *)
 
-(* TODO for hello world deliverable:
-  1. types
-  2. func_decls
-  3. build some expr(func call, str literal)
-  4. build some stmt(basically just expr)
-  5. build class type for main(see helloworld.ll for the C++ program with class D)
-*)
-
-
 let translate (classes : sclass_decl list) = 
   let context    = L.global_context () in
   (* Add types to the context so we can use them in our LLVM code *)
@@ -165,9 +156,10 @@ let translate (classes : sclass_decl list) =
         | SBoolLit   b -> (L.const_int i1_t (if b then 1 else 0), m)
         | SStringLit s -> (L.build_global_stringptr s s builder, m)
         | SFliteral  s -> 
-          let f = Float.of_string s 
+          (* let f = Float.of_string s 
           in
-            (L.const_float float_t f, m)
+            (L.const_float float_t f, m) *)
+            (L.const_float_of_string float_t s, m)
         | SId n -> (L.build_load (snd (StringMap.find n m)) n builder, m)
         | SUnop (uop, e) -> 
           let (lval, m') = expr builder m e 
@@ -181,28 +173,58 @@ let translate (classes : sclass_decl list) =
         | SBinop(e1, bnop, e2) ->
             let (e1', m') = expr builder m e1 in 
             let (e2', m'') = expr builder m' e2 in 
-            let llval = (match t with
-              A.Float -> (match bnop with 
-                  A.Add     -> L.build_fadd 
-                | A.Sub     -> L.build_fsub
-                | A.Mult    -> L.build_fmul
-                | A.Div     -> L.build_fdiv
-                | _ -> raise (Failure "not implemented yet"))
-              | A.Int -> (match bnop with 
-                  A.Add     -> L.build_add
-                | A.Sub     -> L.build_sub
-                | A.Mult    -> L.build_mul
-                | A.Div     -> L.build_sdiv
-                | _ -> raise (Failure "not implemented yet"))
-
-              | A.Bool -> (match bnop with 
-                  A.And     -> L.build_add
-                | A.Or      -> L.build_sub
-                | _ -> raise (Failure "not implemented yet"))  
+            let (typ, _) = e1 in
+            let llval = if typ = A.Float then (match bnop with 
+              A.Add     -> L.build_fadd
+            | A.Sub     -> L.build_fsub
+            | A.Mult    -> L.build_fmul
+            | A.Div     -> L.build_fdiv 
+            | A.Equal   -> L.build_fcmp L.Fcmp.Oeq
+            | A.Neq     -> L.build_fcmp L.Fcmp.One
+            | A.Less    -> L.build_fcmp L.Fcmp.Olt
+            | A.Leq     -> L.build_fcmp L.Fcmp.Ole
+            | A.Greater -> L.build_fcmp L.Fcmp.Ogt
+            | A.Geq     -> L.build_fcmp L.Fcmp.Oge
+            | A.And | A.Or ->
+                raise (Failure "internal error: semant should have rejected and/or on float")
+            ) e1' e2' "tmp" builder 
+            else (match bnop with
+              A.Add     -> L.build_add
+            | A.Sub     -> L.build_sub
+            | A.Mult    -> L.build_mul
+            | A.Div     -> L.build_sdiv
+            | A.And     -> L.build_and
+            | A.Or      -> L.build_or
+            | A.Equal   -> L.build_icmp L.Icmp.Eq
+            | A.Neq     -> L.build_icmp L.Icmp.Ne
+            | A.Less    -> L.build_icmp L.Icmp.Slt
+            | A.Leq     -> L.build_icmp L.Icmp.Sle
+            | A.Greater -> L.build_icmp L.Icmp.Sgt
+            | A.Geq     -> L.build_icmp L.Icmp.Sge
+            ) e1' e2' "tmp" builder  
               
-              | _ -> raise (Failure "binop not implemented yet for this type")) e1' e2' "tmp" builder
+              (* | _ -> raise (Failure "binop not implemented for this type")  *)
             in 
               (llval, m'')
+        
+        | SDoubleOp (n, doubleop) -> let load_val = L.build_load (snd (StringMap.find n m)) n builder
+           in let llval = (match t with 
+                A.Float -> 
+                let (e', _) = expr builder m (Float, SFliteral("1.0"))
+                in 
+                  (match doubleop with 
+                    A.PPlus  -> L.build_fadd load_val e' "tmp" builder
+                  | A.MMinus -> L.build_fsub load_val e' "tmp" builder)
+              | A.Int -> 
+                let (e', _) = expr builder m (Int, SLiteral(1)) 
+                in
+                  (match doubleop with 
+                    A.PPlus -> L.build_add load_val e' "tmp" builder
+                  | A.MMinus -> L.build_sub load_val e' "tmp" builder)
+              | _     -> raise (Failure "binop not implemented for this type"))
+              in let _ = L.build_store llval (snd (StringMap.find n m)) builder
+            in (llval, m)
+
             
         | SAssign (n, e) -> let (e', m') = (expr builder m e) in 
                               let _ = L.build_store e' (snd (StringMap.find n m)) builder in 
@@ -242,6 +264,42 @@ let translate (classes : sclass_decl list) =
                 in 
                   (L.build_load gep (name ^ var) builder, m)
                   (* (L.build_load (snd (StringMap.find n m)) n builder, m) *)
+        | SOpAssign (n, op, e) -> let load_val =  L.build_load (snd (StringMap.find n m)) n builder
+              in 
+                let (e', m') = expr builder m e
+                in let llval = (match t with 
+                    A.Float -> (match op with 
+                        A.Peq -> L.build_fadd 
+                      | A.Meq -> L.build_fsub 
+                      | A.Teq -> L.build_fmul
+                      | A.Deq -> L.build_fdiv) 
+                        load_val e' "tmp" builder
+                  | A.Int -> (match op with 
+                        A.Peq -> L.build_add 
+                      | A.Meq -> L.build_sub 
+                      | A.Teq -> L.build_mul
+                      | A.Deq -> L.build_sdiv)
+                        load_val e' "tmp" builder
+                  | _ -> raise (Failure "Arithmetic Assign not implemented for this type"))
+                  in let _ = L.build_store llval (snd (StringMap.find n m)) builder
+                    in (llval, m')
+        (* let load_val = L.build_load (snd (StringMap.find n m)) n builder
+           in let llval = (match t with 
+                A.Float -> 
+                let (e', _) = expr builder m (Float, SFliteral("1.0"))
+                in 
+                  (match doubleop with 
+                    A.PPlus  -> L.build_fadd load_val e' "tmp" builder
+                  | A.MMinus -> L.build_fsub load_val e' "tmp" builder)
+              | A.Int -> 
+                let (e', _) = expr builder m (Int, SLiteral(1)) 
+                in
+                  (match doubleop with 
+                    A.PPlus -> L.build_add load_val e' "tmp" builder
+                  | A.MMinus -> L.build_sub load_val e' "tmp" builder)
+              | _     -> raise (Failure "binop not implemented for this type"))
+              in let _ = L.build_store llval (snd (StringMap.find n m)) builder
+            in (llval, m) *)
         | SNoexpr -> (L.const_int i32_t 0, m)
         | _ -> raise (Failure not_implemented_err)
 

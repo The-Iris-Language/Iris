@@ -180,8 +180,8 @@ expr:
   | expr OR     expr                    { Binop($1, Or,    $3)       }
   | MINUS expr %prec NOT                { Unop(Neg, $2)              }
   | NOT expr                            { Unop(Not, $2)              }
-  | ID   PPLUS                          { DoubleOp($1, PPlus)        }
-  | ID   MMINUS                         { DoubleOp($1, MMinus)       }
+  | ID   PPLUS                        { DoubleOp($1, PPlus)        }
+  | ID   MMINUS                       { DoubleOp($1, MMinus)       }
   | ID   PEQ    expr                    { OpAssign($1, Peq, $3)      }
   | ID   MEQ    expr                    { OpAssign($1, Meq, $3)      }
   | ID   TEQ    expr                    { OpAssign($1, Teq, $3)      }

@@ -255,7 +255,7 @@ module StringMap = Map.Make(String)
               let ty = match op with
                 Add | Sub | Mult | Div when same && t1 = Int   -> Int
               | Add | Sub | Mult | Div when same && t1 = Float -> Float
-              | Equal | Neq            when same               -> Bool
+              | Equal | Neq           when same               -> Bool
               | Less | Leq | Greater | Geq
                         when same && (t1 = Int || t1 = Float) -> Bool
               | And | Or when same && t1 = Bool               -> Bool
@@ -263,6 +263,12 @@ module StringMap = Map.Make(String)
                                     string_of_typ t1 ^ " " ^ string_of_op op ^ " " ^
                                     string_of_typ t2 ^ " in " ^ string_of_expr e))
               in ((ty, SBinop((t1, e1'), op, (t2, e2'))), m'')
+        | DoubleOp (n, doubleop) -> let (typ, _) = (try StringMap.find n m 
+            with Not_found -> raise (Failure ("Variable " ^ n ^ " not declared")))
+            in (match typ with 
+                                    Int   -> ((Int, SDoubleOp(n, doubleop)), m)
+                                  | Float -> ((Float, SDoubleOp(n, doubleop)), m)
+                                  | _     -> raise (Failure ( (string_of_typ typ) ^ " is not a valid type for double op")))
         | Call (caller, function_string, (args : expr list)) -> 
           let (encap, func_d) = 
           (* TODO CHANGEEEE check for instance vs class name 
@@ -340,7 +346,18 @@ module StringMap = Map.Make(String)
                 ((mem_type, SClassVarAssign(inst_name, mem, sexpr)), m')
               else 
                 raise (Failure (inst_name ^ "." ^ mem ^ " expects type " ^ string_of_typ mem_type ^ ", but an expression of type " ^ string_of_typ (fst sexpr) ^ " was supplied")))                                         
-                                                  
+        | OpAssign (var, op, e) ->  
+              let _ = (try StringMap.find var m 
+                with Not_found -> raise (Failure ("variable" ^ var ^ "has not been declared"))) in
+              let ((t, e'), m'') = check_expr m e in  
+              (* Determine expression type based on operator and operand types *)
+              let ty = match op with
+                Peq | Meq | Teq | Deq when t = Int -> Int
+              | Peq | Meq | Teq | Deq when t = Float -> Float
+              | _ -> raise (Failure (string_of_typ t ^ " not valid for op assign"))
+            in ((ty, SOpAssign(var, op, (t, e'))), m'')
+                
+                                                   
         | Noexpr -> ((Void, SNoexpr), m)
         | _ -> raise (Failure not_implemented_err)
       

@@ -1,0 +1,7 @@
+class Main () {
+    public:
+        int univ main() {
+            bool b = false;
+            b += true;
+        }
+}

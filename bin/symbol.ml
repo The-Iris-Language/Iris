@@ -79,7 +79,7 @@ let compare_fdecls fdecl1 fdecl2 =
       in 
         let (var_map, fun_map) = List.fold_left add_encap (StringMap.empty, StringMap.empty) c_decl.mems
     
-        in let parent_class_funcs = snd (snd (find_class symbols c_decl.parent_name))
+        in let parent_class_funcs = if (c_decl.class_name = "Object") then StringMap.empty else snd (snd (find_class symbols c_decl.parent_name))
           in let parent_func_list = StringMap.bindings parent_class_funcs
           
           in let add_parent_funcs map (fname, (encap, f_decl)) =  
@@ -94,7 +94,7 @@ let compare_fdecls fdecl1 fdecl2 =
             
           in let full_fmap = List.fold_left add_parent_funcs fun_map parent_func_list
     
-  in  let symbol_value = (parent_permit, (var_map, fun_map))
+  in  let symbol_value = (parent_permit, (var_map, full_fmap))
           in 
           StringMap.add c_decl.class_name symbol_value symbols
   (* in List.fold_left build_chungus StringMap.empty classes (* returns the structure *) *)

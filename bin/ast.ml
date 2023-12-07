@@ -147,7 +147,7 @@ let rec string_of_expr = function
   | ClassVar(c, v) -> c ^ "." ^ v
   | Call(c, f, el) ->
       c ^ "." ^ f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
-  | DoubleOp(v, o) -> v ^ string_of_doubleop o
+  | DoubleOp(_, _) -> "double op"(*string_of_expr v ^ string_of_doubleop o *)
   | Noexpr -> ""
 
 let rec string_of_stmt = function

@@ -12,11 +12,11 @@ and sx =
   | SId of string
   | SBinop of sexpr * op * sexpr
   | SUnop of uop * sexpr
-  (* | SDoubleOp of string * doubleop *)
+  | SDoubleOp of string * doubleop
   | SAssign of string * sexpr
   | SDeclAssign of typ * string * sexpr
   | SClassVarAssign of string * string * sexpr
-  (* | SOpAssign of string * op_assign * sexpr *)
+  | SOpAssign of string * op_assign * sexpr
   | SCall of string * string * sexpr list (* TODO: finish *)
   | SClassVar of string * string
   | SNoexpr

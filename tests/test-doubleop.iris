@@ -1,0 +1,25 @@
+..tests ++ and -- on ints and floats
+class Main () {
+    public:
+        int univ main() {
+            int a = 0;
+            a++;
+            if (a == 1) {
+                Olympus.print("successfully incremented a");
+            }
+            a--;
+            if (a == 0) {
+                Olympus.print("successfully decremented a"); 
+            }
+
+            float f = 4.35;
+            f++; 
+            if (f == 5.35) {
+                Olympus.print("successfully incremented f");
+            }
+            f--;
+            if (f == 4.35) {
+                Olympus.print("successfully decremented f");
+            }
+        }
+}
