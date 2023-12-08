@@ -119,7 +119,7 @@ let translate (classes : sclass_decl list) =
   in let print_func : L.llvalue = 
     L.declare_function "printf" print_t the_module in
     
-  let main_class = (List.nth classes 0) in
+  let main_class = (List.nth classes (List.length classes)) in
   (* let encaps = (List.nth main_class.smems 0) in *)
   (* let main_mem = (List.nth main_class.smeths 0) in *)
   (* let get_func one_mem =

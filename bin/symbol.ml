@@ -33,6 +33,18 @@ let find_func chungus cname fname =
 let get_func_encap chungus cname fname = 
   let ((_, encap), _) = find_func chungus cname fname in encap
 
+let is_meth chungus cname fname = 
+  (try let _ = find_func chungus cname fname 
+  in true
+with _ -> false)
+  
+let is_var chungus cname vname =
+  (try let (_, (vars, _)) = find_class chungus cname 
+    in 
+      let _ = StringMap.find vname vars 
+      in true
+      with _ -> false)
+  
 let get_func_origin chungus cname fname = 
     let ((origin, _), _) = find_func chungus cname fname in origin
 
@@ -90,7 +102,7 @@ let compare_fdecls fdecl1 fdecl2 =
           
           in let add_parent_funcs map (fname, ((origin, encap), f_decl)) =  
               (try 
-                let ((child_origin, child_encap), child_func) = StringMap.find fname map 
+                let ((_, child_encap), child_func) = StringMap.find fname map 
                 in let _ = if child_encap <> encap 
                   then raise (Failure "Encap types do not match")
                 else compare_fdecls child_func f_decl 

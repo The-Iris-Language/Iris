@@ -130,7 +130,7 @@ module StringMap = Map.Make(String)
             (first_class :: _) when a_class.class_name = first_class.class_name -> 
                   raise (Failure dup_err)
             | _ -> a_class :: checked
-    in let _ = List.fold_left check_dups [] (List.sort name_compare classes) in
+    in let _ = List.fold_left check_dups [] (List.sort name_compare classes) 
 
   (* helper functions !!!! WOOOOOO *)
   
@@ -156,7 +156,7 @@ module StringMap = Map.Make(String)
       try List.find check_mems mems
       with Not_found -> raise (Failure func_not_found) in *)
 
-     let get_func (func_name : string) (mems : member list) = 
+     (* let get_func (func_name : string) (mems : member list) = 
         let func_name_not_found = "function of name " ^ func_name ^ " not found" in  
         let check_mems a_mem = 
           match a_mem with 
@@ -168,7 +168,7 @@ module StringMap = Map.Make(String)
             match ret_func with 
               MemberVar(_) -> raise (Failure func_name_not_found)
               | MemberFun(a_func) -> a_func
-          with Not_found -> raise (Failure func_name_not_found)
+          with Not_found -> raise (Failure func_name_not_found) *)
 
   (* find_var: given a list of members, find a given member variable *)
   (* in let find_var ((bind_typ, bind_name) : bind) (mems : member list) = 
@@ -221,8 +221,9 @@ module StringMap = Map.Make(String)
 
   in let build_sast (cdecls : class_decl list) =
 
-    let check_class (cls : class_decl) = 
+    let check_class (scls_accum : sclass_decl list) (cls : class_decl) = 
       let curr_class = cls.class_name
+      and parent_class = cls.parent_name
 
       (* TODO
         BIG TODO DO NOT FORGET
@@ -429,6 +430,9 @@ module StringMap = Map.Make(String)
                     | _ -> raise (Failure "whoops!")));
             sorigin = get_func_origin big_chungus curr_class func.fname;
             sencap = get_func_encap big_chungus curr_class func.fname}
+
+
+      
           
       (* check_encap, check_class... *)
         in let check_mem enc (vars, meths) (mem : member)  =
@@ -440,8 +444,25 @@ module StringMap = Map.Make(String)
                 (v :: vars, meths)
               (* TO DO: make sure that the type actually exists and variable?? *)
               )
+
+
+        in let sort_fcns (fs : sfunc_decl list) (ps : sfunc_decl list) =
+          let replace_local (p : sfunc_decl) =
+            if (get_func_origin big_chungus curr_class p.sfname = curr_class) 
+              then List.find (fun func1 -> func1.sfname = p.sfname) fs else p
+          in
+          let delete_local flist (f : sfunc_decl) =
+            if (is_meth big_chungus parent_class f.sfname) then flist else f::flist
+          in 
+          let ps_updated = List.map replace_local ps 
+          in
+            ps_updated @ (List.fold_left delete_local [] fs)
+
+  
         in let check_encap lists ((enc, mems) : encap) = 
           List.fold_left (check_mem enc) lists mems
+        
+
           (* (match mem with
             MemberFun(f) -> 
               let sfunc = check_function f
@@ -469,13 +490,20 @@ module StringMap = Map.Make(String)
         
           in let (vars, meths) = List.fold_left check_encap ([], []) cls.mems
         in (* TODO: check permitted list for valid names, *) 
+            let curr_meths = (if (curr_class <> "Object") then
+            let sp_class = List.find (fun p_class -> p_class.sclass_name = parent_class) scls_accum 
+            in 
+              sort_fcns meths sp_class.smeths 
+            else meths)
+      in
           { sclass_name = cls.class_name;
             sparent_name = cls.parent_name;
             spermitted = cls.permitted;
             svars = List.rev vars;
-            smeths = meths; 
-          }
-    in List.map check_class cdecls
+            smeths = curr_meths
+            (* List.find (fun func1 -> func1.sfname = p.sfname)  *)
+          } :: scls_accum
+    in List.fold_left check_class [] cdecls
 
     (* type sclass_decl = {
   sclass_name : string;
