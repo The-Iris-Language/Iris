@@ -270,7 +270,7 @@ module StringMap = Map.Make(String)
                                   | Float -> ((Float, SDoubleOp(n, doubleop)), m)
                                   | _     -> raise (Failure ( (string_of_typ typ) ^ " is not a valid type for double op")))
         | Call (caller, function_string, (args : expr list)) -> 
-          let (encap, func_d) = 
+          let ((_, encap), func_d) = 
           (* TODO CHANGEEEE check for instance vs class name 
             WE NEED TO CHECK FOR    
           *)
@@ -423,25 +423,23 @@ module StringMap = Map.Make(String)
             styp = func.typ;
             sfname = func.fname;
             sformals = func.formals;
-            sbody = let (checked_block, _) = check_stmt locals (Block (func.body))
-                    in match checked_block with 
+            sbody = (let (checked_block, _) = check_stmt locals (Block (func.body))
+                    in (match checked_block with 
                     SBlock(checked_stmt_list) -> checked_stmt_list
-                    | _ -> raise (Failure "whoops!")}
+                    | _ -> raise (Failure "whoops!")));
+            sorigin = get_func_origin big_chungus curr_class func.fname;
+            sencap = get_func_encap big_chungus curr_class func.fname}
           
       (* check_encap, check_class... *)
-        in let check_mem enc ((vars, perm_vars), (meths, perm_meths)) (mem : member)  =
+        in let check_mem enc (vars, meths) (mem : member)  =
             (match mem with
               MemberFun(f) -> 
                 let sfunc = check_function f
-                in 
-                  (match enc with 
-                    "permit" -> ((vars, perm_vars), (meths, sfunc :: perm_meths))
-                    | _        -> ((vars, perm_vars), (sfunc :: meths, perm_meths)))
+                in (vars, (sfunc :: meths))
             | MemberVar(v) -> 
+                (v :: vars, meths)
               (* TO DO: make sure that the type actually exists and variable?? *)
-              (match enc with 
-                "permit" -> ((vars, v :: perm_vars), (meths, perm_meths))
-                | _ -> ((v :: vars, perm_vars), (meths, perm_meths))))
+              )
         in let check_encap lists ((enc, mems) : encap) = 
           List.fold_left (check_mem enc) lists mems
           (* (match mem with
@@ -469,15 +467,13 @@ module StringMap = Map.Make(String)
               
       (* in let check_class (cls : class_decl) =  *)
         
-          in let ((vars, perm_vars), (meths, perm_meths)) = List.fold_left check_encap (([], []), ([], [])) cls.mems
+          in let (vars, meths) = List.fold_left check_encap ([], []) cls.mems
         in (* TODO: check permitted list for valid names, *) 
           { sclass_name = cls.class_name;
             sparent_name = cls.parent_name;
             spermitted = cls.permitted;
             svars = List.rev vars;
-            spermittedvars = List.rev perm_vars;
             smeths = meths; 
-            spermittedmeths = perm_meths
           }
     in List.map check_class cdecls
 

@@ -31,11 +31,13 @@ type sstmt =
   | SLocal of bind
 
 type sfunc_decl = {
-    suniv : bool;
-    styp : typ;
-    sfname : string;
-    sformals : bind list;
-    sbody : sstmt list;
+    suniv     : bool;
+    styp      : typ;
+    sfname    : string;
+    sformals  : bind list;
+    sbody     : sstmt list;
+    sorigin   : string;
+    sencap    : string; 
   }
 
 (* a member of a class is either a function or a variable *)
@@ -58,9 +60,9 @@ type sclass_decl = {
   sparent_name : string;
   spermitted: string list;
   svars: bind list;
-  spermittedvars: bind list;
+  (* spermittedvars: bind list; *)
   smeths: sfunc_decl list;  (* change to a tuple of (origin class, sfun_decl) *)
-  spermittedmeths: sfunc_decl list;
+  (* spermittedmeths: sfunc_decl list; *)
   (* smems: sencap list; *)
 }
 

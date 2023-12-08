@@ -58,14 +58,14 @@ let translate (classes : sclass_decl list) =
       in 
   let get_typ_name = function 
       A.Object (ctyp) -> ctyp 
-      | _ -> raise (Failure "stoopid")
+      | _ -> raise (Failure "This is not an object type")
     
   in 
     let populate_type_map context (tmap, chunguini) sc_decl =
       let c_name   = sc_decl.sclass_name
       (* build vritual table *)
       
-      and all_vars = (sc_decl.svars @ sc_decl.spermittedvars)
+      and all_vars = sc_decl.svars
       and perm_len = List.length sc_decl.spermitted
         in 
           let perm_arr = L.array_type string_t perm_len
@@ -91,7 +91,7 @@ let translate (classes : sclass_decl list) =
   in
   (* making vtable types *)
   let make_vtable_typ context (vtmap, counter) sc_decl = 
-    let all_funcs = (sc_decl.smeths @ sc_decl.spermittedmeths)
+    let all_funcs = sc_decl.smeths
     in 
       (* list of function return/formal types (styp) *)
       let all_ftypes  = List.map (fun sfunc -> sfunc.styp) all_funcs
@@ -283,23 +283,6 @@ let translate (classes : sclass_decl list) =
                   | _ -> raise (Failure "Arithmetic Assign not implemented for this type"))
                   in let _ = L.build_store llval (snd (StringMap.find n m)) builder
                     in (llval, m')
-        (* let load_val = L.build_load (snd (StringMap.find n m)) n builder
-           in let llval = (match t with 
-                A.Float -> 
-                let (e', _) = expr builder m (Float, SFliteral("1.0"))
-                in 
-                  (match doubleop with 
-                    A.PPlus  -> L.build_fadd load_val e' "tmp" builder
-                  | A.MMinus -> L.build_fsub load_val e' "tmp" builder)
-              | A.Int -> 
-                let (e', _) = expr builder m (Int, SLiteral(1)) 
-                in
-                  (match doubleop with 
-                    A.PPlus -> L.build_add load_val e' "tmp" builder
-                  | A.MMinus -> L.build_sub load_val e' "tmp" builder)
-              | _     -> raise (Failure "binop not implemented for this type"))
-              in let _ = L.build_store llval (snd (StringMap.find n m)) builder
-            in (llval, m) *)
         | SNoexpr -> (L.const_int i32_t 0, m)
         | _ -> raise (Failure not_implemented_err)
 

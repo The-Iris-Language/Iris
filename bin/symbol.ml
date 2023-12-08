@@ -30,6 +30,12 @@ let find_func chungus cname fname =
   let funcs = snd (snd c) in
   (try StringMap.find fname funcs with Not_found -> raise (Failure func_not_found))
 
+let get_func_encap chungus cname fname = 
+  let ((_, encap), _) = find_func chungus cname fname in encap
+
+let get_func_origin chungus cname fname = 
+    let ((origin, _), _) = find_func chungus cname fname in origin
+
   
 let find_var chungus cname vname = 
   let var_not_found = "variable " ^ vname ^ " not defined " ^ "in class " ^ cname  in 
@@ -73,7 +79,7 @@ let compare_fdecls fdecl1 fdecl2 =
                   (try let _ = StringMap.find f.fname fun_map
                     in raise (Failure (func_already_defined_err))
                   with Not_found -> 
-                    (var_map, (StringMap.add f.fname (encap, f) fun_map))))
+                    (var_map, (StringMap.add f.fname ((c_decl.class_name, encap), f) fun_map))))
           in 
             List.fold_left add_member (var_m, fun_m) (snd e)         
       in 
@@ -82,15 +88,15 @@ let compare_fdecls fdecl1 fdecl2 =
         in let parent_class_funcs = if (c_decl.class_name = "Object") then StringMap.empty else snd (snd (find_class symbols c_decl.parent_name))
           in let parent_func_list = StringMap.bindings parent_class_funcs
           
-          in let add_parent_funcs map (fname, (encap, f_decl)) =  
+          in let add_parent_funcs map (fname, ((origin, encap), f_decl)) =  
               (try 
-                let (child_encap, child_func) = StringMap.find fname map 
+                let ((child_origin, child_encap), child_func) = StringMap.find fname map 
                 in let _ = if child_encap <> encap 
                   then raise (Failure "Encap types do not match")
                 else compare_fdecls child_func f_decl 
                 in map
                    
-              with Not_found -> StringMap.add fname (encap, f_decl) map)
+              with Not_found -> StringMap.add fname ((origin, encap), f_decl) map)
             
           in let full_fmap = List.fold_left add_parent_funcs fun_map parent_func_list
     

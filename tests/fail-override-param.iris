@@ -1,13 +1,16 @@
 ..Tests for failure for undeclared Parent: Non-Main class
-class Dog of Animal() {
-    public:
-        int name;
-        int owner;
-}
+
 
 class Animal () {
     public:
         void univ bark() {
+            Olympus.print("roar!");
+        }
+}
+
+class Dog of Animal() {
+    public:
+        void univ bark(int i) {
             Olympus.print("roar!");
         }
 }
