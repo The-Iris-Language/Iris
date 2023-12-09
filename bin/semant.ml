@@ -2,11 +2,9 @@
 
 open Ast
 open Sast
-open Symbol
+open Gus
 
 module StringMap = Map.Make(String)
-
-
 
      (* 
       
@@ -88,7 +86,7 @@ module StringMap = Map.Make(String)
    *)
 
 
-  
+
 (* Semantic checking of the AST. Returns an SAST if successful,
    throws an exception if something is wrong.
 
@@ -120,9 +118,9 @@ module StringMap = Map.Make(String)
             parent_name = ""; 
             permitted = [];
             mems = [] }
-    in let classes = object_class :: (olympus_class :: classes) in
-    let big_chungus = List.fold_left build_chungus StringMap.empty classes in
-    let name_compare c1 c2 = compare c1.class_name c2.class_name in
+    in let big_chungus = List.fold_left build_chungus StringMap.empty (object_class :: (olympus_class :: classes)) 
+      in let classes = object_class :: classes 
+        in let name_compare c1 c2 = compare c1.class_name c2.class_name in
         let check_dups checked a_class = 
           let dup_err = "Compilation error: Duplicate class name " ^ a_class.class_name
             in match checked with 
@@ -276,7 +274,7 @@ module StringMap = Map.Make(String)
             WE NEED TO CHECK FOR    
           *)
           (match caller with 
-          "$elf" -> find_func big_chungus curr_class function_string
+          "self" -> find_func big_chungus curr_class function_string
           | _    -> (try find_func big_chungus caller function_string
             with _ -> 
               let (typ, _) = (try StringMap.find caller m  
@@ -522,13 +520,33 @@ module StringMap = Map.Make(String)
   (* in let main_class = find_class "Main" sclasses *)
 
   (* in let sclasses = check_classes classes  *)
-(* 
+(*
   in let main_func (* maybe can be wildcard *) = 
             find_func ({univ = true; typ = Int; fname = "main"; formals = []; body = []; }) 
                       (snd (List.nth main_class.mems 0))    (* TODO: need to change bc this may not be public  *)
                                                           (maybe want to enforce ordering for encap to public, permit, private or smth) *)
 
-  in List.rev (List.tl sclasses) (* remove Olympus before we pass to codegen *)
+    in let add_self (sclass : sclass_decl) = 
+      let add_self_to_func (sfunc : sfunc_decl) = 
+        { suniv = sfunc.suniv;
+          styp = sfunc.styp;
+          sfname = sfunc.sfname;
+          sformals = (Object (sclass.sclass_name), "self") :: sfunc.sformals;
+          sbody = sfunc.sbody;
+          sorigin = sfunc.sorigin;
+          sencap = sfunc.sencap
+        }
+      in 
+        { sclass_name = sclass.sclass_name;
+          sparent_name = sclass.sparent_name;
+          spermitted = sclass.spermitted;
+          svars = sclass.svars;
+          smeths = List.map add_self_to_func sclass.smeths
+        }
+        
+      
+    in let classes_with_self = List.map add_self sclasses
+  in List.rev classes_with_self
 
 (* in List.fold_left [] (fun c -> sclass_decl { sclass_name : c.class_name; *)
 

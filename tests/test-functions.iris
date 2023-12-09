@@ -1,0 +1,23 @@
+class IceCream () {
+    public:
+        int temp;
+        string flavor;
+        string getFlavor() {
+            return "yum";   
+        }
+        
+        float getTemp() {
+            return 32.0;
+        }
+}
+
+class Main () {
+    public: 
+        int univ main() {
+            Olympus.print("Hello world!");
+            return 0;
+        }
+        int getOne() {
+            return 1;
+        }
+}

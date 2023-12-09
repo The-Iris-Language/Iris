@@ -17,6 +17,7 @@ module L = Llvm
 module A = Ast
 module S = Sast
 open Sast 
+open Guini
 (* open Ast *)
 
 module StringMap = Map.Make(String)
@@ -26,7 +27,7 @@ module IntMap = Map.Make(Int)
 (* accessing variable in a struct type: use build_struct_gep *)
 
 let translate (classes : sclass_decl list) = 
-  let context    = L.global_context () in
+  let context  = L.global_context () in
   (* Add types to the context so we can use them in our LLVM code *)
   let i32_t    = L.i32_type    context
   and i8_t     = L.i8_type     context
@@ -61,7 +62,7 @@ let translate (classes : sclass_decl list) =
       | _ -> raise (Failure "This is not an object type")
     
   in 
-    let populate_type_map context (tmap, chunguini) sc_decl =
+    let populate_type_map context (counter, (tmap, chunguini)) sc_decl =
       let c_name   = sc_decl.sclass_name
       (* build vritual table *)
       
@@ -80,17 +81,16 @@ let translate (classes : sclass_decl list) =
             let new_struct = (L.named_struct_type context c_name)
             in 
               let _ = L.struct_set_body new_struct arr_vars false
-              in (StringMap.add c_name new_struct tmap, StringMap.add c_name (new_var_index_map, StringMap.empty) chunguini)
-
+              in (counter + 1, (StringMap.add c_name new_struct tmap, StringMap.add c_name ((counter, i1_t), (new_var_index_map, StringMap.empty)) chunguini))
         
       in 
-        let (type_map, chunguini) = List.fold_left (populate_type_map context) (StringMap.empty, StringMap.empty) classes
+        let (_, (type_map, chunguini)) = List.fold_left (populate_type_map context) (0, (StringMap.empty, StringMap.empty)) classes
       
           in let ltype_map = ltype_of_typ type_map 
-          
+
   in
   (* making vtable types *)
-  let make_vtable_typ context (vtmap, counter) sc_decl = 
+  let make_vtable_typ context guini sc_decl = 
     let all_funcs = sc_decl.smeths
     in 
       (* list of function return/formal types (styp) *)
@@ -105,12 +105,14 @@ let translate (classes : sclass_decl list) =
           in
             let func_ltypes = List.map (fun (ret, forms) -> (L.pointer_type (L.function_type ret forms))) all_args
             in 
-              let v_table_struct = L.struct_type context (Array.of_list func_ltypes)
-              in (IntMap.add counter v_table_struct vtmap, (counter + 1))
+              let v_table_struct = L.struct_type context (Array.of_list func_ltypes) 
+              in 
+                let ((index, _), mem_maps) = StringMap.find sc_decl.sclass_name guini
+                in (StringMap.add sc_decl.sclass_name ((index, v_table_struct), mem_maps) guini)
   
-  in let (_, _) = List.fold_left (make_vtable_typ context) (IntMap.empty, 0) classes
-        (*vmap, array_length *)
-        
+  in let chunguini = List.fold_left (make_vtable_typ context) chunguini classes
+        (* vmap, array_length *)
+
   (* let main_class = find_class "Main" classes in  *)
 
 (* HALLO *)
@@ -119,7 +121,9 @@ let translate (classes : sclass_decl list) =
   in let print_func : L.llvalue = 
     L.declare_function "printf" print_t the_module in
     
-  let main_class = (List.nth classes (List.length classes)) in
+  let main_class = (try (List.find (fun cls -> cls.sclass_name = "Main" ) classes) 
+                    with Not_found -> raise (Failure "Main class not found"))
+in
   (* let encaps = (List.nth main_class.smems 0) in *)
   (* let main_mem = (List.nth main_class.smeths 0) in *)
   (* let get_func one_mem =
@@ -130,15 +134,44 @@ let translate (classes : sclass_decl list) =
   in  *)
   
 
-  let main_func = (List.nth main_class.smeths 0) in
-     let ftype = L.function_type (ltype_map main_func.styp) [||] in
-     let main_func_ll = (L.define_function "main" ftype the_module, main_func) in
+  let main_func = (try (List.find (fun sf -> sf.sfname = "main") main_class.smeths) 
+                  with Not_found -> raise (Failure "main() function not found"))
+    in
+     (* let ftype = L.function_type (ltype_map main_func.styp) [||] in
+     let main_func_ll = (L.define_function "main" ftype the_module, main_func) in *)
   
-
-(* Fill in the body of the given function *)
+  let build_class_functions (cls : sclass_decl) = 
+    
+    (* Fill in the body of the given function *)
+    
+    (* let function_decls : (L.llvalue * sfunc_decl) StringMap.t =
+        let function_decl m fdecl =
+          let name = fdecl.sfname
+          and formal_types = 
+            Array.of_list (List.map (fun (t,_) -> ltype_of_typ t) fdecl.sformals)
+          in 
+            let ftype = L.function_type (ltype_of_typ fdecl.styp) formal_types 
+            in StringMap.add name (L.define_function name ftype the_module, fdecl) m 
+          in
+          List.fold_left function_decl StringMap.empty functions in
+     *)
+     let build_function_llvals (acc : (L.llvalue * sfunc_decl) list) (func : sfunc_decl) = 
+        if ((func.sorigin = cls.sclass_name)) then 
+          let func_type = L.function_type (ltype_map func.styp) [||] 
+          in
+            let func_name = (if (cls.sclass_name = "Main") && (func.sfname = "main") 
+                              then "main" 
+                              else cls.sclass_name ^ "_" ^ func.sfname)
+            in let func_ll = (L.define_function func_name func_type the_module, func) 
+              in func_ll :: acc
+        else acc
+        (* TODO: COME BACK TO THIS FOR VTABLES
+           this line skips inherited, non-overriden functions *)
+      in 
   let build_function_body (func_ll : (L.llvalue * sfunc_decl)) =
     let the_function = snd func_ll in
     let the_function_llval = fst func_ll in
+    
     (* let (the_function, _) = StringMap.find fdecl.sfname function_decls in *)
     let builder = L.builder_at_end context (L.entry_block (fst func_ll)) in
 
@@ -244,13 +277,20 @@ let translate (classes : sclass_decl list) =
             in 
               let cname = get_typ_name typ 
               in 
-                let (vmap, _) = StringMap.find cname chunguini (* TODO: make abstraction for chunguini *)
-                in 
-                  let gep = L.build_struct_gep lval (StringMap.find var vmap) (name ^ var) builder
+                  let gep = L.build_struct_gep lval (var_index chunguini cname var) (name ^ var) builder
                   in
                     let _ = L.build_store e' gep builder
-            in (e', m)                      
-        | SCall ("Olympus", "print", [e]) ->
+            in (e', m)        
+        (*| SCall(cls_name, func_name, [e]) ->   
+            
+           | SCall (f, args) ->
+            let (fdef, fdecl) = StringMap.find f function_decls in
+      let llargs = List.rev (List.map (expr builder) (List.rev args)) in
+      let result = (match fdecl.styp with 
+                           A.Void -> ""
+                         | _ -> f ^ "_result") in 
+            L.build_call fdef (Array.of_list llargs) result builder*)
+        | SCall("Olympus", "print", [e]) ->
           (L.build_call print_func [| format_str ; (fst (expr builder m e)) |]
           "printf" builder, m)
         | SClassVar(name, var) -> 
@@ -258,9 +298,7 @@ let translate (classes : sclass_decl list) =
           in 
             let cname = get_typ_name typ
             in 
-              let (vmap, _ ) = StringMap.find cname chunguini
-              in
-                let gep = L.build_struct_gep lval (StringMap.find var vmap) (name ^ var) builder
+                let gep = L.build_struct_gep lval (var_index chunguini cname var) (name ^ var) builder
                 in 
                   (L.build_load gep (name ^ var) builder, m)
                   (* (L.build_load (snd (StringMap.find n m)) n builder, m) *)
@@ -356,7 +394,11 @@ let translate (classes : sclass_decl list) =
         A.Void -> L.build_ret_void
       | A.Float -> L.build_ret (L.const_float float_t 0.0)
       | t -> L.build_ret (L.const_int (ltype_map t) 0))
-
-    in let _ = build_function_body main_func_ll
-  in the_module
       
+  in 
+    let llval_list = List.fold_left build_function_llvals [] cls.smeths
+    in List.iter build_function_body llval_list
+    
+  in let _ = List.map build_class_functions classes
+    (* let _ = build_function_body main_func_ll *)
+in the_module
