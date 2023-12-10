@@ -11,6 +11,16 @@ class IceCream () {
         }
 }
 
+class Gelato of IceCream () {
+    public: 
+        int price () {
+            return 1;
+        }
+        string getFlavor () {
+            return "tasty";
+        }
+}
+
 class Main () {
     public: 
         int univ main() {
