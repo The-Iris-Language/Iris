@@ -24,6 +24,8 @@ class Gelato of IceCream () {
 class Main () {
     public: 
         int univ main() {
+            IceCream i;
+            Gelato g;
             Olympus.print("Hello world!");
             return 0;
         }

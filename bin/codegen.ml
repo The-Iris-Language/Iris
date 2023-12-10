@@ -124,7 +124,7 @@ let translate (classes : sclass_decl list) =
   in let print_func : L.llvalue = 
     L.declare_function "printf" print_t the_module in
     
-  (* let main_class = (try (List.find (fun cls -> cls.sclass_name = "Main" ) classes) 
+  (* let main_class = (try (List.find (fun cls -> curr_name = "Main" ) classes) 
                     with Not_found -> raise (Failure "Main class not found"))
 in *)
   (* let encaps = (List.nth main_class.smems 0) in *)
@@ -143,7 +143,8 @@ in *)
      (* let ftype = L.function_type (ltype_map main_func.styp) [||] in
      let main_func_ll = (L.define_function "main" ftype the_module, main_func) in *)
   
-  let build_class_functions (cls : sclass_decl) = 
+  let build_class_functions (cls : sclass_decl) =
+    let curr_name = cls.sclass_name in 
     
     (* Fill in the body of the given function *)
     
@@ -159,11 +160,11 @@ in *)
           List.fold_left function_decl StringMap.empty functions in
      *)
      let build_function_llvals (acc : (L.llvalue * sfunc_decl) list) (func : sfunc_decl) = 
-      let func_name = (if (cls.sclass_name = "Main") && (func.sfname = "main") 
+      let func_name = (if (curr_name = "Main") && (func.sfname = "main") 
         then "main" 
         else func.sorigin ^ "_" ^ func.sfname)
       in
-        if ((func.sorigin = cls.sclass_name)) then 
+        if ((func.sorigin = curr_name)) then 
           let func_type = L.function_type (ltype_map func.styp) (Array.of_list (List.map ltype_map (fst (List.split func.sformals))))
           in
             let func_ll = (L.define_function func_name func_type the_module, func) 
@@ -177,7 +178,7 @@ in *)
     
     let the_function = snd func_ll in
     let the_function_llval = fst func_ll in
-    (if (the_function.sorigin <> cls.sclass_name) then ()
+    (if (the_function.sorigin <> curr_name) then ()
     else 
     (* let (the_function, _) = StringMap.find fdecl.sfname function_decls in *)
     let builder = L.builder_at_end context (L.entry_block (the_function_llval)) in
@@ -288,19 +289,18 @@ in *)
                   in
                     let _ = L.build_store e' gep builder
             in (e', m)        
-        (*| SCall(cls_name, func_name, [e]) ->   
-            
-           | SCall (f, args) ->
+        (* | SCall(caller, func_name, [e]) ->    *)
+            (* let f_vtable = chunguini  *)
+           (* | SCall (f, args) ->
             let (fdef, fdecl) = StringMap.find f function_decls in
       let llargs = List.rev (List.map (expr builder) (List.rev args)) in
       let result = (match fdecl.styp with 
                            A.Void -> ""
                          | _ -> f ^ "_result") in 
-            L.build_call fdef (Array.of_list llargs) result builder*)
+            L.build_call fdef (Array.of_list llargs) result builder *)
         | SCall("Olympus", "print", [e]) ->
           (L.build_call print_func [| format_str ; (fst (expr builder m e)) |]
           "printf" builder, m)
-        (* | Scall(caller, fname, args)  *)
         | SClassVar(name, var) -> 
           let (typ, lval) = StringMap.find name m
           in 
@@ -390,8 +390,16 @@ in *)
             (* Move to the merge block for further instruction building *)
             (L.builder_at_end context merge_bb, map')
 
-        | SLocal (t, n) -> let local = L.build_alloca (ltype_map t) n builder in
-                           (builder, StringMap.add n (t, local) map) (* stores type of the local var so can be used in expr ^*)
+        | SLocal (t, n) -> let local = L.build_alloca (ltype_map t) n builder 
+                            in 
+                            let _ = (match t with 
+                              Object (name) -> 
+                                let gep = L.build_struct_gep local 0 "vtable_index" builder
+                                in
+                                  L.build_store (L.const_int i32_t (class_index chunguini name)) gep builder
+                              | _ -> local)
+                            in
+                              (builder, StringMap.add n (t, local) map) (* stores type of the local var so can be used in expr ^*)
         | _ -> let not_implemented_err = "not implemented yet!" in 
               raise (Failure not_implemented_err) in
 
@@ -407,8 +415,8 @@ in *)
   (* add logic that skips over inherited functions *)
     let llval_list = List.rev (List.fold_left build_function_llvals [] cls.smeths )
     in let _ = List.iter build_function_body llval_list 
-  in let table = L.const_named_struct (get_vtable_type chunguini cls.sclass_name) (Array.of_list (fst (List.split llval_list)))
-    in L.define_global (cls.sclass_name ^ "_vtable_data") table the_module 
+  in let table = L.const_named_struct (get_vtable_type chunguini curr_name) (Array.of_list (fst (List.split llval_list)))
+    in L.define_global (curr_name ^ "_vtable_data") table the_module 
   in let instantiated_vtable_llvalues = List.map build_class_functions classes 
   
     (* let _ = build_function_body main_func_ll *)
