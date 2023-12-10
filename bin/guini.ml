@@ -14,6 +14,10 @@ let var_index chunguini cname vname =
   let (_, (vmap, _)) = get_class chunguini cname
     in (try StringMap.find vname vmap with
     Not_found -> raise (Failure ("class " ^ cname ^ " does not contain variable " ^ vname)))
+
+let get_vtable_type chunguini cname = 
+  let ((_, vtable_typ), _) = get_class chunguini cname
+    in vtable_typ
       
   
 let fun_index chunguini cname fname =

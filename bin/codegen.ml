@@ -106,16 +106,15 @@ let translate (classes : sclass_decl list) =
               (* vtable lltype *)
               let vtable_struct = L.named_struct_type context (sc_decl.sclass_name ^ "_vtable") 
               in let _ = L.struct_set_body vtable_struct (Array.of_list func_ltypes) false
-                in let vtable_ptr = L.pointer_type vtable_struct
                 in 
                   let ((index, _), mem_maps) = StringMap.find sc_decl.sclass_name guini
-                  in ((StringMap.add sc_decl.sclass_name ((index, vtable_ptr), mem_maps) guini), vtable_list @ [vtable_ptr])
+                  in ((StringMap.add sc_decl.sclass_name ((index, vtable_struct), mem_maps) guini), vtable_list @ [vtable_struct])
   
   in let (chunguini, vtable_list) = List.fold_left (make_vtable_typ context) (chunguini, []) classes
   
-  (* let main_class = find_class "Main" classes in  *)
-  in let vtable_arr = Array.of_list vtable_list
-  in let vtables_struct = L.struct_type context vtable_arr
+  (* let main_class = find_class "Main" classes in *) 
+  in let vtable_arr = Array.of_list vtable_list 
+  in let vtables_struct = L.struct_type context vtable_arr 
   (* temp for testing *)
   in let vtables_llval = L.declare_global vtables_struct "big_vtable" the_module 
  
@@ -165,7 +164,7 @@ in *)
         else func.sorigin ^ "_" ^ func.sfname)
       in
         if ((func.sorigin = cls.sclass_name)) then 
-          let func_type = L.function_type (ltype_map func.styp) [||] 
+          let func_type = L.function_type (ltype_map func.styp) (Array.of_list (List.map ltype_map (fst (List.split func.sformals))))
           in
             let func_ll = (L.define_function func_name func_type the_module, func) 
               in func_ll :: acc
@@ -301,6 +300,7 @@ in *)
         | SCall("Olympus", "print", [e]) ->
           (L.build_call print_func [| format_str ; (fst (expr builder m e)) |]
           "printf" builder, m)
+        (* | Scall(caller, fname, args)  *)
         | SClassVar(name, var) -> 
           let (typ, lval) = StringMap.find name m
           in 
@@ -405,9 +405,11 @@ in *)
       
   in 
   (* add logic that skips over inherited functions *)
-    let llval_list = List.fold_left build_function_llvals [] cls.smeths 
-    in List.iter build_function_body llval_list 
-    
-  in let _ = List.map build_class_functions classes
+    let llval_list = List.rev (List.fold_left build_function_llvals [] cls.smeths )
+    in let _ = List.iter build_function_body llval_list 
+  in let table = L.const_named_struct (get_vtable_type chunguini cls.sclass_name) (Array.of_list (fst (List.split llval_list)))
+    in L.define_global (cls.sclass_name ^ "_vtable_data") table the_module 
+  in let instantiated_vtable_llvalues = List.map build_class_functions classes 
+  
     (* let _ = build_function_body main_func_ll *)
 in the_module
