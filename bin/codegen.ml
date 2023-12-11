@@ -108,7 +108,7 @@ let translate (classes : sclass_decl list) =
               in let _ = L.struct_set_body vtable_struct (Array.of_list func_ltypes) false
                 in 
                   let ((index, _), mem_maps) = StringMap.find sc_decl.sclass_name guini
-                  in ((StringMap.add sc_decl.sclass_name ((index, vtable_struct), mem_maps) guini), vtable_list @ [vtable_struct])
+                  in ((StringMap.add sc_decl.sclass_name ((index, vtable_struct), mem_maps) guini), vtable_list @ [L.pointer_type vtable_struct])
   
   in let (chunguini, vtable_list) = List.fold_left (make_vtable_typ context) (chunguini, []) classes
   
@@ -116,7 +116,9 @@ let translate (classes : sclass_decl list) =
   in let vtable_arr = Array.of_list vtable_list 
   in let vtables_struct = L.struct_type context vtable_arr 
   (* temp for testing *)
-  in let vtables_llval = L.declare_global vtables_struct "big_vtable" the_module 
+  (* in let vtables_llval = L.declare_global vtables_struct "big_vtable" the_module  *)
+  in let big_vtable = L.named_struct_type context ("big_vtable") 
+  in let _ = L.struct_set_body big_vtable vtable_arr false
  
 (* HALLO *)
   in let print_t : L.lltype = 
@@ -289,7 +291,11 @@ in *)
                   in
                     let _ = L.build_store e' gep builder
             in (e', m)        
-        (* | SCall(caller, func_name, [e]) ->    *)
+        (* | SCall(caller, func_name, [e]) -> 
+          let (_, lval) = StringMap.find name m
+          in let class_index   = L.build_struct_gep lval 0 "vtable_index" builder
+            in let curr_vtable = 
+              in let func_index = L.build_struct_gep big_ *)
             (* let f_vtable = chunguini  *)
            (* | SCall (f, args) ->
             let (fdef, fdecl) = StringMap.find f function_decls in
@@ -417,7 +423,10 @@ in *)
     in let _ = List.iter build_function_body llval_list 
   in let table = L.const_named_struct (get_vtable_type chunguini curr_name) (Array.of_list (fst (List.split llval_list)))
     in L.define_global (curr_name ^ "_vtable_data") table the_module 
+    
   in let instantiated_vtable_llvalues = List.map build_class_functions classes 
+  in let big_table_inst =  L.const_named_struct big_vtable (Array.of_list instantiated_vtable_llvalues)
+  in let _ = L.define_global ("big_vtable_data") big_table_inst the_module 
   
     (* let _ = build_function_body main_func_ll *)
 in the_module

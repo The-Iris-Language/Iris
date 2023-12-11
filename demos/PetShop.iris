@@ -1,0 +1,53 @@
+class Animal (Main) {
+    public:
+        int legs;
+        bool fur;
+        string class;
+        void noise() {
+            Olympus.print("Noise");
+        } 
+}
+
+class Cat of Animal (Main) {
+    public:
+        
+        void noise() {
+            Olympus.print("Meow!");
+        }    
+}
+
+class Dog of Animal (Main) {
+    public:
+        void noise() {
+            Olympus.print("Bark!");
+        }
+}
+
+class Chicken of Animal (Main) {
+    public:
+        void noise() {
+            Olympus.print("Cluck!");
+        }
+}
+
+class Snake of Animal (Main) {
+    public:
+        void noise() {
+            Olympus.print("Hiss!");
+        }
+}
+
+class Frog of Animal (Main) {
+    public:
+        void noise() {
+            Olympus.print("Croak!");
+        }
+}
+
+class Main () {
+    public:
+        int univ main() {
+            Olympus.print("Hello and welcome to the animal guessing game!");
+            Olumpus.print("")
+        }
+}
