@@ -76,7 +76,6 @@ let translate (classes : sclass_decl list) =
         (* and (new_fun_index_map, _) = (StringMap.empty, 0) *)
       (* in let () = print_endline "_______________________________1" *)
     in let (new_fun_index_map, _) = List.fold_left (fun (acc, count) fun_decl -> ((StringMap.add fun_decl.sfname count acc), (count + 1)) ) (StringMap.empty, 0) sc_decl.smeths
-      
   
       in
           let arr_vars = Array.of_list all_typs
@@ -84,12 +83,14 @@ let translate (classes : sclass_decl list) =
             let new_struct = (L.named_struct_type context c_name)
             in 
               let _ = L.struct_set_body new_struct arr_vars false
-              in (counter + 1, (StringMap.add c_name new_struct tmap, StringMap.add c_name ((counter, i1_t), (new_var_index_map, new_fun_index_map)) chunguini))
+              (* in let () = print_endline ((string_of_int counter) ^ " " ^ c_name) *)
+                in (counter + 1, (StringMap.add c_name new_struct tmap, StringMap.add c_name ((counter, i1_t), (new_var_index_map, new_fun_index_map)) chunguini))
         
       in 
         let (_, (type_map, chunguini)) = List.fold_left (populate_type_map context) (0, (StringMap.empty, StringMap.empty)) classes
       
           in let ltype_map = ltype_of_typ type_map 
+        (* in let () = print_endline (string_of_int(class_index chunguini "IceCream")) *)
 
   in
   (* making vtable types *)
@@ -309,8 +310,10 @@ in *)
             (* in let () = print_endline "_______________________________2" *)
             in let class_index_ptr  = L.build_struct_gep lval 0 "vtable_index" builder
               in let class_index    = L.build_load class_index_ptr "vtable_index_int" builder
+            (* in let class_index = L.build_store (L.const_int i32_t 1) (L.const_int i32_t 1) builder *)
             (* in let () = print_endline "_______________________________3" *)
-                in let curr_vtable  = L.build_in_bounds_gep zero_big_table_inst [| class_index ; L.const_int i32_t 0 |] "curr_vtable" builder          
+                (* in let curr_vtable = L.build_in_bounds_gep zero_big_table_inst [| class_index ; L.const_int 0 |] "curr_vtable" builder *)
+              in let curr_vtable = L.build_struct_gep zero_big_table_inst 1 "curr_vtable" builder 
               in let vtable = L.build_load curr_vtable "vtable" builder
             (* in let () = print_endline (L.string_of_llvalue class_index_ptr)
             in let () = print_endline (L.string_of_llvalue curr_vtable)

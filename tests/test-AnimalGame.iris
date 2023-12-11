@@ -172,70 +172,7 @@ class Richard of Animal (Main) {
 class Main () {
     public:
         int univ main() {
-            run();
-            return 0;
-        }
-    private:
-        
-        void run() {
-            bool guess = false;
-            string input = "";
-            int count = 0;
-            
-            Olympus.print("Hello and welcome to the animal guessing game!");
-            Olympus.print("You will have 3 tries to guess the animal, along with a number of hints.");
-            Olympus.print("Please enter a number from 1-7");
-            
-            input = Olympus.getLine();
-            Animal a = getAnimal(input);
-            while (!guess || input != "q") {
-                Olympus.print("Please enter g to make a guess, h for a hint, or q to quit");
-                input = Olympus.getLine();
-                if (input == "q") {
-                    Olympus.print("Thank you for playing the game. We hope you had fun!!");
-                } else if (input == "g") {
-                    if (!makeGuess(a, count)) {
-                        count++;
-                    }
-                }
-            }
-        }
-
-        Animal getAnimal(string input) {
-            if (input == "1") {
-                return new Cat();
-            } else if (input == "2") {
-                return new Dog(); 
-            } else if (input == "3") {
-                return new Chicken();
-            } else if (input == "4") {
-                return new Snake();
-            } else if (input == "5") {
-                return new Frog();
-            } else if (input == "6") {
-                return new Bee();
-            } else {
-                return new Richard();
-            }
-        }
-
-        bool makeGuess(Animal a, int count) {
-            string input;
-            Olympus.print("Please enter your guess: ");
-            input = Olympus.getLine();
-
-            if (input != a.getType()) {
-                Olympus.print("Wrong guess :(");
-                if (count + 1 == 3) {
-                    Olympus.print("You have used up all your guesses");
-                    Olympus.print("The correct animal is: ");
-                    Olympus.print(a.getType);
-                    Olympus.print("You'll get 'em next time :D");
-                }
-                return false; 
-            }
-            
-            Olympus.print("Ding ding ding! You got it!");
-            return true;
+            Olympus.print("wot wot");
+            ..run();
         }
 }
