@@ -1,0 +1,236 @@
+class Animal (Main) {
+    public: 
+        string getClass() {
+            return animal; 
+        }
+
+        string getType() {
+            return type;
+        }
+        
+        int numLegs() {
+            return legs;
+        }
+
+        bool hasFur() {
+            return fur;
+        }
+
+        bool canFly() {
+            return canFly;
+        }
+        
+        void noise() {
+            Olympus.print("Noise");
+        }
+
+        void funFact() {
+            Olympus.print("There are 5 different animal classes: Mammals, Birds, Insects, Amphibians, and Reptiles!");
+        }
+
+    private:
+        string animal;
+        string type;
+        int legs;
+        bool fur;
+        bool canFly;
+
+}
+
+class Cat of Animal (Main) {
+    public:
+        Cat Cat() {
+            animal = "Mammal"; 
+            type = "Cat";
+            legs = 4;
+            fur = true;
+            canFly = false;
+
+        }
+        
+        void noise() {
+            Olympus.print("Meow!");
+        }
+
+        void funFact() {
+            Olympus.print("I can land on all fours!");
+        }    
+}
+
+class Dog of Animal (Main) {
+    public:
+        Dog Dog() {
+            animal = "Mammal"; 
+            type = "Dog";
+            legs = 4;
+            fur = true;
+            canFly = false;
+        }
+
+        void noise() {
+            Olympus.print("Bark!");
+        }
+
+        void funFact() {
+            Olympus.print("I have a great sense of smell!");
+        }
+}
+
+class Chicken of Animal (Main) {
+    public:
+        Chicken Chicken() {
+            animal = "Bird"; 
+            type = "Chicken";
+            legs = 2;
+            fur = false;
+            canFly = true;
+        }
+
+        void noise() {
+            Olympus.print("Cluck!");
+        }
+
+        void funFact() {
+            Olympus.print("I am one of the closest living descendants to dinosaurs!");
+        }
+}
+
+class Snake of Animal (Main) {
+    public:
+        Snake Snake() {
+            animal = "Reptile"; 
+            type = "Snake";
+            legs = 0;
+            fur = false;
+            canFly = false;
+        }
+
+        void noise() {
+            Olympus.print("Hiss!");
+        }
+
+        void funFact() {
+            Olympus.print("I can be very venomous!");
+        }
+}
+
+class Frog of Animal (Main) {
+    public:
+        Frog Frog() {
+            animal = "Amphibian"; 
+            type = "Frog";
+            legs = 4;
+            fur = false;
+            canFly = false;
+        }
+
+        void noise() {
+            Olympus.print("Croak!");
+        }
+
+        void funFact() {
+            Olympus.print("I have excellent night vision");
+        }
+}
+
+class Bee of Animal (Main) {
+    public:
+        Bee Bee() {
+            animal = "Insect"; 
+            type = "Bee";
+            legs = 6;
+            fur = false;
+            canFly = true;
+        }
+        void noise() {
+            Olympus.print("Buzz!");
+        }
+
+        void funFact() {
+            Olympus.print("");
+        }
+}
+
+class Richard of Animal (Main) {
+    public:
+        Richard Richard() {
+            animal = "Mammal";
+            type = "Richard";
+            legs = 2;
+            fur = false;
+            canFly = false;
+        }
+        void noise() {
+            Olympus.print("Howdy folks!");
+        }
+
+        void funFact() {
+            Olympus.print("This is someone you know very well ;)");
+        }
+}
+
+class Main () {
+    public:
+        int univ main() {
+            run();
+        }
+    private:
+        
+        void run() {
+            bool guess = false;
+            string input = "";
+            int count = 0;
+            
+            Olympus.print("Hello and welcome to the animal guessing game!");
+            Olympus.print("You will have 3 tries to guess the animal, along with a number of hints.");
+            Olympus.print("Please enter a number from 1-7");
+            
+            input = Olympus.getLine();
+            Animal a = getAnimal(input);
+            while (!guess || input != "q") {
+                Olympus.print("Please enter g to make a guess, h for a hint, or q to quit");
+                input = Olympus.getLine();
+                if (input == "q") {
+                    Olympus.print("Thank you for playing the game. We hope you had fun!!");
+                } else if (input == g) {
+                    makeGuess(a, count);
+                }
+
+            }
+        }
+
+        Animal getAnimal(string input) {
+            if (input == "1") {
+                return new Cat();
+            } else if (input == "2") {
+                return new Dog(); 
+            } else if (input == "3") {
+                return new Chicken();
+            } else if (input == "4") {
+                return new Snake();
+            } else if (input == "5") {
+                return new Frog();
+            } else if (input == "6") {
+                return new Bee();
+            } else {
+                return new Richard();
+            }
+        }
+
+        void makeGuess(Animal a, int count) {
+            string input;
+            Olympus.print("Please enter your guess: ");
+            input = Olympus.getLine();
+
+            if (input != a.getType()) {
+                Olympus.print("Wrong guess :(");
+                count++; 
+                if (count == 3) {
+                    Olympus.print("You have used up all your guesses");
+                    Olympus.print("The correct animal is: ");
+                    Olympus.print(a.getType);
+                    Olympus.print("You'll get 'em next time :D");
+                }
+            }
+        }
+}

@@ -73,13 +73,18 @@ let translate (classes : sclass_decl list) =
       (* i32_t to hold position in array of vtables *)
     in let all_typs = i32_t :: (perm_arr :: (List.map (ltype_of_typ tmap) typs))
         and (new_var_index_map, _) = List.fold_left (fun (acc, count) var_name -> ((StringMap.add var_name count acc), (count + 1)) ) (StringMap.empty, 2) vnames
-        in
+        (* and (new_fun_index_map, _) = (StringMap.empty, 0) *)
+      (* in let () = print_endline "_______________________________1" *)
+    in let (new_fun_index_map, _) = List.fold_left (fun (acc, count) fun_decl -> ((StringMap.add fun_decl.sfname count acc), (count + 1)) ) (StringMap.empty, 0) sc_decl.smeths
+      
+  
+      in
           let arr_vars = Array.of_list all_typs
           in 
             let new_struct = (L.named_struct_type context c_name)
             in 
               let _ = L.struct_set_body new_struct arr_vars false
-              in (counter + 1, (StringMap.add c_name new_struct tmap, StringMap.add c_name ((counter, i1_t), (new_var_index_map, StringMap.empty)) chunguini))
+              in (counter + 1, (StringMap.add c_name new_struct tmap, StringMap.add c_name ((counter, i1_t), (new_var_index_map, new_fun_index_map)) chunguini))
         
       in 
         let (_, (type_map, chunguini)) = List.fold_left (populate_type_map context) (0, (StringMap.empty, StringMap.empty)) classes
@@ -119,6 +124,9 @@ let translate (classes : sclass_decl list) =
   (* in let vtables_llval = L.declare_global vtables_struct "big_vtable" the_module  *)
   in let big_vtable = L.named_struct_type context ("big_vtable") 
   in let _ = L.struct_set_body big_vtable vtable_arr false
+  in let zero_big_table_args =  L.const_named_struct big_vtable [| L.const_int i32_t 0 |]
+  in let zero_big_table_inst = L.define_global ("big_vtable_data") zero_big_table_args the_module 
+(* in let () = print_endline (L.string_of_llvalue zero_big_table_inst) *)
  
 (* HALLO *)
   in let print_t : L.lltype = 
@@ -180,6 +188,7 @@ in *)
     
     let the_function = snd func_ll in
     let the_function_llval = fst func_ll in
+    let curr_func_name = the_function.sfname in
     (if (the_function.sorigin <> curr_name) then ()
     else 
     (* let (the_function, _) = StringMap.find fdecl.sfname function_decls in *)
@@ -193,7 +202,7 @@ in *)
                    with Not_found -> StringMap.find n global_vars
                   in *)
     let rec expr builder m ((t, e) : sexpr)  = 
-        let not_implemented_err = "not implemented yet! " ^ (string_of_sexpr (t, e)) in
+        let not_implemented_err = "Codegen Error 198: not implemented yet! " ^ (string_of_sexpr (t, e)) in
       match e with
           SLiteral   i -> (L.const_int i32_t i, m)
         | SBoolLit   b -> (L.const_int i1_t (if b then 1 else 0), m)
@@ -290,23 +299,35 @@ in *)
                   let gep = L.build_struct_gep lval (var_index chunguini cname var) (name ^ var) builder
                   in
                     let _ = L.build_store e' gep builder
-            in (e', m)        
-        (* | SCall(caller, func_name, [e]) -> 
-          let (_, lval) = StringMap.find name m
-          in let class_index   = L.build_struct_gep lval 0 "vtable_index" builder
-            in let curr_vtable = 
-              in let func_index = L.build_struct_gep big_ *)
-            (* let f_vtable = chunguini  *)
-           (* | SCall (f, args) ->
-            let (fdef, fdecl) = StringMap.find f function_decls in
-      let llargs = List.rev (List.map (expr builder) (List.rev args)) in
-      let result = (match fdecl.styp with 
-                           A.Void -> ""
-                         | _ -> f ^ "_result") in 
-            L.build_call fdef (Array.of_list llargs) result builder *)
+            in (e', m) 
         | SCall("Olympus", "print", [e]) ->
           (L.build_call print_func [| format_str ; (fst (expr builder m e)) |]
-          "printf" builder, m)
+          "printf" builder, m)       
+        | SCall(caller, func_name, e_list) -> 
+          let (typ, lval) = (try StringMap.find caller m with Not_found -> raise (Failure "Codegen 207: caller not found"))
+          in let class_name = (get_typ_name typ)
+            (* in let () = print_endline "_______________________________2" *)
+            in let class_index_ptr  = L.build_struct_gep lval 0 "vtable_index" builder
+              in let class_index    = L.build_load class_index_ptr "vtable_index_int" builder
+            (* in let () = print_endline "_______________________________3" *)
+                in let curr_vtable  = L.build_in_bounds_gep zero_big_table_inst [| class_index ; L.const_int i32_t 0 |] "curr_vtable" builder          
+              in let vtable = L.build_load curr_vtable "vtable" builder
+            (* in let () = print_endline (L.string_of_llvalue class_index_ptr)
+            in let () = print_endline (L.string_of_llvalue curr_vtable)
+              in let () = print_endline (L.string_of_llvalue vtable) *)
+                
+                in let function_index = fun_index chunguini class_name (func_name)
+              (* in let () = print_endline (string_of_int function_index) *)
+
+
+                in let code_fun = L.build_struct_gep vtable function_index "fun_to_call" builder
+                
+
+
+                (* in let () = print_endline "got the fun" *)
+          in (L.const_int i32_t 0, m)
+           
+        
         | SClassVar(name, var) -> 
           let (typ, lval) = StringMap.find name m
           in 
@@ -406,7 +427,7 @@ in *)
                               | _ -> local)
                             in
                               (builder, StringMap.add n (t, local) map) (* stores type of the local var so can be used in expr ^*)
-        | _ -> let not_implemented_err = "not implemented yet!" in 
+        | _ -> let not_implemented_err = "Codegen: not implemented yet!" in 
               raise (Failure not_implemented_err) in
 
         (* Build the code for each statement in the function *)
@@ -425,6 +446,7 @@ in *)
     in L.define_global (curr_name ^ "_vtable_data") table the_module 
     
   in let instantiated_vtable_llvalues = List.map build_class_functions classes 
+  in let _ = L.delete_global zero_big_table_inst
   in let big_table_inst =  L.const_named_struct big_vtable (Array.of_list instantiated_vtable_llvalues)
   in let _ = L.define_global ("big_vtable_data") big_table_inst the_module 
   

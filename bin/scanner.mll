@@ -16,9 +16,9 @@ let char = single_char | double_char | single_apo | '"'
 let string_char = single_char | double_char | double_apo | '''
 
 rule token = parse
-  [' ' '\t' '\r' '\n'] { token lexbuf } (* Whitespace *)
-| ".."      { singleComment lexbuf }           (* Comments *)
-| ".~*"     { multiComment lexbuf }           (* Comments *)
+  [' ' '\t' '\r' '\n'] { token lexbuf }     (* Whitespace *)
+| ".."      { singleComment lexbuf }        (* Comments *)
+| ".~*"     { multiComment lexbuf }         (* Comments *)
 | '.'       { DOT }
 | '('       { LPAREN }
 | ')'       { RPAREN }

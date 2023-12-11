@@ -23,5 +23,5 @@ let get_vtable_type chunguini cname =
 let fun_index chunguini cname fname =
   let (_, (_, fmap)) = get_class chunguini cname 
   in (try StringMap.find fname fmap with 
-  Not_found -> raise (Failure ("class " ^ cname ^ " does not contain function " ^ fname) ))
+  Not_found -> raise (Failure (__FILE__ ^ " " ^ (string_of_int __LINE__) ^ ": " ^ "class " ^ cname ^ " does not contain function " ^ fname) ))
 
