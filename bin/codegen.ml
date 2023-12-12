@@ -308,7 +308,7 @@ in *)
           (L.build_call print_func [| format_str ; (fst (expr builder m e)) |]
           "printf" builder, m)       
         | SCall(caller, func_name, e_list) -> 
-          let (typ, lval) = (try StringMap.find caller m with Not_found -> raise (Failure "Codegen 207: caller not found"))
+          let (typ, lval) = (try StringMap.find caller m with Not_found -> raise (Failure ("codegen.ml " ^ (string_of_int __LINE__) ^  ": " ^ caller ^ "not found")))
           in let class_name = (get_typ_name typ)
             (* in let () = print_endline "_______________________________got class name" *)
             in let class_index_ptr = L.build_struct_gep lval 0 "vtable_index" builder

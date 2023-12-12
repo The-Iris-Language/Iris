@@ -289,11 +289,12 @@ module StringMap = Map.Make(String)
             "private:" -> raise (Failure ("function " ^ function_string ^ " is not accessible"))
             | _       ->      
               let sxpr_list = List.map (check_expr m) args 
-                in let sl  = List.map (fun ((t, sexpr), _) -> (t, sexpr)) sxpr_list
-                  in let args = (try List.combine sl func_d.formals
-                              with _ -> raise (Failure "Number of arguments doesn't match"))
-                            in let _ = List.map (fun ((t1, _), (t2, _)) -> if t1 != t2 then raise (Failure "not matching types")) args
-                in ((func_d.typ, SCall(caller, function_string, sl)), m))
+                (* in let m' = List.fold_left (fun (acc, ) -> ) *)
+                  in let sl  = List.map (fun ((t, sexpr), _) -> (t, sexpr)) sxpr_list
+                    in let args = (try List.combine sl func_d.formals
+                                with _ -> raise (Failure "Number of arguments doesn't match"))
+                              in let _ = List.map (fun ((t1, _), (t2, _)) -> if t1 != t2 then raise (Failure "not matching types")) args
+                  in ((func_d.typ, SCall(caller, function_string, sl)), m))
         | Assign (n, e) -> 
           (try let var = StringMap.find n m 
               and (sexpr, m') = check_expr m e in
@@ -364,7 +365,7 @@ module StringMap = Map.Make(String)
       in let check_function (func : func_decl) =
         
 
-  (* Will have StringMap for Class Variables *)
+        (* Will have StringMap for Class Variables *)
         (* TODO: eventually check formals / binds !! *)
           
         let rec check_stmt m (s : stmt) = 
@@ -422,6 +423,7 @@ module StringMap = Map.Make(String)
 
           | _ -> raise (Failure not_implemented_err)
           in let locals = StringMap.empty 
+
         in {suniv = func.univ;
             styp = func.typ;
             sfname = func.fname;

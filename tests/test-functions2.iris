@@ -1,0 +1,55 @@
+class IceCream () {
+    public:
+        int temp;
+        string flavor;
+        string getFlavor() {
+            return "yum";   
+        }
+        
+        float getTemp() {
+            
+            Olympus.print("got temp!");
+            return 32.0;
+        }
+
+        IceCream update() {
+            IceCream bebe;
+            bebe.temp = 0;
+            bebe.flavor = "YUMMY";
+            return bebe;
+        }
+
+        void yay() {
+            printyay();
+        }
+        
+        void printyay() {
+            Olympus.print("yay");
+        }
+}
+
+class Gelato of IceCream () {
+    public: 
+        int price (int i) {
+            return 1;
+        }
+        string getFlavor () {
+            return "tasty";
+        }
+}
+
+class Main () {
+    public: 
+        int univ main() {
+            IceCream i;
+            Gelato g;
+            i.getTemp();
+            i.yay();
+            IceCream b = i.update();
+            Olympus.print(i.getFlavor());
+            return 0;
+        }
+        int getOne() {
+            return 1;
+        }
+}
