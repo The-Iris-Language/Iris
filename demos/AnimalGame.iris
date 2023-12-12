@@ -184,7 +184,7 @@ class Main () {
             
             Olympus.print("Hello and welcome to the animal guessing game!");
             Olympus.print("You will have 3 tries to guess the animal, along with a number of hints.");
-            Olympus.print("Please enter a number from 1-7");
+            Olympus.print("Please enter a number from 1-6");
             
             input = Olympus.getLine();
             Animal a = getAnimal(input);
@@ -196,7 +196,11 @@ class Main () {
                 } else if (input == "g") {
                     if (!makeGuess(a, count)) {
                         count++;
+                    } else {
+                        return;
                     }
+                } else if (input == "h") {
+                    giveHint(a);
                 }
             }
         }
@@ -237,5 +241,31 @@ class Main () {
             
             Olympus.print("Ding ding ding! You got it!");
             return true;
+        }
+
+        void giveHint(Animal a) {
+            Olympus.print("Select one of the options for a hint:");
+            Olympus.print("Class");
+            Olympus.print("Legs");
+            Olympus.print("Fur");
+            Olympus.print("Fly");
+            Olympus.print("Noise");
+            Olympus.print("Fun fact");
+            string input = Olympus.getLine();
+            if (input == "Class") {
+                Olympus.print("The animal is part of the class: ");
+                Olympus.print(a.getClass());
+            } else if (input == "Legs") {
+                Olympus.print("The animal has ");
+                Olympus.print(a.numLegs());
+                Olympus.print(" legs");
+            } else if (input == "Fur") {
+                            } else if (input == "Fly") {
+                
+            } else if (input == "Noise") {
+                
+            } else { .. 
+                
+            }
         }
 }

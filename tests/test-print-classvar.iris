@@ -20,17 +20,23 @@ class Josh () {
             return 1;
         }
     
-    permit:
-        int height;
-        int age;
+    
+    int height;
+    int age;
 }
 
 class Main () {
     public:
-       int univ main () {
+        int univ main () {
+                
             Animal a;
             a.name = "animal name is josh"; 
+            a.legs = 3;
+            
+            if (a.legs == 3) {
+                Olympus.print("three legs!");
+            }
             Olympus.print(a.name);
             return 0; 
-       }
-}
+        }
+    }

@@ -382,6 +382,10 @@ module StringMap = Map.Make(String)
                       | _ -> ((SLocal (t, n)), m)))
           | If(p, b1, b2) -> 
               let (b, m1) = check_expr m p in 
+                let (typ, _) = b in
+                  let _ = (match typ with 
+                  typ -> ()
+                  | _ -> raise (Failure "Predicate in if statement is not a bool")) in
               let (stmt1, _) = check_stmt m1 b1 in
               let (stmt2, _) = check_stmt m1 b2 in 
               (SIf(b, stmt1, stmt2), m)

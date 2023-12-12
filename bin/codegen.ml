@@ -93,6 +93,10 @@ let translate (classes : sclass_decl list) =
         (* in let () = print_endline (string_of_int(class_index chunguini "IceCream")) *)
 
   in
+  let formal_typ_of_typ typ = (match typ with 
+          | A.Object (_) -> L.pointer_type (ltype_map typ)
+          | _               -> ltype_map typ)
+in
   (* making vtable types *)
   let make_vtable_typ context (guini, vtable_list) sc_decl = 
     let all_funcs = sc_decl.smeths
@@ -100,10 +104,10 @@ let translate (classes : sclass_decl list) =
       (* list of function return/formal types (styp) *)
       let all_ftypes  = List.map (fun sfunc -> sfunc.styp) all_funcs
       and all_formals = List.map (fun sfunc -> fst (List.split sfunc.sformals)) all_funcs
-      in 
+
         (* list of function return/formal lltypes *)
-        let ret_fltyps    = List.map ltype_map all_ftypes
-        and formal_fltyps = (List.map (fun typs -> Array.of_list (List.map ltype_map typs)) all_formals )
+        in let ret_fltyps    = List.map ltype_map all_ftypes
+        and formal_fltyps = (List.map (fun typs -> Array.of_list (List.map formal_typ_of_typ typs)) all_formals )
         in 
           let all_args = List.combine ret_fltyps formal_fltyps
           in
@@ -176,7 +180,7 @@ in *)
         else func.sorigin ^ "_" ^ func.sfname)
       in
         if ((func.sorigin = curr_name)) then 
-          let func_type = L.function_type (ltype_map func.styp) (Array.of_list (List.map ltype_map (fst (List.split func.sformals))))
+          let func_type = L.function_type (ltype_map func.styp) (Array.of_list (List.map formal_typ_of_typ (fst (List.split func.sformals))))
           in
             let func_ll = (L.define_function func_name func_type the_module, func) 
               in func_ll :: acc
@@ -186,7 +190,6 @@ in *)
            this line skips inherited, non-overriden functions *)
       in 
   let build_function_body (func_ll : (L.llvalue * sfunc_decl)) =
-    
     let the_function = snd func_ll in
     let the_function_llval = fst func_ll in
     let curr_func_name = the_function.sfname in
@@ -203,7 +206,7 @@ in *)
                    with Not_found -> StringMap.find n global_vars
                   in *)
     let rec expr builder m ((t, e) : sexpr)  = 
-        let not_implemented_err = "Codegen Error 198: not implemented yet! " ^ (string_of_sexpr (t, e)) in
+        (* let not_implemented_err = "Codegen Error 198: not implemented yet! " ^ (string_of_sexpr (t, e)) in *)
       match e with
           SLiteral   i -> (L.const_int i32_t i, m)
         | SBoolLit   b -> (L.const_int i1_t (if b then 1 else 0), m)
@@ -307,14 +310,18 @@ in *)
         | SCall(caller, func_name, e_list) -> 
           let (typ, lval) = (try StringMap.find caller m with Not_found -> raise (Failure "Codegen 207: caller not found"))
           in let class_name = (get_typ_name typ)
-            (* in let () = print_endline "_______________________________2" *)
-            in let class_index_ptr  = L.build_struct_gep lval 0 "vtable_index" builder
-              in let class_index    = L.build_load class_index_ptr "vtable_index_int" builder
+            (* in let () = print_endline "_______________________________got class name" *)
+            in let class_index_ptr = L.build_struct_gep lval 0 "vtable_index" builder
+            (* in let () = print_endline "_______________________________got index ptr" *)
+              in let class_index = L.build_load class_index_ptr "vtable_index_int" builder
+            (* in let () = print_endline "_______________________________got  index" *)
             (* in let class_index = L.build_store (L.const_int i32_t 1) (L.const_int i32_t 1) builder *)
-            (* in let () = print_endline "_______________________________3" *)
-                (* in let curr_vtable = L.build_in_bounds_gep zero_big_table_inst [| class_index ; L.const_int 0 |] "curr_vtable" builder *)
+            
+                (* in let curr_vtable = L.build_in_bounds_gep zero_big_table_inst [| L.const_int i32_t 0 ; class_index_ptr |] "curr_vtable" builder *)
               in let curr_vtable = L.build_struct_gep zero_big_table_inst 1 "curr_vtable" builder 
-              in let vtable = L.build_load curr_vtable "vtable" builder
+            (* in let () = print_endline "_______________________________3" *)
+  
+            in let vtable = L.build_load curr_vtable "vtable" builder
             (* in let () = print_endline (L.string_of_llvalue class_index_ptr)
             in let () = print_endline (L.string_of_llvalue curr_vtable)
               in let () = print_endline (L.string_of_llvalue vtable) *)
@@ -324,13 +331,17 @@ in *)
 
 
                 in let code_fun = L.build_struct_gep vtable function_index "fun_to_call" builder
-                
-
+                (* in let () = print_endline "_______________________________got func pointer" *)
+              in let func = L.build_load code_fun "function" builder
+              (* in let () = print_endline "_______________________________loaded func" *)
+            in let arg_lls = fst(List.split (List.map (expr builder m) e_list))
+          in let arg_arr = Array.of_list (lval :: arg_lls)
+            in let call = L.build_call func arg_arr "func_call" builder
+            (* in let () = print_endline "_______________________________call built" *)
 
                 (* in let () = print_endline "got the fun" *)
           in (L.const_int i32_t 0, m)
            
-        
         | SClassVar(name, var) -> 
           let (typ, lval) = StringMap.find name m
           in 
@@ -360,7 +371,6 @@ in *)
                   in let _ = L.build_store llval (snd (StringMap.find n m)) builder
                     in (llval, m')
         | SNoexpr -> (L.const_int i32_t 0, m)
-        | _ -> raise (Failure not_implemented_err)
 
       in 
       
@@ -420,16 +430,17 @@ in *)
             (* Move to the merge block for further instruction building *)
             (L.builder_at_end context merge_bb, map')
 
-        | SLocal (t, n) -> let local = L.build_alloca (ltype_map t) n builder 
-                            in 
-                            let _ = (match t with 
-                              Object (name) -> 
-                                let gep = L.build_struct_gep local 0 "vtable_index" builder
-                                in
-                                  L.build_store (L.const_int i32_t (class_index chunguini name)) gep builder
-                              | _ -> local)
-                            in
-                              (builder, StringMap.add n (t, local) map) (* stores type of the local var so can be used in expr ^*)
+        | SLocal (t, n) -> 
+          let local = L.build_alloca (ltype_map t) n builder in
+          (* let lval = L.build_load local "local" builder in *)
+            let _ = 
+              (match t with 
+                Object (name) ->
+                  let gep = L.build_struct_gep local 0 "vtable_index" builder in
+                  L.build_store (L.const_int i32_t (class_index chunguini name)) gep builder 
+                | _ -> local)
+            in
+            (builder, StringMap.add n (t, local) map) (* stores type of the local var so can be used in expr ^*)
         | _ -> let not_implemented_err = "Codegen: not implemented yet!" in 
               raise (Failure not_implemented_err) in
 

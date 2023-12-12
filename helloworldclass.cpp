@@ -22,6 +22,7 @@ class Dog {
 
 int main() {
     Dog d = Dog();
+    d.woof();
     return 0;
 }
 
