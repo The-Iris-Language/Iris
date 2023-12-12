@@ -6,8 +6,8 @@ class IceCream () {
             return "yum";   
         }
         
-        float getTemp() {
-            Olympus.print("got temp!");
+        float getTemp(string message) {
+            Olympus.print(message);
             return 32.0;
         }
 }
@@ -27,7 +27,7 @@ class Main () {
         int univ main() {
             IceCream i;
             Gelato g;
-            i.getTemp();
+            i.getTemp("hallo");
             Olympus.print("Hello world!");
             return 0;
         }

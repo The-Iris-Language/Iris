@@ -109,7 +109,7 @@ in
         in let ret_fltyps    = List.map ltype_map all_ftypes
         and formal_fltyps = (List.map (fun typs -> Array.of_list (List.map formal_typ_of_typ typs)) all_formals )
         in 
-          let all_args = List.combine ret_fltyps formal_fltyps
+          let all_args = (List.combine ret_fltyps formal_fltyps)
           in
             let func_ltypes = List.map (fun (ret, forms) -> (L.pointer_type (L.function_type ret forms))) all_args
             in 
@@ -138,42 +138,12 @@ in
     L.var_arg_function_type i32_t [| L.pointer_type i8_t |]
   in let print_func : L.llvalue = 
     L.declare_function "printf" print_t the_module in
-    
-  (* let main_class = (try (List.find (fun cls -> curr_name = "Main" ) classes) 
-                    with Not_found -> raise (Failure "Main class not found"))
-in *)
-  (* let encaps = (List.nth main_class.smems 0) in *)
-  (* let main_mem = (List.nth main_class.smeths 0) in *)
-  (* let get_func one_mem =
-    let var_err = "variable not allowed yet! grrrr" in 
-    match one_mem with
-      SMemberFun(f) -> f
-    | _            -> raise (Failure var_err)
-  in  *)
-  
-
-  (* let main_func = (try (List.find (fun sf -> sf.sfname = "main") main_class.smeths) 
-                  with Not_found -> raise (Failure "main() function not found")) *)
-    (* in *)
-     (* let ftype = L.function_type (ltype_map main_func.styp) [||] in
-     let main_func_ll = (L.define_function "main" ftype the_module, main_func) in *)
   
   let build_class_functions (cls : sclass_decl) =
     let curr_name = cls.sclass_name in 
     
     (* Fill in the body of the given function *)
-    
-    (* let function_decls : (L.llvalue * sfunc_decl) StringMap.t =
-        let function_decl m fdecl =
-          let name = fdecl.sfname
-          and formal_types = 
-            Array.of_list (List.map (fun (t,_) -> ltype_of_typ t) fdecl.sformals)
-          in 
-            let ftype = L.function_type (ltype_of_typ fdecl.styp) formal_types 
-            in StringMap.add name (L.define_function name ftype the_module, fdecl) m 
-          in
-          List.fold_left function_decl StringMap.empty functions in
-     *)
+  
      let build_function_llvals (acc : (L.llvalue * sfunc_decl) list) (func : sfunc_decl) = 
       let func_name = (if (curr_name = "Main") && (func.sfname = "main") 
         then "main" 
@@ -193,6 +163,8 @@ in *)
     let the_function = snd func_ll in
     let the_function_llval = fst func_ll in
     let curr_func_name = the_function.sfname in
+    let formal_list = (snd func_ll).sformals in
+    let _ = print_endline ((snd func_ll).sfname ^ " func_formals len is " ^ (string_of_int (List.length formal_list))) in
     (if (the_function.sorigin <> curr_name) then ()
     else 
     (* let (the_function, _) = StringMap.find fdecl.sfname function_decls in *)
@@ -216,7 +188,7 @@ in *)
           in
             (L.const_float float_t f, m) *)
             (L.const_float_of_string float_t s, m)
-        | SId n -> (L.build_load (snd (StringMap.find n m)) n builder, m)
+        | SId n -> (try (L.build_load (snd (StringMap.find n m)) n builder, m) with Not_found -> raise (Failure ("couldn't find " ^ n)))
         | SUnop (uop, e) -> 
           let (lval, m') = expr builder m e 
           in (match uop with 
@@ -309,37 +281,28 @@ in *)
           "printf" builder, m)       
         | SCall(caller, func_name, e_list) -> 
           let (typ, lval) = (try StringMap.find caller m with Not_found -> raise (Failure ("codegen.ml " ^ (string_of_int __LINE__) ^  ": " ^ caller ^ "not found")))
+        
           in let class_name = (get_typ_name typ)
-            (* in let () = print_endline "_______________________________got class name" *)
             in let class_index_ptr = L.build_struct_gep lval 0 "vtable_index" builder
-            (* in let () = print_endline "_______________________________got index ptr" *)
               in let class_index = L.build_load class_index_ptr "vtable_index_int" builder
-            (* in let () = print_endline "_______________________________got  index" *)
-            (* in let class_index = L.build_store (L.const_int i32_t 1) (L.const_int i32_t 1) builder *)
-            
-                (* in let curr_vtable = L.build_in_bounds_gep zero_big_table_inst [| L.const_int i32_t 0 ; class_index_ptr |] "curr_vtable" builder *)
-              in let curr_vtable = L.build_struct_gep zero_big_table_inst 1 "curr_vtable" builder 
-            (* in let () = print_endline "_______________________________3" *)
-  
-            in let vtable = L.build_load curr_vtable "vtable" builder
-            (* in let () = print_endline (L.string_of_llvalue class_index_ptr)
-            in let () = print_endline (L.string_of_llvalue curr_vtable)
-              in let () = print_endline (L.string_of_llvalue vtable) *)
-                
+
+                in let curr_vtable = L.build_struct_gep zero_big_table_inst 1 "curr_vtable" builder 
+                in let vtable = L.build_load curr_vtable "vtable" builder
+
                 in let function_index = fun_index chunguini class_name (func_name)
-              (* in let () = print_endline (string_of_int function_index) *)
-
-
                 in let code_fun = L.build_struct_gep vtable function_index "fun_to_call" builder
-                (* in let () = print_endline "_______________________________got func pointer" *)
-              in let func = L.build_load code_fun "function" builder
-              (* in let () = print_endline "_______________________________loaded func" *)
-            in let arg_lls = fst(List.split (List.map (expr builder m) e_list))
-          in let arg_arr = Array.of_list (lval :: arg_lls)
-            in let call = L.build_call func arg_arr "func_call" builder
-            (* in let () = print_endline "_______________________________call built" *)
+                in let func = L.build_load code_fun "function" builder
 
-                (* in let () = print_endline "got the fun" *)
+            in let arg_lls = (fst (List.split (List.map (expr builder m) e_list)))
+            in let formal_lls = List.map (fun (_, n) -> snd (StringMap.find n m)) (List.tl formal_list) 
+            (* we need the list of formals of the function not the current function we're in *)
+            in let () = print_endline (func_name ^ " formal_ll len : " ^ (string_of_int (List.length formal_lls)))
+            in let () = print_endline ("arg_ll len : " ^ (string_of_int (List.length arg_lls)))
+            in let stored_args = List.map (fun (arg_ll, alloca_ll) -> L.build_store arg_ll alloca_ll builder) (List.combine arg_lls formal_lls)
+            (* in let stored_args = List.map (fun (arg_ll, alloca_ll) -> L.build_store arg_ll alloca_ll builder) (List.combine arg_lls formal_lls) *)
+
+            in let arg_arr = Array.of_list (lval :: stored_args)
+            in let call = L.build_call func arg_arr "func_call" builder
           in (L.const_int i32_t 0, m)
            
         | SClassVar(name, var) -> 
@@ -442,10 +405,15 @@ in *)
             in
             (builder, StringMap.add n (t, local) map) (* stores type of the local var so can be used in expr ^*)
         | _ -> let not_implemented_err = "Codegen: not implemented yet!" in 
-              raise (Failure not_implemented_err) in
+              raise (Failure not_implemented_err) 
 
         (* Build the code for each statement in the function *)
-    let (builder, _) = stmt (builder, StringMap.empty) (SBlock the_function.sbody) in
+          in let build_alloca_formals m (t, n) = 
+            let formal = L.build_alloca (ltype_map t) n builder in 
+            StringMap.add n (t, formal) m
+
+          in let formal_map = List.fold_left build_alloca_formals StringMap.empty formal_list
+          in let (builder, _) = stmt (builder, formal_map) (SBlock the_function.sbody) in
     (* Add a return if the last block falls off the end *)
     add_terminal builder (match the_function.styp with
         A.Void -> L.build_ret_void

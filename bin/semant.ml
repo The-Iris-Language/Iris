@@ -133,8 +133,6 @@ module StringMap = Map.Make(String)
   (* helper functions !!!! WOOOOOO *)
   
 
-
-
   (* find_func: finds a function given a function declaration and list of functions *)
   (* let find_func (func : func_decl) (mems : member list) = 
     let func_not_found = "function of name " ^ func.fname ^ " not found" in 
@@ -271,7 +269,7 @@ module StringMap = Map.Make(String)
         | Call (caller, function_string, (args : expr list)) -> 
           let ((_, encap), func_d) = 
           (* TODO CHANGEEEE check for instance vs class name 
-            WE NEED TO CHECK FOR    
+            WE NEED TO CHECK FOR 
           *)
           (match caller with 
           "self" -> find_func big_chungus curr_class function_string
@@ -289,7 +287,7 @@ module StringMap = Map.Make(String)
             "private:" -> raise (Failure ("function " ^ function_string ^ " is not accessible"))
             | _       ->      
               let sxpr_list = List.map (check_expr m) args 
-                (* in let m' = List.fold_left (fun (acc, ) -> ) *)
+                (* in let m_with_formals = List.fold_left (fun (new_map, (typ, name)) -> (StringMap.add name (typ, name) new_map)) m func_d.formals *)
                   in let sl  = List.map (fun ((t, sexpr), _) -> (t, sexpr)) sxpr_list
                     in let args = (try List.combine sl func_d.formals
                                 with _ -> raise (Failure "Number of arguments doesn't match"))
@@ -363,7 +361,6 @@ module StringMap = Map.Make(String)
       
 
       in let check_function (func : func_decl) =
-        
 
         (* Will have StringMap for Class Variables *)
         (* TODO: eventually check formals / binds !! *)
@@ -385,7 +382,7 @@ module StringMap = Map.Make(String)
               let (b, m1) = check_expr m p in 
                 let (typ, _) = b in
                   let _ = (match typ with 
-                  typ -> ()
+                  Bool -> ()
                   | _ -> raise (Failure "Predicate in if statement is not a bool")) in
               let (stmt1, _) = check_stmt m1 b1 in
               let (stmt2, _) = check_stmt m1 b2 in 
@@ -422,7 +419,9 @@ module StringMap = Map.Make(String)
             in (SBlock(ret_stmts), m)
 
           | _ -> raise (Failure not_implemented_err)
-          in let locals = StringMap.empty 
+          in let locals = List.fold_left (fun acc (typ, name) -> StringMap.add name (typ, name) acc) StringMap.empty func.formals
+
+      
 
         in {suniv = func.univ;
             styp = func.typ;
