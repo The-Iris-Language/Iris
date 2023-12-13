@@ -291,7 +291,6 @@ in let _ = L.struct_set_body curr_class_type struct_arr false *)
               in let lltype = ltype_map t in
           let m' = (if (is_object t) then 
             let temp = L.build_alloca (L.pointer_type lltype) "temp" builder 
-            in let cast = L.build_bitcast lval (L.pointer_type (ltype_map (A.Object func_origin))) "cast_val" builder
             in let _ = L.build_store e' temp builder in 
             let local = L.build_load temp n builder in
              StringMap.add n (t, local) m

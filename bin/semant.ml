@@ -165,9 +165,30 @@ let error line = "semant.ml line " ^ (string_of_int line) ^ ": "
 
   in let build_sast (cdecls : class_decl list) =
 
-    let check_class (scls_accum : sclass_decl list) (cls : class_decl) = 
+     let is_object = function
+      | Object (n) -> let _ = find_class big_chungus n in true
+      | _ -> false
+
+      in let get_object_name = function 
+        | Object (n) -> n 
+        | _ -> "not an object!"
+
+      in let mismatch_types err lhval rhval =
+      (if lhval <> rhval then 
+          (if ((is_object lhval) && (is_object rhval)) then 
+            let lhcls = get_object_name lhval and rhcls = get_object_name rhval in
+              (if (is_ancestor big_chungus rhcls lhcls) then 
+                  true
+              else 
+                  raise (Failure ("class " ^ lhcls ^ " is not an ancestor of " ^ rhcls)))
+          else raise (Failure (err)))
+      else true)
+
+    in let check_class (scls_accum : sclass_decl list) (cls : class_decl) = 
       let curr_class = cls.class_name
       and parent_class = cls.parent_name
+
+      (*  *)
 
       (* TODO
         BIG TODO DO NOT FORGET
@@ -244,12 +265,13 @@ let error line = "semant.ml line " ^ (string_of_int line) ^ ": "
         | Assign (n, e) -> 
           (try let var = StringMap.find n m 
               and (sexpr, m') = check_expr m e in
-                  if (fst var = fst sexpr) then 
-                      ((fst sexpr, SAssign(n, sexpr)), m')
-                  else raise (Failure ( "variable " ^ n ^ " has type " ^ string_of_typ (fst var) 
-                                      ^ ", but an expression with type " ^ string_of_typ (fst sexpr) 
-                                      ^ " was found."))
-                  with Not_found -> raise (Failure ( "variable " ^ n ^ " not found"))) 
+              let typ1 = fst var and typ2 = fst sexpr in 
+              let  mismatch_err = "variable " ^ n ^ " has type " ^ string_of_typ (typ1) 
+              ^ ", but an expression with type " ^ string_of_typ (typ2) 
+              ^ " was found." in
+              let _ = mismatch_types mismatch_err typ1 typ2 in  
+                ((typ2, SAssign(n, sexpr)), m')
+          with Not_found -> raise (Failure ( "variable " ^ n ^ " not found"))) 
                           (* try let _ = StringMap.find n m in
                       raise (Failure ("local variable " ^ n ^ " already exists"))
                     with Not_found -> ((SLocal (t, n)), m)) *)

@@ -69,10 +69,10 @@ let compare_fdecls fdecl1 fdecl2 =
 
   let rec is_ancestor chungus child ancestor = 
     if (child <> ancestor) then 
-      if (child = "Object") then false 
+      (if (child = "Object") then false 
       else 
         let parent = find_parent_name chungus child in 
-        is_ancestor chungus child parent
+        is_ancestor chungus parent ancestor)
     else true
       
 (* let big_chungus classes = *) (* needs this to return the structure*)
