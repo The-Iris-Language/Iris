@@ -1,0 +1,103 @@
+class Animal (Main) {
+    public: 
+        Animal Animal() {
+            animal = "";
+            type = "";
+            legs = 0;
+        }
+
+        string getClass() {
+            return animal; 
+        }
+
+        string getType() {
+            return type;
+        }
+        
+        int numLegs() {
+            return legs;
+        }
+
+        void ignore() {
+            Olympus.print("...");
+        }
+    permit:
+        void noise() {
+            Olympus.print("Noise");
+        }
+
+    private:
+        string animal;
+        string type;
+        int legs;
+}
+
+class Human of Animal (Main) {
+    public:
+        Human Human() {
+            name = "";
+            animal = "Mammal";
+            type = "Human";
+            legs = 2;
+        }
+
+        string getName() {
+            return name;
+        }
+    private:
+        string name;
+}
+
+class Zookeeper of Human (Main) {
+    public:
+        Zookeeper Zookeeper() {
+            animal = "Mammal";
+            type = "Human"
+            legs = 2;
+            name = "Bob";
+        }
+
+        void callAnimal(Animal a) {
+            a.noise();
+        }
+}
+
+class Lion of Animal (Zookeeper) {
+    public:
+        Lion Lion() {
+
+        }
+    permit: 
+        void noise() {
+            Olympus.print("Roar!");
+        }
+    private:
+        
+}
+
+class Elephant of Animal (Zookeeper) {
+    permit: 
+        void noise() {
+            Olympus.print("!");
+        }
+}
+
+class Zebra of Animal (Zookeeper) {
+
+    permit: 
+        void noise() {
+            Olympus.print("Roar!");
+        }
+}
+
+
+class Main () {
+    public:
+        int univ main() {
+            Zookeeper z = new Zookeeper();
+            Tiger t = new Tiger();
+            Olympus.print("Welcome to the zoo! Let's see what animals we can find");
+            Olympus.print("This i");
+        }
+}
+.. zookeeper can go into the the habitats of the animal, but the visitors cannot

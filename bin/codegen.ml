@@ -59,6 +59,12 @@ let translate (classes : sclass_decl list) =
   let get_typ_name = function 
       A.Object (ctyp) -> ctyp 
       | _ -> raise (Failure "This is not an object type")
+  
+  in let is_object typ = 
+    (try let _ = get_typ_name typ 
+          in true 
+      with 
+      | Failure _ -> false)
     
   in 
     let populate_type_map context (counter, (tmap, chunguini)) sc_decl =
@@ -164,7 +170,7 @@ in
     let the_function_llval = fst func_ll in
     let curr_func_name = the_function.sfname in
     let formal_list = (snd func_ll).sformals in
-    let _ = print_endline ((snd func_ll).sfname ^ " func_formals len is " ^ (string_of_int (List.length formal_list))) in
+    (* let _ = print_endline ((snd func_ll).sfname ^ " func_formals len is " ^ (string_of_int (List.length formal_list))) in *)
     (if (the_function.sorigin <> curr_name) then ()
     else 
     (* let (the_function, _) = StringMap.find fdecl.sfname function_decls in *)
@@ -294,16 +300,15 @@ in
                 in let func = L.build_load code_fun "function" builder
 
             in let arg_lls = (fst (List.split (List.map (expr builder m) e_list)))
-            in let formal_lls = List.map (fun (_, n) -> snd (StringMap.find n m)) (List.tl formal_list) 
+            (* in let formal_lls = List.map (fun (_, n) -> snd (StringMap.find n m)) (List.tl formal_list)  *)
             (* we need the list of formals of the function not the current function we're in *)
-            in let () = print_endline (func_name ^ " formal_ll len : " ^ (string_of_int (List.length formal_lls)))
-            in let () = print_endline ("arg_ll len : " ^ (string_of_int (List.length arg_lls)))
-            in let stored_args = List.map (fun (arg_ll, alloca_ll) -> L.build_store arg_ll alloca_ll builder) (List.combine arg_lls formal_lls)
+            (* in let () = print_endline (func_name ^ " formal_ll len : " ^ (string_of_int (List.length formal_lls))) *)
+            (* in let () = print_endline ("arg_ll len : " ^ (string_of_int (List.length arg_lls))) *)
             (* in let stored_args = List.map (fun (arg_ll, alloca_ll) -> L.build_store arg_ll alloca_ll builder) (List.combine arg_lls formal_lls) *)
-
-            in let arg_arr = Array.of_list (lval :: stored_args)
+            (* in let stored_args = List.map (fun (arg_ll, alloca_ll) -> L.build_store arg_ll alloca_ll builder) (List.combine arg_lls formal_lls) *)
+            in let arg_arr = Array.of_list (lval :: arg_lls)
             in let call = L.build_call func arg_arr "func_call" builder
-          in (L.const_int i32_t 0, m)
+          in (call, m)
            
         | SClassVar(name, var) -> 
           let (typ, lval) = StringMap.find name m
@@ -408,11 +413,13 @@ in
               raise (Failure not_implemented_err) 
 
         (* Build the code for each statement in the function *)
-          in let build_alloca_formals m (t, n) = 
-            let formal = L.build_alloca (ltype_map t) n builder in 
-            StringMap.add n (t, formal) m
+        in let formals_llvals = Array.to_list (L.params the_function_llval)
+      in let build_alloca_formals m ((t, n), l) = 
+          let formal = L.build_alloca (ltype_map t) n builder in 
+          let _ = (if (is_object t) then () else let _ = L.build_store l formal builder in ())
+          in StringMap.add n (t, formal) m
 
-          in let formal_map = List.fold_left build_alloca_formals StringMap.empty formal_list
+          in let formal_map = List.fold_left build_alloca_formals StringMap.empty (List.combine formal_list formals_llvals)
           in let (builder, _) = stmt (builder, formal_map) (SBlock the_function.sbody) in
     (* Add a return if the last block falls off the end *)
     add_terminal builder (match the_function.styp with
