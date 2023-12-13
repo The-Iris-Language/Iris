@@ -67,8 +67,14 @@ let compare_fdecls fdecl1 fdecl2 =
       with _ -> raise (Failure ("Number of arguments in " ^ pname ^ " and " ^ cname ^ " do not match")))
     in List.fold_left (fun _ ((typ1, _), (typ2, _)) -> if (typ1 <> typ2) then raise (Failure ("formal types don't match")) else true) true all_formals 
 
+  let rec is_ancestor chungus child ancestor = 
+    if (child <> ancestor) then 
+      if (child = "Object") then false 
+      else 
+        let parent = find_parent_name chungus child in 
+        is_ancestor chungus child parent
+    else true
       
-    
 (* let big_chungus classes = *) (* needs this to return the structure*)
   let build_chungus symbols c_decl =
     let parent_permit = (c_decl.parent_name, c_decl.permitted)
@@ -138,7 +144,6 @@ let rec is_permitted chungus caller_name target_name func_name =
              Not_found -> false)))
     with Not_found -> is_permitted chungus caller_name (find_parent_name chungus target_name) func_name)
   
-
 (* 
 get_func
 get_var

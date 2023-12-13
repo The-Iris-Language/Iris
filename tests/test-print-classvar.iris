@@ -1,3 +1,4 @@
+.. Tests printing a class variable
 class Animal () {
     public:
         int legs;
@@ -14,22 +15,11 @@ class Animal () {
         bool alive;
 }
 
-class Josh () {
-    public: 
-        int the_goat() {
-            return 1;
-        }
-    
-    
-    int height;
-    int age;
-}
-
 class Main () {
     public:
         int univ main () {
                 
-            Animal a;
+            Animal a = new Animal();
             a.name = "animal name is josh"; 
             a.legs = 3;
             

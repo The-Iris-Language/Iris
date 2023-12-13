@@ -1,4 +1,4 @@
-.. Test declaring a local variable in Main 
+.. Tests for failure of declaring a duplicate local variable of same type in Main 
 class Main () {
     public: 
         int univ main() {

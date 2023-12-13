@@ -1,5 +1,4 @@
-..Tests for failure for undeclared Parent: Non-Main class
-
+..Tests for failure of overriding inherited function, but with different parameters
 
 class Animal () {
     public:

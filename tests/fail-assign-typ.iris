@@ -1,4 +1,4 @@
-.. Test declaring a local variable in Main 
+.. Tests for failure of miss-assignment in main
 class Main () {
     public: 
         int univ main() {

@@ -15,7 +15,7 @@ test :
 
 .PHONY : ll $(file)
 ll : 
-	/opt/homebrew/opt/llvm@14/bin/llc $(file) > $(file).s
+	/opt/homebrew/opt/llvm@14/bin/llc $(file).ll > $(file).s
 	cc -o $(file).exe $(file).s Olympus.o
 	./$(file).exe
 

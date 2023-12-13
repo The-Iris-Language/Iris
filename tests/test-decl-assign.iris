@@ -1,3 +1,4 @@
+.. Tests for declaring and assigning in one line
 class Main () {
     public: 
         int univ main() {

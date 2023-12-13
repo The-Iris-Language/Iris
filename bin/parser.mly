@@ -180,8 +180,8 @@ expr:
   | expr OR     expr                    { Binop($1, Or,    $3)       }
   | MINUS expr %prec NOT                { Unop(Neg, $2)              }
   | NOT expr                            { Unop(Not, $2)              }
-  | ID   PPLUS                        { DoubleOp($1, PPlus)        }
-  | ID   MMINUS                       { DoubleOp($1, MMinus)       }
+  | ID   PPLUS                          { DoubleOp($1, PPlus)        }
+  | ID   MMINUS                         { DoubleOp($1, MMinus)       }
   | ID   PEQ    expr                    { OpAssign($1, Peq, $3)      }
   | ID   MEQ    expr                    { OpAssign($1, Meq, $3)      }
   | ID   TEQ    expr                    { OpAssign($1, Teq, $3)      }
@@ -191,9 +191,9 @@ expr:
   | ID DOT ID ASSIGN expr               { ClassVarAssign($1, $3, $5) }
   | ID DOT ID                           { ClassVar($1, $3)           }
   | ID DOT ID LPAREN args_opt RPAREN    { Call($1, $3, $5)           }
-  | SELF DOT ID LPAREN args_opt RPAREN  { Call("self", $3, $5)           }
+  | SELF DOT ID LPAREN args_opt RPAREN  { Call("self", $3, $5)       }
   | ID LPAREN args_opt RPAREN           { Call("self", $1, $3)       } /* call on function within class */
-  | NEW ID LPAREN args_opt RPAREN       { Call($2, $2, $4)           }
+  | NEW ID LPAREN RPAREN                { NewObject($2)              }
   | LBRACK args_opt RBRACK              { Call("List", "List", $2)   }
   | LPAREN expr RPAREN                  { $2 }
 

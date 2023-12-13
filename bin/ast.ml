@@ -36,6 +36,7 @@ type expr =
   | OpAssign of string * op_assign * expr
   | Call of string * string * expr list 
   | ClassVar of string * string
+  | NewObject of string
   | Noexpr
 
 type bind = typ * string
@@ -148,6 +149,7 @@ let rec string_of_expr = function
   | Call(c, f, el) ->
       c ^ "." ^ f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
   | DoubleOp(_, _) -> "double op"(*string_of_expr v ^ string_of_doubleop o *)
+  | NewObject(n) -> "new " ^ n ^ "()"
   | Noexpr -> ""
 
 let rec string_of_stmt = function

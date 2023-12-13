@@ -113,7 +113,7 @@ in
       and all_formals = List.map (fun sfunc -> fst (List.split sfunc.sformals)) all_funcs
 
         (* list of function return/formal lltypes *)
-        in let ret_fltyps    = List.map ltype_map all_ftypes
+        in let ret_fltyps    = List.map formal_typ_of_typ all_ftypes
         and formal_fltyps = (List.map (fun typs -> Array.of_list (List.map formal_typ_of_typ typs)) all_formals )
         in 
           let all_args = (List.combine ret_fltyps formal_fltyps)
@@ -179,7 +179,7 @@ in let _ = L.struct_set_body curr_class_type struct_arr false *)
         else func.sorigin ^ "_" ^ func.sfname)
       in
         if ((func.sorigin = curr_name)) then 
-          let func_type = L.function_type (ltype_map func.styp) (Array.of_list (List.map formal_typ_of_typ (fst (List.split func.sformals))))
+          let func_type = L.function_type (formal_typ_of_typ func.styp) (Array.of_list (List.map formal_typ_of_typ (fst (List.split func.sformals))))
           in
             let func_ll = (L.define_function func_name func_type the_module, func) 
               in func_ll :: acc
@@ -287,13 +287,18 @@ in let _ = L.struct_set_body curr_class_type struct_arr false *)
                               let _ = L.build_store e' (snd (StringMap.find n m)) builder in 
                             (e', m')
         | SDeclAssign (_, n, e) -> 
-          let local = L.build_alloca (ltype_map t) n builder 
-          in
-            let m' = StringMap.add n (t, local) m
-            in 
-              let e' = fst (expr builder m e) 
-              in 
-                let _ = L.build_store e' local builder 
+          let e' = fst (expr builder m e) 
+              in let lltype = ltype_map t in
+          let m' = (if (is_object t) then 
+            let temp = L.build_alloca (L.pointer_type lltype) "temp" builder 
+            in let cast = L.build_bitcast lval (L.pointer_type (ltype_map (A.Object func_origin))) "cast_val" builder
+            in let _ = L.build_store e' temp builder in 
+            let local = L.build_load temp n builder in
+             StringMap.add n (t, local) m
+          else 
+          let local = L.build_alloca lltype n builder 
+            in let _ = L.build_store e' local builder 
+            in StringMap.add n (t, local) m)
                 in (e', m')
         | SClassVarAssign(name, var, e) -> 
             let e' = fst (expr builder m e) 
@@ -312,6 +317,7 @@ in let _ = L.struct_set_body curr_class_type struct_arr false *)
           let (typ, lval) = (try StringMap.find caller m with Not_found -> raise (Failure ("codegen.ml " ^ (string_of_int __LINE__) ^  ": " ^ caller ^ "not found")))
         (* in let _ = print_endline "________________________ before get vtable ptr" *)
           in let class_name = (get_typ_name typ)
+        in let func_origin = (get_fun_decl chunguini class_name func_name).sorigin
         (* in let _ = print_endline "________________________ before get vtable ptr" *)
             in let vtable_ptr = L.build_struct_gep lval 0 "vtable" builder
               (* in let class_index = L.build_load class_index_ptr "vtable_index_int" builder *)
@@ -331,7 +337,10 @@ in let _ = L.struct_set_body curr_class_type struct_arr false *)
                 in let func = L.build_load code_fun "function" builder
 
             in let arg_lls = (fst (List.split (List.map (expr builder m) e_list)))
-            in let arg_arr = Array.of_list (lval :: arg_lls)
+          in let ll = (if func_origin <> class_name then L.build_bitcast lval (L.pointer_type (ltype_map (A.Object func_origin))) "cast_val" builder else lval)
+          (* in let bitcast = L.build_bitcast lval (ltype_map (A.Object func_origin)) *)
+          
+            in let arg_arr = Array.of_list (ll :: arg_lls)
             (* Option.get (L.lookup_function func_name the_module) *)
             in let function_typ = get_fun_decl chunguini class_name func_name
             in let ret_ty = function_typ.styp
@@ -369,6 +378,19 @@ in let _ = L.struct_set_body curr_class_type struct_arr false *)
                   | _ -> raise (Failure "Arithmetic Assign not implemented for this type"))
                   in let _ = L.build_store llval (snd (StringMap.find n m)) builder
                     in (llval, m')
+        | SNewObject (n) -> 
+          let t = A.Object n
+          in let local = L.build_malloc (ltype_map t) n builder in
+          
+          (* let _ = print_endline (L.string_of_llvalue local) in *)
+          let gep = L.build_struct_gep local 0 "vtable" builder in
+          let vtable_ll = get_vtable_ll chunguini n
+          in let _ = L.build_store vtable_ll gep builder in
+        (* let lval = L.build_load local "local" builder in *)
+          
+          
+          (local, m) (* stores type of the local var so can be used in expr ^*)
+
         | SNoexpr -> (L.const_int i32_t 0, m)
 
       in 

@@ -1,34 +1,33 @@
+.. Tests assigning a value to a class member variable
 class Animal () {
     public:
         int legs;
         int eyes;
         bool fur;
+        string color;
         
         string noise(int volume) {
             return "ruh roh raggy";
         }
 
-    permit: 
-        string color;
-        bool alive;
-}
+        void yell() {
 
-class Josh () {
-    public: 
-        int the_goat() {
-            return 1;
+            Olympus.print("waahh");
         }
-    
-    permit:
-        int height;
-        int age;
+
+    permit: 
+        
+        bool alive;
 }
 
 class Main () {
     public:
        int univ main () {
-            Animal a;
+            Animal a = new Animal();
             a.legs = 0;
+            a.color = "brown";
+            Olympus.print(a.color);
+            a.yell();
             Olympus.print("Set a.legs to 0");
             return 0;
        }

@@ -1,4 +1,4 @@
-.. Test accessing a class variable from an int
+.. Tests for failure of accessing a class variable from an int
 class Main () {
     public: 
         int univ main() {

@@ -1,9 +1,7 @@
-.. Test declaring a local variable in Main 
+.. Tests for failure of assigning to an undeclared local variable
 class Main () {
     public: 
         int univ main() {
-            int hello;
-
             .. variable is not defined
             nothello = 5;
 

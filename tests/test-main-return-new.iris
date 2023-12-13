@@ -1,0 +1,51 @@
+.. Tests returning a new object
+class Animal () {
+    public:
+        int legs;
+        int eyes;
+        bool fur;
+        
+        string noise(int volume) {
+            return "ruh roh raggy";
+        }
+
+        Animal newAnimal() {
+            return new Animal();
+        }
+
+    permit: 
+        string color;
+        bool alive;
+}
+
+class Dog of Animal () {
+    public:
+        string noise(int volume) {
+            return "bark";
+        }
+}
+
+class Temp () {
+    public: 
+        void func (Animal a) {
+            a = new Dog();
+        }
+}
+
+
+class Main () {
+    public:
+       int univ main () {
+            Animal a = new Animal();
+            a.legs = 3;
+            Olympus.print("Set a.legs to 3");
+            Animal a1 = a.newAnimal();
+            a1.legs = 10;
+            Olympus.print(a1.noise(10));
+            Temp temp = new Temp();
+            ..temp.func(a1);
+            ..Olympus.print(a1.noise(10));
+            ..Olympus.print("Set a1.legs to 10");
+            return 0;
+       }
+}

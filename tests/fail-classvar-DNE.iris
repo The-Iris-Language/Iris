@@ -1,4 +1,4 @@
-.. Trying to access a class var that DNE
+.. Tests for failure of accessing a class var that DNE
 
 class Dog () {
     private: 
@@ -10,7 +10,7 @@ class Main () {
     public: 
         int univ main() {
             .. constructors
-            Dog d;
+            Dog d = new Dog();
             d.name = "bob";
             Olympus.print("Assignment succesful!");
         }

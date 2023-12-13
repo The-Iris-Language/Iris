@@ -1,0 +1,35 @@
+.. Tests a function call of a func that has been overrided
+class IceCream (Main) {
+    public:
+        int temp;
+        string flavor;
+
+        string getFlavor() {
+            return "yum!";
+        }
+
+        void yay() {
+            Olympus.print("yay");
+        }
+
+}
+
+class Gelato of IceCream (Main) {
+    public:
+        string getFlavor() {
+            return "SUPER YUM!!";
+        }
+
+}
+
+
+class Main () {
+    public: 
+        int univ main() {
+            IceCream i = new IceCream();
+            Olympus.print(i.getFlavor());
+            Gelato g = new Gelato();
+            Olympus.print(g.getFlavor());
+            return 0;
+        }
+}

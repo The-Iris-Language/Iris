@@ -1,3 +1,4 @@
+.. Test function calls with arguments
 class IceCream () {
     public:
         int temp;
@@ -23,7 +24,7 @@ class IceCream () {
 class Main () {
     public: 
         int univ main() {
-            IceCream i;
+            IceCream i = new IceCream();
             i.getTemp("hallo");
             int num = 1;
             i.func(num);

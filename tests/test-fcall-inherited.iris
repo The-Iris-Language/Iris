@@ -1,16 +1,14 @@
-.. Tests calling a function with a func call of a func within a class
-class IceCream () {
+.. Tests calling a function that has been inherited
+class IceCream (Main) {
     public:
-        int temp;
-        string flavor;
 
         void yay() {
-            printyay();
-        }
-
-        void printyay() {
             Olympus.print("yay");
         }
+
+}
+
+class Gelato of IceCream (Main) {
 
 }
 
@@ -20,6 +18,8 @@ class Main () {
         int univ main() {
             IceCream i = new IceCream();
             i.yay();
+            Gelato g = new Gelato();
+            g.yay();
             return 0;
         }
 }

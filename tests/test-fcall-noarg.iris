@@ -1,3 +1,4 @@
+.. Tests a function call of a func with no arguments
 class IceCream () {
     public:
         int temp;
@@ -10,7 +11,7 @@ class IceCream () {
 class Main () {
     public: 
         int univ main() {
-            IceCream i;
+            IceCream i = new IceCream();
             Olympus.print(i.getFlavor());
             return 0;
         }

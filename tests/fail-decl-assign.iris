@@ -1,3 +1,4 @@
+.. Tests for failure of declaration and assignment of mismatched types
 class Main () {
     public: 
         int univ main() {

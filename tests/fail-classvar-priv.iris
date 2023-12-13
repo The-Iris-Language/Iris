@@ -1,4 +1,4 @@
-.. Trying to access a private class var
+.. Tests for failure of accessing a private class var
 
 class Dog () {
     private: 
@@ -10,9 +10,8 @@ class Main () {
     public: 
         int univ main() {
             .. constructors
-            Dog d;
+            Dog d = new Dog();
             d.age = 5;
-            ..d.age;
             Olympus.print("Assignment succesful!");
         }
 }

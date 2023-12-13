@@ -302,8 +302,8 @@ let error line = "semant.ml line " ^ (string_of_int line) ^ ": "
               | Peq | Meq | Teq | Deq when t = Float -> Float
               | _ -> raise (Failure ( string_of_typ t ^ " not valid for op assign"))
             in ((ty, SOpAssign(var, op, (t, e'))), m'')
-                
-                                                   
+        | NewObject (n) -> let _ = find_class big_chungus n in 
+                            ((Object (n), (SNewObject (n))), m)                                                  
         | Noexpr -> ((Void, SNoexpr), m)
         | _ -> raise (Failure not_implemented_err)
       

@@ -1,4 +1,4 @@
-.. 
+.. Tests for failure binary operation and assignment on a non-int/float: float
 class Main () {
     public:
         int univ main() {

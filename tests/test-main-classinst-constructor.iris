@@ -1,4 +1,4 @@
-.. Tests declaring local object instance in main (no constructor)
+.. Tests calling constructor of an object in main
 class Animal () {
     public:
         int legs;
@@ -17,8 +17,8 @@ class Animal () {
 class Main () {
     public:
        int univ main () {
-            Animal a;
-            Olympus.print("Animal declared in main");
+            Animal a = new Animal();
+            Olympus.print("Animal malloc'd in main");
             return 0;
        }
 }

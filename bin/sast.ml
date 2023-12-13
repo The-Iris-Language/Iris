@@ -19,6 +19,7 @@ and sx =
   | SOpAssign of string * op_assign * sexpr
   | SCall of string * string * sexpr list (* TODO: finish *)
   | SClassVar of string * string
+  | SNewObject of string
   | SNoexpr
 
 type sstmt =
@@ -87,6 +88,7 @@ let rec string_of_sexpr (t, e) =
   | SCall(cname, fname, el) ->
       cname ^ "." ^ fname ^ "(" ^ String.concat ", " (List.map string_of_sexpr el) ^ ")"
   | SClassVar(_, _) -> "classvar"
+  | SNewObject(n) -> "new " ^ n ^ "()"
   | SNoexpr -> ""		
   | _ -> "hi")	   ^ ")"  
 

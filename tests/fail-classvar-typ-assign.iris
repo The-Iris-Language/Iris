@@ -1,4 +1,4 @@
-.. Assign a member to an expression of a different type
+.. Tests for failure of assigning a member to an expression of a different type
 
 class Dog () {
     public: 
@@ -10,7 +10,7 @@ class Main () {
     public: 
         int univ main() {
             .. constructors
-            Dog d;
+            Dog d new Dog();
             d.age = 5;
             d.color = d.age;
             Olympus.print("Assignment succesful!");
