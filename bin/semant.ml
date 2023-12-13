@@ -260,7 +260,9 @@ let error line = "semant.ml line " ^ (string_of_int line) ^ ": "
                   in let sl  = List.map (fun ((t, sexpr), _) -> (t, sexpr)) sxpr_list
                     in let args = (try List.combine sl func_d.formals
                                 with _ -> raise (Failure ( "Number of arguments doesn't match")))
-                              in let _ = List.map (fun ((t1, _), (t2, _)) -> if t1 != t2 then raise (Failure "not matching types")) args
+                              in let _ = List.map (fun ((t1, _), (t2, _)) -> let  mismatch_err = "argument of type " ^ string_of_typ t1 
+                                                                              ^ " does not match argument of  " ^ string_of_typ t2 
+                                                                              in mismatch_types mismatch_err t2 t1) args
                   in ((func_d.typ, SCall(caller, function_string, sl)), m))
         | Assign (n, e) -> 
           (try let var = StringMap.find n m 
@@ -278,12 +280,13 @@ let error line = "semant.ml line " ^ (string_of_int line) ^ ": "
                 (* check for same type and previously defined *)
         | DeclAssign (t, n, e) -> 
           let (sexpr, m') = (check_expr m e) in 
-            if (t = fst sexpr) then 
-              let m'' = StringMap.add n (t, n) m' in
-              ((fst sexpr, SDeclAssign(t, n, sexpr)), m'')
-            else raise (Failure ( "variable " ^ n ^ " has type " ^ string_of_typ t 
-                        ^ ", but an expression with type " ^ string_of_typ (fst sexpr) 
-                        ^ " was found."))
+          let expr_type = fst sexpr in
+          let mismatch_err = "variable " ^ n ^ " has type " ^ string_of_typ (t) 
+              ^ ", but an expression with type " ^ string_of_typ (fst sexpr) 
+              ^ " was found." in
+          let _ = mismatch_types mismatch_err t expr_type in 
+          let m'' = StringMap.add n (t, n) m' in
+              ((expr_type, SDeclAssign(t, n, sexpr)), m'')
         | ClassVar (inst_name, mem) -> 
           let (class_typ, _) = StringMap.find inst_name m 
           in 
@@ -310,10 +313,12 @@ let error line = "semant.ml line " ^ (string_of_int line) ^ ": "
               (match encap_level with 
                 "private:" -> raise (Failure ( "member " ^ mem ^ " is not accessible"))
               | _         -> let (sexpr, m') = (check_expr m e) in
-              if (mem_type = fst sexpr) then 
-                ((mem_type, SClassVarAssign(inst_name, mem, sexpr)), m')
-              else 
-                raise (Failure (inst_name ^ "." ^ mem ^ " expects type " ^ string_of_typ mem_type ^ ", but an expression of type " ^ string_of_typ (fst sexpr) ^ " was supplied")))                                         
+              let expr_type = fst sexpr in 
+              let  mismatch_err = "class variable " ^ mem ^ " has type " ^ string_of_typ (mem_type) 
+              ^ ", but an expression with type " ^ string_of_typ (expr_type) 
+              ^ " was found." in
+              let _ = mismatch_types mismatch_err mem_type expr_type in
+                ((mem_type, SClassVarAssign(inst_name, mem, sexpr)), m'))                                      
         | OpAssign (var, op, e) ->  
               let _ = (try StringMap.find var m 
                 with Not_found -> raise (Failure ( "variable" ^ var ^ "has not been declared"))) in
@@ -361,11 +366,13 @@ let error line = "semant.ml line " ^ (string_of_int line) ^ ": "
               (SIf(b, stmt1, stmt2), m)
           (* | For(e1, e2, e3, st) -> SFor(expr e1, check_bool_expr e2, expr e3, check_stmt st)
           | While(p, s) -> SWhile(check_bool_expr p, check_stmt s) *)
-          | Return e -> let ((t, e'), m') = check_expr m e
+          | Return e -> let ((t, e'), m') = check_expr m e in
             (* func is the argument of check_func (to be written) *)
-            in if t = func.typ then (SReturn (t, e'), m')
-            else raise (Failure ( "return gives " ^ string_of_typ t ^ " expected " ^
-                                string_of_typ func.typ ^ " in " ^ string_of_expr e))
+            let  mismatch_err =  "return gives " ^ string_of_typ t ^ " expected " ^
+            string_of_typ func.typ ^ " in " ^ string_of_expr e in
+            let _ = mismatch_types mismatch_err func.typ t in 
+            (SReturn (t, e'), m')
+            
           | Block sl -> 
             let rec check_stmt_list map slist = match slist with 
                 [Return _ as s]   -> [check_stmt map s]
@@ -383,7 +390,7 @@ let error line = "semant.ml line " ^ (string_of_int line) ^ ": "
             in (SBlock(ret_stmts), m)
 
           | _ -> raise (Failure not_implemented_err)
-          
+          (* in let member_vars =  *)
           in let locals = List.fold_left (fun acc (typ, name) -> StringMap.add name (typ, name) acc) StringMap.empty func.formals
 
         in {suniv = func.univ;

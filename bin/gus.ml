@@ -67,6 +67,11 @@ let compare_fdecls fdecl1 fdecl2 =
       with _ -> raise (Failure ("Number of arguments in " ^ pname ^ " and " ^ cname ^ " do not match")))
     in List.fold_left (fun _ ((typ1, _), (typ2, _)) -> if (typ1 <> typ2) then raise (Failure ("formal types don't match")) else true) true all_formals 
 
+let dup_memvar symbols p_name (_, cvar_name) = 
+  (try let _ = find_var symbols p_name cvar_name 
+        in raise (Failure ("variable " ^ cvar_name ^ " already exists in " ^ p_name))
+    with _ -> ())
+
   let rec is_ancestor chungus child ancestor = 
     if (child <> ancestor) then 
       (if (child = "Object") then false 
@@ -102,7 +107,23 @@ let compare_fdecls fdecl1 fdecl2 =
             List.fold_left add_member (var_m, fun_m) (snd e)         
       in 
         let (var_map, fun_map) = List.fold_left add_encap (StringMap.empty, StringMap.empty) c_decl.mems
-    
+
+
+
+        in let parent_class_vars = if (c_decl.class_name = "Object") then StringMap.empty else fst (snd (find_class symbols c_decl.parent_name))
+          in let parent_var_list = StringMap.bindings parent_class_vars
+          (* function is wrong *)
+          in let add_parent_vars map (vname, (encap, bind)) = 
+              (try
+                let _ = StringMap.find vname map
+                in raise (Failure ("variable " ^ vname ^ " already exists in"))
+
+            with _ -> StringMap.add vname (encap, bind) map)
+          in let full_vmap = List.fold_left add_parent_vars var_map parent_var_list
+
+
+
+
         in let parent_class_funcs = if (c_decl.class_name = "Object") then StringMap.empty else snd (snd (find_class symbols c_decl.parent_name))
           in let parent_func_list = StringMap.bindings parent_class_funcs
           
@@ -118,7 +139,7 @@ let compare_fdecls fdecl1 fdecl2 =
             
           in let full_fmap = List.fold_left add_parent_funcs fun_map parent_func_list
     
-  in  let symbol_value = (parent_permit, (var_map, full_fmap))
+  in  let symbol_value = (parent_permit, (full_vmap, full_fmap))
           in 
           StringMap.add c_decl.class_name symbol_value symbols
   (* in List.fold_left build_chungus StringMap.empty classes (* returns the structure *) *)

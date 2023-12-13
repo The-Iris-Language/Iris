@@ -20,15 +20,26 @@ class Animal () {
         bool alive;
 }
 
+class Dog () {
+    public:
+        int legs1;
+    permit: 
+        string noise1231231(int volume) {
+            return "ruh roh raggy";
+        }
+}
+
 class Main () {
     public:
        int univ main () {
             Animal a = new Animal();
             a.legs = 0;
             a.color = "brown";
-            Olympus.print(a.color);
-            a.yell();
-            Olympus.print("Set a.legs to 0");
+            .. Olympus.print(a.color);
+            .. a.yell();
+            Dog d = new Dog();
+            d.legs = 10;
+            .. Olympus.print("Set a.legs to 0");
             return 0;
        }
 }
