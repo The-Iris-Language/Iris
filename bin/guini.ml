@@ -6,11 +6,12 @@ let get_class chunguini cname =
     (try StringMap.find cname chunguini with 
     Not_found -> raise (Failure class_not_defined))
 
-let class_index chunguini cname =
+let get_class_index chunguini cname =
     let ((index, _), _) = get_class chunguini cname
     in index
+  
 
-let var_index chunguini cname vname =
+let get_var_index chunguini cname vname =
   let (_, (vmap, _)) = get_class chunguini cname
     in (try StringMap.find vname vmap with
     Not_found -> raise (Failure ("class " ^ cname ^ " does not contain variable " ^ vname)))
@@ -20,8 +21,13 @@ let get_vtable_type chunguini cname =
     in vtable_typ
       
   
-let fun_index chunguini cname fname =
+let get_fun_index chunguini cname fname =
   let (_, (_, fmap)) = get_class chunguini cname 
-  in (try StringMap.find fname fmap with 
-  Not_found -> raise (Failure (__FILE__ ^ " " ^ (string_of_int __LINE__) ^ ": " ^ "class " ^ cname ^ " does not contain function " ^ fname) ))
+  in fst (try StringMap.find fname fmap with 
+  Not_found -> raise (Failure ("class " ^ cname ^ " does not contain function " ^ fname) ))
+
+let get_fun_decl chunguini cname fname =
+  let (_, (_, fmap)) = get_class chunguini cname 
+  in snd (try StringMap.find fname fmap with 
+  Not_found -> raise (Failure ("class " ^ cname ^ " does not contain function " ^ fname) ))
 

@@ -45,7 +45,7 @@ class Main () {
             Gelato g;
             i.getTemp();
             i.yay();
-            IceCream b = i.update();
+            IceCream I = i.update();
             Olympus.print(i.getFlavor());
             return 0;
         }

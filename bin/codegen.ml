@@ -81,7 +81,7 @@ let translate (classes : sclass_decl list) =
         and (new_var_index_map, _) = List.fold_left (fun (acc, count) var_name -> ((StringMap.add var_name count acc), (count + 1)) ) (StringMap.empty, 2) vnames
         (* and (new_fun_index_map, _) = (StringMap.empty, 0) *)
       (* in let () = print_endline "_______________________________1" *)
-    in let (new_fun_index_map, _) = List.fold_left (fun (acc, count) fun_decl -> ((StringMap.add fun_decl.sfname count acc), (count + 1)) ) (StringMap.empty, 0) sc_decl.smeths
+    in let (new_fun_index_map, _) = List.fold_left (fun (acc, count) fun_decl -> ((StringMap.add fun_decl.sfname (count, fun_decl) acc), (count + 1)) ) (StringMap.empty, 0) sc_decl.smeths
   
       in
           let arr_vars = Array.of_list all_typs
@@ -96,7 +96,7 @@ let translate (classes : sclass_decl list) =
         let (_, (type_map, chunguini)) = List.fold_left (populate_type_map context) (0, (StringMap.empty, StringMap.empty)) classes
       
           in let ltype_map = ltype_of_typ type_map 
-        (* in let () = print_endline (string_of_int(class_index chunguini "IceCream")) *)
+        (* in let () = print_endline (string_of_int(get_class_index chunguini "IceCream")) *)
 
   in
   let formal_typ_of_typ typ = (match typ with 
@@ -278,7 +278,7 @@ in
             in 
               let cname = get_typ_name typ 
               in 
-                  let gep = L.build_struct_gep lval (var_index chunguini cname var) (name ^ var) builder
+                  let gep = L.build_struct_gep lval (get_var_index chunguini cname var) (name ^ var) builder
                   in
                     let _ = L.build_store e' gep builder
             in (e', m) 
@@ -295,19 +295,19 @@ in
                 in let curr_vtable = L.build_struct_gep zero_big_table_inst 1 "curr_vtable" builder 
                 in let vtable = L.build_load curr_vtable "vtable" builder
 
-                in let function_index = fun_index chunguini class_name (func_name)
+                in let function_index = get_fun_index chunguini class_name (func_name)
                 in let code_fun = L.build_struct_gep vtable function_index "fun_to_call" builder
                 in let func = L.build_load code_fun "function" builder
 
             in let arg_lls = (fst (List.split (List.map (expr builder m) e_list)))
-            (* in let formal_lls = List.map (fun (_, n) -> snd (StringMap.find n m)) (List.tl formal_list)  *)
-            (* we need the list of formals of the function not the current function we're in *)
-            (* in let () = print_endline (func_name ^ " formal_ll len : " ^ (string_of_int (List.length formal_lls))) *)
-            (* in let () = print_endline ("arg_ll len : " ^ (string_of_int (List.length arg_lls))) *)
-            (* in let stored_args = List.map (fun (arg_ll, alloca_ll) -> L.build_store arg_ll alloca_ll builder) (List.combine arg_lls formal_lls) *)
-            (* in let stored_args = List.map (fun (arg_ll, alloca_ll) -> L.build_store arg_ll alloca_ll builder) (List.combine arg_lls formal_lls) *)
             in let arg_arr = Array.of_list (lval :: arg_lls)
-            in let call = L.build_call func arg_arr "func_call" builder
+            (* Option.get (L.lookup_function func_name the_module) *)
+            in let function_typ = get_fun_decl chunguini class_name func_name
+            in let ret_ty = function_typ.styp
+            in let result = (match ret_ty with 
+              A.Void -> ""
+            | _ -> func_name ^ "_result")
+            in let call = L.build_call func arg_arr result builder
           in (call, m)
            
         | SClassVar(name, var) -> 
@@ -315,7 +315,7 @@ in
           in 
             let cname = get_typ_name typ
             in 
-                let gep = L.build_struct_gep lval (var_index chunguini cname var) (name ^ var) builder
+                let gep = L.build_struct_gep lval (get_var_index chunguini cname var) (name ^ var) builder
                 in 
                   (L.build_load gep (name ^ var) builder, m)
                   (* (L.build_load (snd (StringMap.find n m)) n builder, m) *)
@@ -405,7 +405,7 @@ in
               (match t with 
                 Object (name) ->
                   let gep = L.build_struct_gep local 0 "vtable_index" builder in
-                  L.build_store (L.const_int i32_t (class_index chunguini name)) gep builder 
+                  L.build_store (L.const_int i32_t (get_class_index chunguini name)) gep builder 
                 | _ -> local)
             in
             (builder, StringMap.add n (t, local) map) (* stores type of the local var so can be used in expr ^*)
