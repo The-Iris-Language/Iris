@@ -153,7 +153,7 @@ in let _ = L.struct_set_body curr_class_type struct_arr false *)
     
   (* let main_class = find_class "Main" classes in *) 
   in let vtable_arr = Array.of_list vtable_list 
-  in let vtables_struct = L.struct_type context vtable_arr 
+  (* in let vtables_struct = L.struct_type context vtable_arr  *)
   (* temp for testing *)
   (* in let vtables_llval = L.declare_global vtables_struct "big_vtable" the_module  *)
   in let big_vtable = L.named_struct_type context ("big_vtable") 
@@ -456,7 +456,7 @@ in let _ = L.struct_set_body curr_class_type struct_arr false *)
           else (L.build_alloca (ltype_map t) n builder))
           (* in let formal =  *)
         (* in let _ = print_endline ("built alloca " ^ (L.string_of_llvalue formal)) *)
-        in let s = L.build_store l formal builder
+        in let _ = L.build_store l formal builder
       (* in let _ = print_endline ("built store " ^ (L.string_of_llvalue s)) *)
            in 
             (if (is_object t) 

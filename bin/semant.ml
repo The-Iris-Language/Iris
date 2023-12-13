@@ -181,7 +181,7 @@ let error line = "semant.ml line " ^ (string_of_int line) ^ ": "
         | Fliteral f -> ((Float, SFliteral(f)), m)
         | Id n -> (try let (t, _) = StringMap.find n m 
                       in ((t, SId(n)), m)
-                  with Not_found -> raise (Failure (error(__LINE__) ^ "variable " ^ n ^ " not found")))
+                  with Not_found -> raise (Failure ( "variable " ^ n ^ " not found")))
         | Unop (uop, e) -> let ((t, e'), m') = check_expr m e in
                             let wrong_type_err = "type: " ^ (string_of_typ t) ^ " is invalid for unop" ^ (string_of_uop Not)
                             in 

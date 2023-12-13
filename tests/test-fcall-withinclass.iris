@@ -1,0 +1,24 @@
+class IceCream () {
+    public:
+        int temp;
+        string flavor;
+
+        void yay() {
+            printyay();
+        }
+
+        void printyay() {
+            Olympus.print("yay");
+        }
+
+}
+
+
+class Main () {
+    public: 
+        int univ main() {
+            IceCream i;
+            i.yay();
+            return 0;
+        }
+}

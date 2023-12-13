@@ -20,28 +20,14 @@ class IceCream () {
         }
 }
 
-class Gelato of IceCream () {
-    public: 
-        int price (int i) {
-            return 1;
-        }
-        string getFlavor () {
-            return "tasty";
-        }
-}
-
 class Main () {
     public: 
         int univ main() {
             IceCream i;
-            Gelato g;
             i.getTemp("hallo");
             int num = 1;
             i.func(num);
             Olympus.print(i.getFlavor());
             return 0;
-        }
-        int getOne() {
-            return 1;
         }
 }
