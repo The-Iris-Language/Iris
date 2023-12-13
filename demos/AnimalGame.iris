@@ -260,12 +260,23 @@ class Main () {
                 Olympus.print(a.numLegs());
                 Olympus.print(" legs");
             } else if (input == "Fur") {
-                            } else if (input == "Fly") {
-                
+                if (a.hasFur()) {
+                    Olympus.print("The animal does have fur");
+                } else {
+                    Olympus.print("The animal does not have fur");
+                }               
+            } else if (input == "Fly") {
+                if (a.canFly()) {
+                    Olympus.print("The animal can fly");
+                } else {
+                    Olympus.print("The animal cannot fly");
+                } 
             } else if (input == "Noise") {
-                
-            } else { .. 
-                
+                a.noise();
+            } else if (input == "Fun fact") { 
+                a.funFact();
+            } else {
+                Olympus.print("We don't have that type of hint :(");
             }
         }
 }
