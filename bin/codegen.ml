@@ -75,13 +75,14 @@ let translate (classes : sclass_decl list) =
       and perm_len = List.length sc_decl.spermitted
         in 
           let perm_arr = L.array_type string_t perm_len
-      in let (typs, vnames) = (List.split all_vars) 
+          in let (typs, vnames) = (List.split all_vars) 
       (* i32_t to hold position in array of vtables *)
-    in let all_typs = i32_t :: (perm_arr :: (List.map (ltype_of_typ tmap) typs))
-        and (new_var_index_map, _) = List.fold_left (fun (acc, count) var_name -> ((StringMap.add var_name count acc), (count + 1)) ) (StringMap.empty, 2) vnames
+            in let all_typs = i32_t :: (perm_arr :: (List.map (ltype_of_typ tmap) typs))
+              and (new_var_index_map, _) = List.fold_left (fun (acc, count) var_name -> ((StringMap.add var_name count acc), (count + 1)) ) (StringMap.empty, 2) vnames
         (* and (new_fun_index_map, _) = (StringMap.empty, 0) *)
       (* in let () = print_endline "_______________________________1" *)
-    in let (new_fun_index_map, _) = List.fold_left (fun (acc, count) fun_decl -> ((StringMap.add fun_decl.sfname (count, fun_decl) acc), (count + 1)) ) (StringMap.empty, 0) sc_decl.smeths
+              in let (new_fun_index_map, _) = 
+                List.fold_left (fun (acc, count) fun_decl -> ((StringMap.add fun_decl.sfname (count, fun_decl) acc), (count + 1)) ) (StringMap.empty, 0) sc_decl.smeths
   
       in
           let arr_vars = Array.of_list all_typs
@@ -90,7 +91,7 @@ let translate (classes : sclass_decl list) =
             in 
               let _ = L.struct_set_body new_struct arr_vars false
               (* in let () = print_endline ((string_of_int counter) ^ " " ^ c_name) *)
-                in (counter + 1, (StringMap.add c_name new_struct tmap, StringMap.add c_name ((counter, i1_t), (new_var_index_map, new_fun_index_map)) chunguini))
+                in (counter + 1, (StringMap.add c_name new_struct tmap, StringMap.add c_name (((i1_t), (L.const_int i1_t 0)), (new_var_index_map, new_fun_index_map)) chunguini))
         
       in 
         let (_, (type_map, chunguini)) = List.fold_left (populate_type_map context) (0, (StringMap.empty, StringMap.empty)) classes
@@ -122,12 +123,34 @@ in
               (* vtable lltype *)
               let vtable_struct = L.named_struct_type context (sc_decl.sclass_name ^ "_vtable") 
               in let _ = L.struct_set_body vtable_struct (Array.of_list func_ltypes) false
-                in 
-                  let ((index, _), mem_maps) = StringMap.find sc_decl.sclass_name guini
-                  in ((StringMap.add sc_decl.sclass_name ((index, vtable_struct), mem_maps) guini), vtable_list @ [L.pointer_type vtable_struct])
+            (* in let _ = print_endline (L.string_of_lltype vtable_struct) *)
+              in let dummy_args = L.const_named_struct vtable_struct [| L.const_int i32_t 0 |]
+              in let dummy_vtable_inst = L.define_global (sc_decl.sclass_name ^ "_vtable_data") dummy_args the_module 
+            (* in let _ = print_endline (L.string_of_llvalue dummy_vtable_inst)     *)
+            in 
+                  let ((_, _), mem_maps) = StringMap.find sc_decl.sclass_name guini
+                  
+                  in ((StringMap.add sc_decl.sclass_name ((vtable_struct, dummy_vtable_inst), mem_maps) guini), vtable_list @ [L.pointer_type vtable_struct])
   
+(* in let curr_class_type = (ltype_map (A.Object curr_name))
+in let struct_arr = (L.struct_element_types curr_class_type)
+in let _ = Array.set struct_arr 0 (L.pointer_type (L.type_of table) )
+in let _ = L.struct_set_body curr_class_type struct_arr false *)
   in let (chunguini, vtable_list) = List.fold_left (make_vtable_typ context) (chunguini, []) classes
-  
+  in let update_ltypes (sc_decl : sclass_decl) = 
+      let curr_lltype = (ltype_map (A.Object sc_decl.sclass_name))
+        (* in let _ = print_endline (L.string_of_lltype curr_lltype)  *)
+        in 
+          let struct_arr = (L.struct_element_types curr_lltype)
+      in
+            let _ = Array.set struct_arr 0 (L.pointer_type (get_vtable_lltype chunguini sc_decl.sclass_name) )
+            in 
+              L.struct_set_body curr_lltype struct_arr false
+    in let _ = List.map update_ltypes classes
+          
+
+
+    
   (* let main_class = find_class "Main" classes in *) 
   in let vtable_arr = Array.of_list vtable_list 
   in let vtables_struct = L.struct_type context vtable_arr 
@@ -287,16 +310,24 @@ in
           "printf" builder, m)       
         | SCall(caller, func_name, e_list) -> 
           let (typ, lval) = (try StringMap.find caller m with Not_found -> raise (Failure ("codegen.ml " ^ (string_of_int __LINE__) ^  ": " ^ caller ^ "not found")))
-        
+        (* in let _ = print_endline "________________________ before get vtable ptr" *)
           in let class_name = (get_typ_name typ)
-            in let class_index_ptr = L.build_struct_gep lval 0 "vtable_index" builder
-              in let class_index = L.build_load class_index_ptr "vtable_index_int" builder
+        (* in let _ = print_endline "________________________ before get vtable ptr" *)
+            in let vtable_ptr = L.build_struct_gep lval 0 "vtable" builder
+              (* in let class_index = L.build_load class_index_ptr "vtable_index_int" builder *)
 
-                in let curr_vtable = L.build_struct_gep zero_big_table_inst 1 "curr_vtable" builder 
-                in let vtable = L.build_load curr_vtable "vtable" builder
+                (* in let curr_vtable = get_vtable_ll chunguini class_name *)
+          (* in let () = print_endline (L.string_of_llvalue class_index) *)
+                (* in let curr_vtable = L.build_in_bounds_gep zero_big_table_inst [|L.const_int i32_t 0 ; class_index|] "curr_vtable" builder *)
+              (* in let _ = print_endline "________________________ before grabbing vtable" *)
+              in let vtable = L.build_load vtable_ptr "vtable" builder
+                (* in let _ = print_endline "______________________________ loaded vtable" *)
 
                 in let function_index = get_fun_index chunguini class_name (func_name)
+              (* in let () = print_endline "________________________ before code_fun"  *)
                 in let code_fun = L.build_struct_gep vtable function_index "fun_to_call" builder
+              (* in let () = print_endline "________________________ after code_fun"  *)
+              
                 in let func = L.build_load code_fun "function" builder
 
             in let arg_lls = (fst (List.split (List.map (expr builder m) e_list)))
@@ -404,8 +435,11 @@ in
             let _ = 
               (match t with 
                 Object (name) ->
-                  let gep = L.build_struct_gep local 0 "vtable_index" builder in
-                  L.build_store (L.const_int i32_t (get_class_index chunguini name)) gep builder 
+                  let gep = L.build_struct_gep local 0 "vtable" builder in
+                  (* let _ = print_endline "got gep" in *)
+                  let vtable_ll = get_vtable_ll chunguini name
+                  (* in let () = print_endline "after got llvalue" *)
+                    in L.build_store vtable_ll gep builder 
                 | _ -> local)
             in
             (builder, StringMap.add n (t, local) map) (* stores type of the local var so can be used in expr ^*)
@@ -415,9 +449,24 @@ in
         (* Build the code for each statement in the function *)
         in let formals_llvals = Array.to_list (L.params the_function_llval)
       in let build_alloca_formals m ((t, n), l) = 
-          let formal = L.build_alloca (ltype_map t) n builder in 
-          let _ = (if (is_object t) then () else let _ = L.build_store l formal builder in ())
-          in StringMap.add n (t, formal) m
+        
+        let formal = 
+          (if (is_object t) 
+          then (L.build_alloca (L.pointer_type (ltype_map t)) "temp" builder)
+          else (L.build_alloca (ltype_map t) n builder))
+          (* in let formal =  *)
+        (* in let _ = print_endline ("built alloca " ^ (L.string_of_llvalue formal)) *)
+        in let s = L.build_store l formal builder
+      (* in let _ = print_endline ("built store " ^ (L.string_of_llvalue s)) *)
+           in 
+            (if (is_object t) 
+            then let load = L.build_load formal n builder 
+          (* in let _ = print_endline ("built load " ^ (L.string_of_llvalue load))  *)
+        in (StringMap.add n (t, load) m) 
+            else (StringMap.add n (t, formal) m))
+        
+        (* in let _ = if () *)
+          
 
           in let formal_map = List.fold_left build_alloca_formals StringMap.empty (List.combine formal_list formals_llvals)
           in let (builder, _) = stmt (builder, formal_map) (SBlock the_function.sbody) in
@@ -431,8 +480,12 @@ in
   (* add logic that skips over inherited functions *)
     let llval_list = List.rev (List.fold_left build_function_llvals [] cls.smeths )
     in let _ = List.iter build_function_body llval_list 
-  in let table = L.const_named_struct (get_vtable_type chunguini curr_name) (Array.of_list (fst (List.split llval_list)))
-    in L.define_global (curr_name ^ "_vtable_data") table the_module 
+    in let table_lltyp = get_vtable_lltype chunguini curr_name
+    in let table_llval = get_vtable_ll chunguini curr_name
+    in let table = L.const_named_struct table_lltyp (Array.of_list (fst (List.split llval_list)))
+    in let _ = L.delete_global table_llval
+in
+    L.define_global (curr_name ^ "_vtable_data") table the_module 
     
   in let instantiated_vtable_llvalues = List.map build_class_functions classes 
   in let _ = L.delete_global zero_big_table_inst

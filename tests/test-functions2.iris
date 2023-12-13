@@ -20,12 +20,18 @@ class IceCream () {
         }
 
         void yay() {
+            .. IceCream i;
+            .. i.
             printyay();
         }
-        
+
         void printyay() {
             Olympus.print("yay");
         }
+        .~*
+        void printyay() {
+            Olympus.print("yay");
+        } *~.
 }
 
 class Gelato of IceCream () {
@@ -45,8 +51,8 @@ class Main () {
             Gelato g;
             i.getTemp();
             i.yay();
-            IceCream I = i.update();
-            Olympus.print(i.getFlavor());
+            ..IceCream I = i.update();
+            ..Olympus.print(i.getFlavor());
             return 0;
         }
         int getOne() {

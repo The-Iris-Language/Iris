@@ -59,7 +59,7 @@ entry:
   store i32 2, i32* %vtable_index1, align 4
   %vtable_index2 = getelementptr inbounds %IceCream, %IceCream* %i, i32 0, i32 0
   %vtable_index_int = load i32, i32* %vtable_index2, align 4
-  %vtable = load %IceCream_vtable*, %IceCream_vtable** getelementptr inbounds (%big_vtable, %big_vtable* @big_vtable_data, i32 0, i32 1), align 8
+  %vtable = load %IceCream_vtable*, %IceCream_vtable** getelementptr inbounds (%big_vtable, %big_vtable* @big_vtable_data, i32 0, i32 ), align 8
   %fun_to_call = getelementptr inbounds %IceCream_vtable, %IceCream_vtable* %vtable, i32 0, i32 1
   %funfun = load double (%IceCream*, i32)*, double (%IceCream*, i32)** %fun_to_call, align 8
   %temp = call double %funfun(%IceCream* %i, i32 0)

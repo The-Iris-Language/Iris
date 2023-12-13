@@ -6,9 +6,9 @@ let get_class chunguini cname =
     (try StringMap.find cname chunguini with 
     Not_found -> raise (Failure class_not_defined))
 
-let get_class_index chunguini cname =
-    let ((index, _), _) = get_class chunguini cname
-    in index
+let get_vtable_lltype chunguini cname =
+    let ((vtable_lltyp, _), _) = get_class chunguini cname
+    in vtable_lltyp
   
 
 let get_var_index chunguini cname vname =
@@ -16,9 +16,9 @@ let get_var_index chunguini cname vname =
     in (try StringMap.find vname vmap with
     Not_found -> raise (Failure ("class " ^ cname ^ " does not contain variable " ^ vname)))
 
-let get_vtable_type chunguini cname = 
-  let ((_, vtable_typ), _) = get_class chunguini cname
-    in vtable_typ
+let get_vtable_ll chunguini cname = 
+  let ((_, vtable_ll), _) = get_class chunguini cname
+    in vtable_ll
       
   
 let get_fun_index chunguini cname fname =
