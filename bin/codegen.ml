@@ -167,12 +167,12 @@ in let _ = L.struct_set_body curr_class_type struct_arr false *)
     L.var_arg_function_type i32_t [| L.pointer_type i8_t |]
   in let print_func : L.llvalue = 
     L.declare_function "printf" print_t the_module in
-(* 
+
   let getline_t : L.lltype = 
-    L.var_arg_function_type i32_t [| |]
+    L.var_arg_function_type (L.pointer_type string_t) [| |]
   in let getline_func : L.llvalue = 
     L.declare_function "getLine" getline_t the_module 
-  in  *)
+  in 
   let build_class_functions (cls : sclass_decl) =
     let curr_name = cls.sclass_name in 
     
@@ -291,8 +291,12 @@ in let _ = L.struct_set_body curr_class_type struct_arr false *)
 
             
         | SAssign (n, e) -> let (e', m') = (expr builder m e) in 
-              let (t, llval) = (try (StringMap.find n m) with Not_found -> raise (Failure ("couldn't find " ^ n))) in 
-              (if (is_object t) then (e', m') else let _ = (L.build_store e' (snd (StringMap.find n m)) builder) in (e', m'))
+              let (t, _) = (try (StringMap.find n m) with Not_found -> raise (Failure ("couldn't find " ^ n))) in 
+              (if (is_object t) then 
+                
+                
+                
+                (e', m') else let _ = (L.build_store e' (snd (StringMap.find n m)) builder) in (e', m'))
 
               (* old code in case this messes up again *)
 
@@ -304,11 +308,11 @@ in let _ = L.struct_set_body curr_class_type struct_arr false *)
           let e' = fst (expr builder m e) 
           in let lltype = ltype_map t 
           in let m' = (if (is_object t) then 
-            (* let _ = print_endline "before alloca" in *)
-            let local = L.build_alloca (L.pointer_type lltype) "temp" builder in
-            (* let _ = print_endline "before load" in *)
-            let temp = L.build_load e' n builder in
-            (* let _ = print_endline "before stor" in *)
+            (* let _ = print_endline "before alloca in sdeclassign" in *)
+            let local = L.build_alloca (L.pointer_type lltype) n builder in
+            (* let _ = print_endline "before load in sdeclassign" in *)
+            let temp = L.build_load e' "temp" builder in
+            (* let _ = print_endline "before stor in sdeclassign" in *)
              let _ = L.build_store temp local builder in 
             
             
@@ -324,8 +328,9 @@ in let _ = L.struct_set_body curr_class_type struct_arr false *)
           (if (is_object t) then (e', m') else let _ = (L.build_store e' (snd (StringMap.find n m)) builder) in (e', m')) *)
 
             let e' = fst (expr builder m e) 
-            and (typ, lval) = (try (StringMap.find name m) with Not_found -> raise (Failure ("couldn't find " ^ name))) 
-            in 
+            and (typ, lvalptr) = (try (StringMap.find name m) with Not_found -> raise (Failure ("couldn't find " ^ name))) 
+          in let lval = L.build_load lvalptr "temp" builder 
+          in 
               let cname = get_typ_name typ 
               in 
                   let gep = L.build_struct_gep lval (get_var_index chunguini cname var) (name ^ var) builder
@@ -336,11 +341,17 @@ in let _ = L.struct_set_body curr_class_type struct_arr false *)
         | SCall("Olympus", "print", [e]) ->
           (L.build_call print_func [| format_str ; (fst (expr builder m e)) |]
           "printf" builder, m)
-        (* | SCall("Olympus", "getLine", [e]) ->
-            (L.build_call getline_func [| |] "getLine" builder, m)     *)
+        | SCall("Olympus", "getLine", []) ->
+            let call = L.build_call getline_func [| |] "getLine" builder in 
+            (* let load_lval = L.build_load call "temp" builder in *)
+            let bcast = L.build_bitcast call (L.pointer_type string_t) "temp" builder in
+            (L.build_load bcast "get_temp" builder, m)
+            
+            
         | SCall(caller, func_name, e_list) -> 
-          let (typ, lval) = (try StringMap.find caller m with Not_found -> raise (Failure ("codegen.ml " ^ (string_of_int __LINE__) ^  ": " ^ caller ^ "not found")))
+          let (typ, lvalptr) = (try StringMap.find caller m with Not_found -> raise (Failure ("codegen.ml " ^ (string_of_int __LINE__) ^  ": " ^ caller ^ "not found")))
         (* in let _ = print_endline "________________________ before get vtable ptr" *)
+        in let lval = L.build_load lvalptr "temp" builder 
           in let class_name = (get_typ_name typ)
         in let func_origin = (get_fun_decl chunguini class_name func_name).sorigin
         (* in let _ = print_endline "________________________ before get vtable ptr" *)
@@ -362,10 +373,11 @@ in let _ = L.struct_set_body curr_class_type struct_arr false *)
                 in let func = L.build_load code_fun "function" builder
 
             in let arg_lls = (fst (List.split (List.map (expr builder m) e_list)))
-          in let ll = (if func_origin <> class_name then L.build_bitcast lval (L.pointer_type (ltype_map (A.Object func_origin))) "cast_val" builder else lval)
+          in let ll = (if func_origin <> class_name then L.build_bitcast lvalptr (formal_typ_of_typ (A.Object func_origin)) "cast_val" builder else lvalptr)
           (* in let bitcast = L.build_bitcast lval (ltype_map (A.Object func_origin)) *)
-          
-            in let arg_arr = Array.of_list (ll :: arg_lls)
+            in let is_univ = (get_fun_decl chunguini func_origin func_name).suniv
+            in let new_lls = (if is_univ then arg_lls else ll :: arg_lls)
+            in let arg_arr = Array.of_list new_lls
             (* Option.get (L.lookup_function func_name the_module) *)
             in let function_typ = get_fun_decl chunguini class_name func_name
             in let ret_ty = function_typ.styp
@@ -376,7 +388,8 @@ in let _ = L.struct_set_body curr_class_type struct_arr false *)
           in (call, m)
            
         | SClassVar(name, var) -> 
-          let (typ, lval) = StringMap.find name m
+          let (typ, lvalptr) = StringMap.find name m
+        in let lval = L.build_load lvalptr "temp" builder 
           in 
             let cname = get_typ_name typ
             in 
@@ -411,7 +424,7 @@ in let _ = L.struct_set_body curr_class_type struct_arr false *)
           let gep = L.build_struct_gep local 0 "vtable" builder in
           let vtable_ll = get_vtable_ll chunguini n
           in let _ = L.build_store vtable_ll gep builder in
-        (* in let () = print_endline "----------------------- before alloca" in *)
+        (* let () = print_endline "----------------------- before alloca" in *)
          let alloca = L.build_alloca (L.pointer_type (ltype_map t)) "temp" builder in 
          (* let () = print_endline "----------------------- before store" in *)
           let _ = L.build_store local alloca builder in
@@ -566,11 +579,14 @@ in let _ = L.struct_set_body curr_class_type struct_arr false *)
         
         let formal = 
           (if (is_object t) 
-          then (let alloca = (L.build_alloca (L.pointer_type (ltype_map t)) "temp" builder) in
-          let _ = print_endline "before load" 
-            in let temp = L.build_load l "temp" builder in
-            let _ = print_endline "before store" 
-            in let _ = L.build_store temp alloca builder in alloca)
+          then (let alloca = (L.build_alloca (L.pointer_type (ltype_map t)) "temp" builder) 
+          (* in let _ = print_endline "before load alloca"  *)
+            in let temp = L.build_load l "temp" builder 
+            (* in  let _ = print_endline "before store alloca"  *)
+            in let _ = L.build_store temp alloca builder 
+          (* in let _ = print_endline "after store alloca"  *)
+        in alloca)
+           
 
           else 
             let formal = L.build_alloca (ltype_map t) n builder in 
@@ -590,7 +606,7 @@ in let _ = L.struct_set_body curr_class_type struct_arr false *)
         
         (* in let _ = if () *)
           
-
+          
           in let formal_map = List.fold_left build_alloca_formals StringMap.empty (List.combine formal_list formals_llvals)
           in let (builder, _) = stmt (builder, formal_map) (SBlock the_function.sbody) in
     (* Add a return if the last block falls off the end *)

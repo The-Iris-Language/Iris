@@ -38,7 +38,7 @@ Olympus : Olympus.c
 .PHONY : clean
 clean :
 	dune clean
-	rm -rf testall.log *.diff *.ll *.s *.exe *.o *.opam
+	rm -rf testall.log *.diff *.ll *.s *.exe *.o *.opam *.out
 
 
 # Building the zip

@@ -100,11 +100,11 @@ let error line = "semant.ml line " ^ (string_of_int line) ^ ": "
                           fname = "print";
                           formals = [(String, "out")];
                           body = [Expr(Noexpr)]}  
-    (* in let olympus_getline = { univ = true;
+    in let olympus_getline = { univ = true;
                             typ = String;
                             fname = "getLine";
                             formals = [];
-                            body = [Expr(Noexpr)]}                *)
+                            body = [Expr(Noexpr)]}
     (* and olympus_int_to_string = { univ = true;
                                   typ = String;
                                   fname = "int_to_string";
@@ -121,7 +121,7 @@ let error line = "semant.ml line " ^ (string_of_int line) ^ ": "
                              parent_name = "Object"; 
                              permitted = [];
                              mems = [("public", (MemberFun olympus_print) 
-                                                (* :: (MemberFun olympus_getline) :: (MemberFun olympus_int_to_string) :: (MemberFun olympus_float_to_string)*) 
+                                                 :: (MemberFun olympus_getline) (*:: (MemberFun olympus_int_to_string) :: (MemberFun olympus_float_to_string)*) 
                                                  :: [])] }
     in let object_class =  { class_name = "Object";
                              parent_name = ""; 
@@ -434,7 +434,7 @@ let error line = "semant.ml line " ^ (string_of_int line) ^ ": "
       
           
       (* check_encap, check_class... *)
-        in let check_mem enc (vars, meths) (mem : member)  =
+        in let check_mem (vars, meths) (mem : member)  =
             (match mem with
               MemberFun(f) -> 
                 let sfunc = check_function f
@@ -458,8 +458,8 @@ let error line = "semant.ml line " ^ (string_of_int line) ^ ": "
             ps_updated @ (List.fold_left delete_local [] fs)
 
   
-        in let check_encap lists ((enc, mems) : encap) = 
-          List.fold_left (check_mem enc) lists mems
+        in let check_encap lists ((_, mems) : encap) = 
+          List.fold_left (check_mem) lists mems
         
 
           (* (match mem with
@@ -534,10 +534,11 @@ let error line = "semant.ml line " ^ (string_of_int line) ^ ": "
 
     in let add_self (sclass : sclass_decl) = 
       let add_self_to_func (sfunc : sfunc_decl) = 
+        let new_formals = (if sfunc.suniv then sfunc.sformals else (Object (sfunc.sorigin), "self") :: sfunc.sformals) in 
         { suniv = sfunc.suniv;
           styp = sfunc.styp;
           sfname = sfunc.sfname;
-          sformals = (Object (sfunc.sorigin), "self") :: sfunc.sformals;
+          sformals = new_formals;
           sbody = sfunc.sbody;
           sorigin = sfunc.sorigin;
           sencap = sfunc.sencap

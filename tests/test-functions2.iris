@@ -19,14 +19,14 @@ class IceCream () {
             bebe.flavor = "YUMMY";
             return bebe;
         }*~.
-
+        .~*
         void yay() {
             printyay();
         }
 
         void printyay() {
             Olympus.print("yay");
-        }
+        }*~.
 }
 
 class Gelato of IceCream () {
@@ -42,9 +42,11 @@ class Gelato of IceCream () {
 class Main () {
     public: 
         int univ main() {
+            Olympus.print("josh is da goat");
             IceCream i = new IceCream();
-            ..Gelato g = new Gelato();
-            ..i.getTemp();
+            Gelato g = new Gelato();
+            i.getTemp();
+            g.getTemp();
             ..i.yay();
             ..IceCream j = i.update();
             ..Olympus.print(j.getFlavor());

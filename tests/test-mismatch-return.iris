@@ -15,7 +15,7 @@ class Animal () {
             Animal a = new Animal();
             a.x = 4;
             return a;
-        }
+       }
 }
 
 class Dog of Animal () {
@@ -41,7 +41,10 @@ class Main () {
             if (a.x == 4) {
                 Olympus.print("Got new instance");
             }
-            a = d.fun();
+            if (a.x == 10) {
+                Olympus.print("Got old instance");
+            }
+            ..a = d.fun();
 
             ..Bush b = new Bush();
             ..a.shrub = b;
