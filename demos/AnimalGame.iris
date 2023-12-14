@@ -180,6 +180,7 @@ class AnimalGame () {
                     if (!makeGuess(a, count)) { .. Increment if player got guess wrong
                         count++;
                         if (count == 3) {
+                            return;
                         }
                     } 
                 } else if (Olympus.streq(input, "h")) { .. Player wants a hint
