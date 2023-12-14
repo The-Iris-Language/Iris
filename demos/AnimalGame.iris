@@ -1,5 +1,22 @@
 class Animal (Main) {
     public: 
+
+        void setAnimal(string s) {
+            animal = s;
+        }
+        void setType(string s) {
+            animal = s;
+        }
+        void setLegs(int i) {
+            legs = i;
+        }
+        void setFur(bool b) {
+            fur = b;
+        }
+        void setFly(bool b) {
+            canFly = b;
+        }
+
         string getClass() {
             return animal; 
         }
@@ -39,15 +56,6 @@ class Animal (Main) {
 
 class Cat of Animal (Main) {
     public:
-        Cat Cat() {
-            animal = "Mammal"; 
-            type = "Cat";
-            legs = 4;
-            fur = true;
-            canFly = false;
-
-        }
-        
         void noise() {
             Olympus.print("Meow!");
         }
@@ -59,13 +67,6 @@ class Cat of Animal (Main) {
 
 class Dog of Animal (Main) {
     public:
-        Dog Dog() {
-            animal = "Mammal"; 
-            type = "Dog";
-            legs = 4;
-            fur = true;
-            canFly = false;
-        }
 
         void noise() {
             Olympus.print("Bark!");
@@ -78,13 +79,6 @@ class Dog of Animal (Main) {
 
 class Chicken of Animal (Main) {
     public:
-        Chicken Chicken() {
-            animal = "Bird"; 
-            type = "Chicken";
-            legs = 2;
-            fur = false;
-            canFly = true;
-        }
 
         void noise() {
             Olympus.print("Cluck!");
@@ -97,13 +91,6 @@ class Chicken of Animal (Main) {
 
 class Snake of Animal (Main) {
     public:
-        Snake Snake() {
-            animal = "Reptile"; 
-            type = "Snake";
-            legs = 0;
-            fur = false;
-            canFly = false;
-        }
 
         void noise() {
             Olympus.print("Hiss!");
@@ -116,13 +103,6 @@ class Snake of Animal (Main) {
 
 class Frog of Animal (Main) {
     public:
-        Frog Frog() {
-            animal = "Amphibian"; 
-            type = "Frog";
-            legs = 4;
-            fur = false;
-            canFly = false;
-        }
 
         void noise() {
             Olympus.print("Croak!");
@@ -135,13 +115,6 @@ class Frog of Animal (Main) {
 
 class Bee of Animal (Main) {
     public:
-        Bee Bee() {
-            animal = "Insect"; 
-            type = "Bee";
-            legs = 6;
-            fur = false;
-            canFly = true;
-        }
         void noise() {
             Olympus.print("Buzz!");
         }
@@ -153,13 +126,6 @@ class Bee of Animal (Main) {
 
 class Richard of Animal (Main) {
     public:
-        Richard Richard() {
-            animal = "Mammal";
-            type = "Richard";
-            legs = 2;
-            fur = false;
-            canFly = false;
-        }
         void noise() {
             Olympus.print("Howdy folks!");
         }
@@ -207,19 +173,61 @@ class Main () {
 
         Animal getAnimal(string input) {
             if (input == "1") {
-                return new Cat();
+                Cat c = new Cat();
+                c.setAnimal("Mammal");
+                c.setType("Cat");
+                c.setLegs(4);
+                c.setFur(true);
+                c.setFly(false);
+                return c;
             } else if (input == "2") {
-                return new Dog(); 
+                Dog d = new Dog();
+                d.setAnimal("Mammal"); 
+                d.setType("Dog");
+                d.setLegs(4);
+                d.setFur(true);
+                s.setFly(false);
+                return d; 
             } else if (input == "3") {
-                return new Chicken();
+                Chicken c = new Chicken();
+                c.setAnimal("Bird"); 
+                c.setType("Chicken");
+                c.setLegs(2);
+                c.setFur(false);
+                c.setFly(true);
+                return c;
             } else if (input == "4") {
-                return new Snake();
+                Snake s = new Snake();
+                s.setAnimal("Reptile"); 
+                s.setType("Snake");
+                s.setLegs(0);
+                s.setFur(false);
+                s.setFly(false);
+                return s;
             } else if (input == "5") {
-                return new Frog();
+                Frog f = new Frog();
+                f.setAnimal("Amphibian"); 
+                f.setType("Frog");
+                f.setLegs(4);
+                f.setFur(false);
+                f.setFly(false);
+                return f;
             } else if (input == "6") {
-                return new Bee();
+                Bee b = new Bee();
+                b.setAnimal("Insect"); 
+                b.setType("Bee");
+                b.setLegs(6);
+                b.setFur(false);
+                s.setFly(true);
+                return b;
             } else {
-                return new Richard();
+                Richard r = new Richard();
+                r.setAnimal("Mammal");
+                r.setType("Richard");
+                r.setLegs(2);
+                r.setFur(false);
+                r.setFly(false);
+                return r;
             }
         }
 

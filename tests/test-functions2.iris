@@ -11,28 +11,22 @@ class IceCream () {
             Olympus.print("got temp!");
             return 32.0;
         }
-
+        .~*
         IceCream update() {
             IceCream bebe = new IceCream();
             bebe.temp = 0;
             bebe = new IceCream();
             bebe.flavor = "YUMMY";
             return bebe;
-        }
+        }*~.
 
         void yay() {
-            .. IceCream i;
-            .. i.
             printyay();
         }
 
         void printyay() {
             Olympus.print("yay");
         }
-        .~*
-        void printyay() {
-            Olympus.print("yay");
-        } *~.
 }
 
 class Gelato of IceCream () {

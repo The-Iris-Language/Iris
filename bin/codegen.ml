@@ -101,7 +101,7 @@ let translate (classes : sclass_decl list) =
 
   in
   let formal_typ_of_typ typ = (match typ with 
-          | A.Object (_) -> L.pointer_type (ltype_map typ)
+          | A.Object (_) -> L.pointer_type (L.pointer_type (ltype_map typ))
           | _               -> ltype_map typ)
 in
   (* making vtable types *)
@@ -294,31 +294,44 @@ in let _ = L.struct_set_body curr_class_type struct_arr false *)
               let (t, llval) = (try (StringMap.find n m) with Not_found -> raise (Failure ("couldn't find " ^ n))) in 
               (if (is_object t) then (e', m') else let _ = (L.build_store e' (snd (StringMap.find n m)) builder) in (e', m'))
 
+              (* old code in case this messes up again *)
+
               (* let _ = L.build_store e' (snd (StringMap.find n m)) builder in  *)
                 (* (e', m') *)
+
         | SDeclAssign (_, n, e) -> 
+
           let e' = fst (expr builder m e) 
-              in let lltype = ltype_map t in
-          let m' = (if (is_object t) then 
-            let temp = L.build_alloca (L.pointer_type lltype) "temp" builder 
-            in let _ = L.build_store e' temp builder in 
-            let local = L.build_load temp n builder in
+          in let lltype = ltype_map t 
+          in let m' = (if (is_object t) then 
+            (* let _ = print_endline "before alloca" in *)
+            let local = L.build_alloca (L.pointer_type lltype) "temp" builder in
+            (* let _ = print_endline "before load" in *)
+            let temp = L.build_load e' n builder in
+            (* let _ = print_endline "before stor" in *)
+             let _ = L.build_store temp local builder in 
+            
+            
              StringMap.add n (t, local) m
           else 
           let local = L.build_alloca lltype n builder 
             in let _ = L.build_store e' local builder 
             in StringMap.add n (t, local) m)
                 in (e', m')
+
         | SClassVarAssign(name, var, e) -> 
+          (* let (t, llval) = (try (StringMap.find n m) with Not_found -> raise (Failure ("couldn't find " ^ n))) in 
+          (if (is_object t) then (e', m') else let _ = (L.build_store e' (snd (StringMap.find n m)) builder) in (e', m')) *)
+
             let e' = fst (expr builder m e) 
-            and (typ, lval) = StringMap.find name m (* if not found, need to *)
+            and (typ, lval) = (try (StringMap.find name m) with Not_found -> raise (Failure ("couldn't find " ^ name))) 
             in 
               let cname = get_typ_name typ 
               in 
                   let gep = L.build_struct_gep lval (get_var_index chunguini cname var) (name ^ var) builder
-                  in
+                  
           
-                    let _ = L.build_store e' gep builder
+                in let _ = L.build_store e' gep builder
             in (e', m) 
         | SCall("Olympus", "print", [e]) ->
           (L.build_call print_func [| format_str ; (fst (expr builder m e)) |]
@@ -398,10 +411,14 @@ in let _ = L.struct_set_body curr_class_type struct_arr false *)
           let gep = L.build_struct_gep local 0 "vtable" builder in
           let vtable_ll = get_vtable_ll chunguini n
           in let _ = L.build_store vtable_ll gep builder in
+        (* in let () = print_endline "----------------------- before alloca" in *)
+         let alloca = L.build_alloca (L.pointer_type (ltype_map t)) "temp" builder in 
+         (* let () = print_endline "----------------------- before store" in *)
+          let _ = L.build_store local alloca builder in
         (* let lval = L.build_load local "local" builder in *)
           
           
-          (local, m) (* stores type of the local var so can be used in expr ^*)
+          (alloca, m) (* stores type of the local var so can be used in expr ^*)
 
         | SNoexpr -> (L.const_int i32_t 0, m)
 
@@ -532,24 +549,44 @@ in let _ = L.struct_set_body curr_class_type struct_arr false *)
         | _ -> let not_implemented_err = "Codegen: not implemented yet!" in 
               raise (Failure not_implemented_err) 
 
+            (* in let m' = (if (is_object t) then 
+              (* let _ = print_endline "before alloca" in *)
+              let local = L.build_alloca (L.pointer_type lltype) "temp" builder in
+              (* let _ = print_endline "before load" in *)
+              let temp = L.build_load e' n builder in
+              (* let _ = print_endline "before stor" in *)
+               let _ = L.build_store temp local builder in 
+              
+              
+               StringMap.add n (t, local) m *)
+
         (* Build the code for each statement in the function *)
         in let formals_llvals = Array.to_list (L.params the_function_llval)
       in let build_alloca_formals m ((t, n), l) = 
         
         let formal = 
           (if (is_object t) 
-          then (L.build_alloca (L.pointer_type (ltype_map t)) "temp" builder)
-          else (L.build_alloca (ltype_map t) n builder))
+          then (let alloca = (L.build_alloca (L.pointer_type (ltype_map t)) "temp" builder) in
+          let _ = print_endline "before load" 
+            in let temp = L.build_load l "temp" builder in
+            let _ = print_endline "before store" 
+            in let _ = L.build_store temp alloca builder in alloca)
+
+          else 
+            let formal = L.build_alloca (ltype_map t) n builder in 
+            let _ = L.build_store l formal builder in formal) 
+        in (StringMap.add n (t, formal) m)
           (* in let formal =  *)
         (* in let _ = print_endline ("built alloca " ^ (L.string_of_llvalue formal)) *)
-        in let _ = L.build_store l formal builder
+        (* in let _ = L.build_store l formal builder *)
+        
       (* in let _ = print_endline ("built store " ^ (L.string_of_llvalue s)) *)
-           in 
+           (* in 
             (if (is_object t) 
-            then let load = L.build_load formal n builder 
+            then let load = L.build_load formal n builder  *)
           (* in let _ = print_endline ("built load " ^ (L.string_of_llvalue load))  *)
-        in (StringMap.add n (t, load) m) 
-            else (StringMap.add n (t, formal) m))
+        (* in (StringMap.add n (t, load) m) 
+            else (StringMap.add n (t, formal) m)) *)
         
         (* in let _ = if () *)
           

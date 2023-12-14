@@ -1,11 +1,19 @@
+class Bush () {
+    public:
+        int leaves;
+}
+
 class Animal () {
     public:
+        Bush shrub;
+        int x;
         string noise(int volume) {
             return "ruh roh raggy";
         }
 
         Animal fun_a () {
             Animal a = new Animal();
+            a.x = 4;
             return a;
         }
 }
@@ -18,19 +26,26 @@ class Dog of Animal () {
         }
 
         void fun_two(Animal a) {
-            Olympus.out.prin7
+            Olympus.print("yay");
             return;
         }
 }
-
 
 class Main () {
     public:
         int univ main() {
             Animal a = new Animal();
+            a.x = 10;
             Dog d = new Dog();
             a = a.fun_a();
+            if (a.x == 4) {
+                Olympus.print("Got new instance");
+            }
             a = d.fun();
+
+            ..Bush b = new Bush();
+            ..a.shrub = b;
+
             ..d.fun_two(d);
         }
 }
