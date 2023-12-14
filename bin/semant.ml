@@ -121,6 +121,11 @@ let error line = "semant.ml line " ^ (string_of_int line) ^ ": "
                                   fname = "readaline";
                                   formals = [];
                                   body = [Expr(Noexpr)]}
+    in let olympus_streq = { univ = true;
+                             typ = Bool;
+                             fname = "streq";
+                             formals = [(String, "a") ; (String, "b")];
+                             body = [Expr(Noexpr)]}
     (* in let olympus_intstr = { univ = true;
                               typ = String;
                               fname = "intstr";
@@ -141,6 +146,7 @@ let error line = "semant.ml line " ^ (string_of_int line) ^ ": "
                                                :: (MemberFun olympus_println)
                                                :: (MemberFun olympus_printerr)
                                                :: (MemberFun olympus_printi)
+                                               :: (MemberFun olympus_streq)
                                                (* :: (MemberFun olympus_intstr)  *)
                                                (* :: (MemberFun olympus_float_to_string) *) 
                                                :: [])] }

@@ -49,8 +49,7 @@ class Dog of Animal () {
 class Main () {
     public:
         int univ main() {
-            .~*
-            Olympus.print("hello");
+            Olympus.print("hello\n");
             int i = 12;
             Animal a = new Animal();
             
@@ -58,13 +57,12 @@ class Main () {
             
             a = a.fun_a();
             
-            if (a.x == 4) {
-                Olympus.println("Got new instance");
-            }
+            
             if (a.x == 10) {
                 Olympus.println("Got old instance");
+            } else if (a.x == 4) {
+                Olympus.println("Got new instance");
             }
-            *~.
            
             .. a = d.fun();
             .. a.x = 10;
@@ -86,6 +84,11 @@ class Main () {
 
             a = b.sniff();
             Olympus.println(a.noise(8));
+
+            string s = "HI";
+            if (s == "HI") {
+                Olympus.println("howdy");
+            }
 
 
             int x = a.class_count(d);

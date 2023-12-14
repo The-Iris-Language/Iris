@@ -1,0 +1,9 @@
+class Main () {
+    public: 
+        int univ main() {
+            string s = Olympus.readaline();
+            if (Olympus.streq(s, "hi") ) {
+                
+            }
+        }
+}

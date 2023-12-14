@@ -166,81 +166,78 @@ class AnimalGame () {
             Olympus.println("You will have 3 tries to guess the animal, along with a number of hints.");
             Olympus.println("Please enter a number from 1-6");
             input = Olympus.readaline();
-
+            
             .. Gets animal to guess
             Animal a = getAnimal(input);
-
+    
             .. command loop for the game
-            while (input != "q") {
+            while (!Olympus.streq(input, "q")) {
                 Olympus.print("Please enter g to make a guess, h for a hint, or q to quit: ");
                 input = Olympus.readaline();
-                if (input == "q") { .. Player wants to quit
+                if (Olympus.streq(input, "q")) { .. Player wants to quit
                     Olympus.println("Thank you for playing the game. We hope you had fun!!"); 
-                    return;
-                } else if (input == "g") { .. Player wants to make a guess
+                } else if (Olympus.streq(input, "g")) { .. Player wants to make a guess
                     if (!makeGuess(a, count)) { .. Increment if player got guess wrong
                         count++;
                         if (count == 3) {
-                            return;
                         }
-                    } else {
-                        return;
-                    }
-                } else if (input == "h") { .. Player wants a hint
+                    } 
+                } else if (Olympus.streq(input, "h")) { .. Player wants a hint
                     giveHint(a);
                 }
             }
         }
 
         Animal getAnimal(string input) {
-            if (input == "1") {
+            Animal a;
+            if (Olympus.streq(input, "1")) {
                 Cat c = new Cat();
                 c.setAnimal("Mammal");
                 c.setType("Cat");
                 c.setLegs(4);
                 c.setFur(true);
                 c.setFly(false);
-                return c;
-            } else if (input == "2") {
+                a = c;
+            } else if (Olympus.streq(input, "2")) {
                 Dog d = new Dog();
                 d.setAnimal("Mammal"); 
                 d.setType("Dog");
                 d.setLegs(4);
                 d.setFur(true);
                 d.setFly(false);
-                return d; 
-            } else if (input == "3") {
+                a = d;
+            } else if (Olympus.streq(input, "3")) {
                 Chicken c = new Chicken();
                 c.setAnimal("Bird"); 
                 c.setType("Chicken");
                 c.setLegs(2);
                 c.setFur(false);
                 c.setFly(true);
-                return c;
-            } else if (input == "4") {
+                a = c;
+            } else if (Olympus.streq(input, "4")) {
                 Snake s = new Snake();
                 s.setAnimal("Reptile"); 
                 s.setType("Snake");
                 s.setLegs(0);
                 s.setFur(false);
                 s.setFly(false);
-                return s;
-            } else if (input == "5") {
+                a = s;
+            } else if (Olympus.streq(input, "5")) {
                 Frog f = new Frog();
                 f.setAnimal("Amphibian"); 
                 f.setType("Frog");
                 f.setLegs(4);
                 f.setFur(false);
                 f.setFly(false);
-                return f;
-            } else if (input == "6") {
+                a = f;
+            } else if (Olympus.streq(input, "6")) {
                 Bee b = new Bee();
                 b.setAnimal("Insect"); 
                 b.setType("Bee");
                 b.setLegs(6);
                 b.setFur(false);
                 b.setFly(true);
-                return b;
+                a = b;
             } else {
                 Richard r = new Richard();
                 r.setAnimal("Mammal");
@@ -248,8 +245,9 @@ class AnimalGame () {
                 r.setLegs(2);
                 r.setFur(false);
                 r.setFly(false);
-                return r;
+                a = r;
             }
+            return a; 
         }
 
         bool makeGuess(Animal a, int count) {
@@ -260,19 +258,19 @@ class AnimalGame () {
             input = Olympus.readaline();
             
             .. checks guess against animal's type
-            if (input != a.getType()) {
-                Olympus.print("Wrong guess :(");
+            if (!Olympus.streq(input, a.getType())) {
+                Olympus.println("Wrong guess :(");
                 count++;
                 if (count == 3) {
-                    Olympus.print("You have used up all your guesses.");
-                    Olympus.print("The correct animal is: ");
+                    Olympus.println("You have used up all your guesses.");
+                    Olympus.println("The correct animal is: ");
                     Olympus.println(a.getType());
                     Olympus.println("You'll get 'em next time :)!");
                 }
                 return false; 
             }
             
-            Olympus.print("Ding ding ding! You got it! Thank you for playing the game :D");
+            Olympus.println("Ding ding ding! You got it! Thank you for playing the game :D");
             return true;
         }
 
@@ -289,28 +287,28 @@ class AnimalGame () {
             string input = Olympus.readaline();
 
             .. parse through input
-            if (input == "Class") {
+            if (Olympus.streq(input, "Class")) {
                 Olympus.print("The animal is part of the class: ");
                 Olympus.println(a.getClass());
-            } else if (input == "Legs") {
+            } else if (Olympus.streq(input, "Legs")) {
                 Olympus.print("The animal has ");
                 Olympus.printi(a.numLegs());
                 Olympus.println(" legs");
-            } else if (input == "Fur") {
+            } else if (Olympus.streq(input, "Fur")) {
                 if (a.hasFur()) {
                     Olympus.println("The animal does have fur");
                 } else {
                     Olympus.println("The animal does not have fur");
                 }               
-            } else if (input == "Fly") {
+            } else if (Olympus.streq(input, "Fly")) {
                 if (a.canFly()) {
                     Olympus.println("The animal can fly");
                 } else {
                     Olympus.println("The animal cannot fly");
                 } 
-            } else if (input == "Noise") {
+            } else if (Olympus.streq(input, "Noise")) {
                 a.noise();
-            } else if (input == "Fun fact") { 
+            } else if (Olympus.streq(input, "Fun fact")) { 
                 a.funFact();
             } else {
                 Olympus.println("We don't have that type of hint :(");
@@ -333,169 +331,5 @@ class Main () {
              ~ ag.run();
             *~.
             return 0;
-        }
-    private:
-        
-        void univ run() {
-            string input = "";
-            int count = 0;
-
-            .. Game start-up text, and getting user input to choose animal
-            Olympus.println("Hello and welcome to the animal guessing game!");
-            Olympus.println("You will have 3 tries to guess the animal, along with a number of hints.");
-            Olympus.println("Please enter a number from 1-6");
-            input = Olympus.readaline();
-
-            .. Gets animal to guess
-            Animal a = getAnimal(input);
-
-            .. command loop for the game
-            while (input != "q") {
-                Olympus.print("Please enter g to make a guess, h for a hint, or q to quit: ");
-                input = Olympus.readaline();
-                if (input == "q") { .. Player wants to quit
-                    Olympus.println("Thank you for playing the game. We hope you had fun!!"); 
-                    return;
-                } else if (input == "g") { .. Player wants to make a guess
-                    if (!makeGuess(a, count)) { .. Increment if player got guess wrong
-                        count++;
-                        if (count == 3) {
-                            return;
-                        }
-                    } else {
-                        return;
-                    }
-                } else if (input == "h") { .. Player wants a hint
-                    giveHint(a);
-                }
-            }
-        }
-
-        .. Function that "decides" the animal to guess. Initializes animal instance
-        Animal getAnimal(string input) {
-            if (input == "1") {
-                Cat c = new Cat();
-                c.setAnimal("Mammal");
-                c.setType("Cat");
-                c.setLegs(4);
-                c.setFur(true);
-                c.setFly(false);
-                return c;
-            } else if (input == "2") {
-                Dog d = new Dog();
-                d.setAnimal("Mammal"); 
-                d.setType("Dog");
-                d.setLegs(4);
-                d.setFur(true);
-                d.setFly(false);
-                return d; 
-            } else if (input == "3") {
-                Chicken c = new Chicken();
-                c.setAnimal("Bird"); 
-                c.setType("Chicken");
-                c.setLegs(2);
-                c.setFur(false);
-                c.setFly(true);
-                return c;
-            } else if (input == "4") {
-                Snake s = new Snake();
-                s.setAnimal("Reptile"); 
-                s.setType("Snake");
-                s.setLegs(0);
-                s.setFur(false);
-                s.setFly(false);
-                return s;
-            } else if (input == "5") {
-                Frog f = new Frog();
-                f.setAnimal("Amphibian"); 
-                f.setType("Frog");
-                f.setLegs(4);
-                f.setFur(false);
-                f.setFly(false);
-                return f;
-            } else if (input == "6") {
-                Bee b = new Bee();
-                b.setAnimal("Insect"); 
-                b.setType("Bee");
-                b.setLegs(6);
-                b.setFur(false);
-                b.setFly(true);
-                return b;
-            } else {
-                Richard r = new Richard();
-                r.setAnimal("Mammal");
-                r.setType("Richard");
-                r.setLegs(2);
-                r.setFur(false);
-                r.setFly(false);
-                return r;
-            }
-        }
-
-        .. Function for making a guess
-        bool makeGuess(Animal a, int count) {
-
-            .. gets user guess
-            string input;
-            Olympus.print("Please enter your guess: ");
-            input = Olympus.readaline();
-            
-            .. checks guess against animal's type
-            if (input != a.getType()) {
-                Olympus.print("Wrong guess :(");
-                count++;
-                if (count == 3) {
-                    Olympus.print("You have used up all your guesses.");
-                    Olympus.print("The correct animal is: ");
-                    Olympus.println(a.getType());
-                    Olympus.println("You'll get 'em next time :)!");
-                }
-                return false; 
-            }
-            
-            Olympus.print("Ding ding ding! You got it! Thank you for playing the game :D");
-            return true;
-        }
-
-        .. function to print hint for player
-        void giveHint(Animal a) {
-
-            .. printing for requesting a hint
-            Olympus.println("Select one of the options for a hint:");
-            Olympus.println("Class");
-            Olympus.println("Legs");
-            Olympus.println("Fur");
-            Olympus.println("Fly");
-            Olympus.println("Noise");
-            Olympus.println("Fun fact");
-            string input = Olympus.readaline();
-
-            .. parse through input
-            if (input == "Class") {
-                Olympus.print("The animal is part of the class: ");
-                Olympus.println(a.getClass());
-            } else if (input == "Legs") {
-                Olympus.print("The animal has ");
-                Olympus.printi(a.numLegs());
-                Olympus.println(" legs");
-            } else if (input == "Fur") {
-                if (a.hasFur()) {
-                    Olympus.println("The animal does have fur");
-                } else {
-                    Olympus.println("The animal does not have fur");
-                }               
-            } else if (input == "Fly") {
-                if (a.canFly()) {
-                    Olympus.println("The animal can fly");
-                } else {
-                    Olympus.println("The animal cannot fly");
-                } 
-            } else if (input == "Noise") {
-                a.noise();
-            } else if (input == "Fun fact") { 
-                a.funFact();
-            } else {
-                Olympus.println("We don't have that type of hint :(");
-            }
         }
 }

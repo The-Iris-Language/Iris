@@ -23,6 +23,7 @@ open Guini
 module StringMap = Map.Make(String)
 module IntMap = Map.Make(Int)
 
+
 (* accessing variable in a struct type: use build_struct_gep *)
 
 let translate (classes : sclass_decl list) = 
@@ -182,6 +183,11 @@ in let _ = L.struct_set_body curr_class_type struct_arr false *)
     L.var_arg_function_type (L.pointer_type string_t) [| |]
   in let getline_func : L.llvalue = 
     L.declare_function "readaline" getline_t the_module in 
+
+  let streq_t : L.lltype = 
+    L.var_arg_function_type i1_t [| string_t ; string_t|]
+  in let streq_func : L.llvalue = 
+    L.declare_function "streq" streq_t the_module in 
 
   (* let intstr_t : L.lltype = 
     L.var_arg_function_type (L.pointer_type string_t) [| i32_t |]
@@ -380,6 +386,9 @@ in let _ = L.struct_set_body curr_class_type struct_arr false *)
         | SCall("Olympus", "printerr", [e]) ->
               (L.build_call printerr_func [| (fst (expr builder m e)) |]
               "printf" builder, m)
+        | SCall("Olympus", "streq", [e_str1 ; e_str2]) ->
+              (L.build_call streq_func [| (fst (expr builder m e_str1)) ; (fst (expr builder m e_str2))|]
+              "streq" builder, m)
         | SCall("Olympus", "readaline", []) ->
             let call = L.build_call getline_func [| |] "readaline" builder in 
             let bcast = L.build_bitcast call (L.pointer_type string_t) "temp" builder in
