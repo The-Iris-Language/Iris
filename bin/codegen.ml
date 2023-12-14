@@ -217,7 +217,9 @@ in let _ = L.struct_set_body curr_class_type struct_arr false *)
           in
             (L.const_float float_t f, m) *)
             (L.const_float_of_string float_t s, m)
-        | SId n -> (try (L.build_load (snd (StringMap.find n m)) n builder, m) with Not_found -> raise (Failure ("couldn't find " ^ n)))
+        | SId n -> let (t, llval) = (try (StringMap.find n m) with Not_found -> raise (Failure ("couldn't find " ^ n))) in 
+                    (if (is_object t) then (llval, m) else (L.build_load llval n builder, m))
+                        
         | SUnop (uop, e) -> 
           let (lval, m') = expr builder m e 
           in (match uop with 
@@ -451,8 +453,24 @@ in let _ = L.struct_set_body curr_class_type struct_arr false *)
             (L.builder_at_end context merge_bb, map')
 
         | SLocal (t, n) -> 
+          (* let e' = fst (expr builder m e) 
+              in let lltype = ltype_map t in
+          let m' = (if (is_object t) then 
+            let temp = L.build_alloca (L.pointer_type lltype) "temp" builder 
+            in let _ = L.build_store e' temp builder in 
+            let local = L.build_load temp n builder in
+             StringMap.add n (t, local) m
+          else 
+          let local = L.build_alloca lltype n builder 
+            in let _ = L.build_store e' local builder 
+            in StringMap.add n (t, local) m)
+                in (e', m') *)
           let local = L.build_alloca (ltype_map t) n builder in
           (* let lval = L.build_load local "local" builder in *)
+          (* 
+             (if (is_object t) then 
+                let temp = L.build_alloca (L.pointer_type lltype) "temp" builder )
+          *)
             let _ = 
               (match t with 
                 Object (name) ->

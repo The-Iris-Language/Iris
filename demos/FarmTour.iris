@@ -7,44 +7,9 @@ class Animal (Main) {
             name = "";
         }
 
-        string getClass() {
-            return animal; 
-        }
-
-        string getType() {
-            return type;
-        }
-        
-        int numLegs() {
-            return legs;
-        }
-
-        void ignore() {
-            Olympus.print("...");
-        }
     permit:
         void noise() {
             Olympus.print("Noise");
-        }
-
-    private:
-        string animal;
-        string type;
-        int legs;
-        string name;
-}
-
-class Human of Animal (Main) {
-    public:
-        Human Human() {
-            name = "";
-            animal = "Mammal";
-            type = "Human";
-            legs = 2;
-        }
-
-        string getName() {
-            return name;
         }
 }
 

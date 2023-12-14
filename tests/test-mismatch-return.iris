@@ -1,0 +1,29 @@
+class Animal () {
+    public:
+        string noise(int volume) {
+            return "ruh roh raggy";
+        }
+}
+
+class Dog of Animal () {
+    public:
+        Dog fun() {
+            Dog d = new Dog();
+            return d;
+        }
+
+        void fun_two(Animal d) {
+            return;
+        }
+}
+
+
+class Main () {
+    public:
+        int univ main() {
+            Animal a = new Animal();
+            Dog d = new Dog();
+            a = d.fun();
+            d.fun_two(d);
+        }
+}

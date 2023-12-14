@@ -468,11 +468,16 @@ let error line = "semant.ml line " ^ (string_of_int line) ^ ": "
             in 
               sort_fcns meths sp_class.smeths 
             else meths)
+            in let curr_vars = (if (curr_class <> "Object") then
+              let sp_class = List.find (fun p_class -> p_class.sclass_name = parent_class) scls_accum 
+              in 
+                sp_class.svars @ (List.rev vars)
+              else (List.rev vars))
       in
           { sclass_name = cls.class_name;
             sparent_name = cls.parent_name;
             spermitted = cls.permitted;
-            svars = List.rev vars;
+            svars = curr_vars;
             smeths = curr_meths
             (* List.find (fun func1 -> func1.sfname = p.sfname)  *)
           } :: scls_accum

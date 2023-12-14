@@ -13,8 +13,9 @@ class IceCream () {
         }
 
         IceCream update() {
-            IceCream bebe;
+            IceCream bebe = new IceCream();
             bebe.temp = 0;
+            bebe = new IceCream();
             bebe.flavor = "YUMMY";
             return bebe;
         }
@@ -47,12 +48,13 @@ class Gelato of IceCream () {
 class Main () {
     public: 
         int univ main() {
-            IceCream i;
-            Gelato g;
+            IceCream i = new IceCream();
+            Gelato g = new Gelato();
             i.getTemp();
             i.yay();
-            ..IceCream I = i.update();
-            ..Olympus.print(i.getFlavor());
+            IceCream j = i.update();
+            Olympus.print(j.getFlavor());
+            Olympus.print("past j");
             return 0;
         }
         int getOne() {

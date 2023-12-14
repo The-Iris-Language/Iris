@@ -1,0 +1,31 @@
+class IceCream () {
+    public:
+        int temp;
+        string flavor;
+        string getFlavor() {
+            return "yum";   
+        }
+}
+
+class Gelato of IceCream () {
+    public: 
+        int price (int i) {
+            return 1;
+        }
+}
+
+class Main () {
+    public: 
+        int univ main() {
+            IceCream i = new IceCream();
+            Gelato g = new Gelato();
+            g.temp = 10;
+            if (g.temp == 10) {
+                Olympus.print("stored inherited");
+            }
+            return 0;
+        }
+        int getOne() {
+            return 1;
+        }
+}

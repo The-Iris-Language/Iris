@@ -111,7 +111,7 @@ let dup_memvar symbols p_name (_, cvar_name) =
 
 
         in let parent_class_vars = if (c_decl.class_name = "Object") then StringMap.empty else fst (snd (find_class symbols c_decl.parent_name))
-          in let parent_var_list = StringMap.bindings parent_class_vars
+          in let curr_var_list = StringMap.bindings var_map
           (* function is wrong *)
           in let add_parent_vars map (vname, (encap, bind)) = 
               (try
@@ -119,7 +119,7 @@ let dup_memvar symbols p_name (_, cvar_name) =
                 in raise (Failure ("variable " ^ vname ^ " already exists in"))
 
             with _ -> StringMap.add vname (encap, bind) map)
-          in let full_vmap = List.fold_left add_parent_vars var_map parent_var_list
+          in let full_vmap = List.fold_left add_parent_vars parent_class_vars curr_var_list
 
 
 

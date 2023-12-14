@@ -10,7 +10,9 @@ class Animal () {
         }
 
         Animal newAnimal() {
-            return new Animal();
+            Animal a = new Animal();
+            Olympus.print("animal");
+            return a;
         }
 
     permit: 
@@ -27,9 +29,11 @@ class Dog of Animal () {
 
 class Temp () {
     public: 
+        int x;
+    .~*
         void func (Animal a) {
             a = new Dog();
-        }
+        } *~.
 }
 
 
