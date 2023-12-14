@@ -38,12 +38,12 @@ class Gelato of IceCream () {
 class Main () {
     public: 
         int univ main() {
-            IceCream i;
+            IceCream i = new IceCream();
             Gelato g;
             i.getTemp("hallo");
             int num = 1;
             i.func(num);
             Olympus.println(i.getFlavor());
-            return num;
+            return 0;
         }
 }

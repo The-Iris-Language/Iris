@@ -16,7 +16,7 @@ class Main () {
             Olympus.println("a = -8");
             a = -5 - -6;
             Olympus.println("a = 1");
-            Dog d;
+            Dog d = new Dog();
             d.age = 1 - 1;
             Olympus.println("d.age = 0");
             d.age = -5 - -5;
