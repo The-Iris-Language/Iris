@@ -3,7 +3,7 @@ class IceCream (Main) {
     public:
 
         void yay() {
-            Olympus.print("yay");
+            Olympus.println("yay");
         }
 
 }

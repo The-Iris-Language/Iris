@@ -8,7 +8,7 @@ class Dog () {
 class Dog () {
     public:
         void univ bark() {
-            Olympus.print("roar!");
+            Olympus.println("roar!");
             return 0;
         }
 }
@@ -16,7 +16,7 @@ class Dog () {
 class Main () {
     public: 
         int univ main() {
-            Olympus.print("Hello world!");
+            Olympus.println("Hello world!");
             return 0;
         }
 }

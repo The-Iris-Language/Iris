@@ -4,6 +4,6 @@ class Main () {
         int univ main() {
             string a = "hi";
             a++;
-            ..Olympus.print(a);
+            ..Olympus.println(a);
         }
 }

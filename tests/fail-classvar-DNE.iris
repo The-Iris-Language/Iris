@@ -12,6 +12,6 @@ class Main () {
             .. constructors
             Dog d = new Dog();
             d.name = "bob";
-            Olympus.print("Assignment succesful!");
+            Olympus.println("Assignment succesful!");
         }
 }

@@ -11,7 +11,7 @@ class Animal () {
 
         Animal newAnimal() {
             Animal a = new Animal();
-            Olympus.print("animal");
+            Olympus.println("animal");
             return a;
         }
 
@@ -42,14 +42,14 @@ class Main () {
        int univ main () {
             Animal a = new Animal();
             a.legs = 3;
-            Olympus.print("Set a.legs to 3");
+            Olympus.println("Set a.legs to 3");
             Animal a1 = a.newAnimal();
             a1.legs = 10;
-            Olympus.print(a1.noise(10));
+            Olympus.println(a1.noise(10));
             Temp temp = new Temp();
             ..temp.func(a1);
-            ..Olympus.print(a1.noise(10));
-            ..Olympus.print("Set a1.legs to 10");
+            ..Olympus.println(a1.noise(10));
+            ..Olympus.println("Set a1.legs to 10");
             return 0;
        }
 }

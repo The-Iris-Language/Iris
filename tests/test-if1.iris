@@ -4,7 +4,7 @@ class Main () {
         int univ main () {
             bool b = true;
             if (b) {
-                Olympus.print("true then case");
+                Olympus.println("true then case");
             } 
             return 0;
         }

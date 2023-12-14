@@ -2,7 +2,7 @@
 class Main () {
     public: 
         int univ main() {
-            Olympus.print(hi);
+            Olympus.println(hi);
             return 0;
         }
 }

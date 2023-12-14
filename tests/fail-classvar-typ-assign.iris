@@ -10,9 +10,9 @@ class Main () {
     public: 
         int univ main() {
             .. constructors
-            Dog d new Dog();
+            Dog d = new Dog();
             d.age = 5;
             d.color = d.age;
-            Olympus.print("Assignment succesful!");
+            Olympus.println("Assignment succesful!");
         }
 }

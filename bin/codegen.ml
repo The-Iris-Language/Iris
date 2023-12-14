@@ -65,6 +65,11 @@ let translate (classes : sclass_decl list) =
           in true 
       with 
       | Failure _ -> false)
+
+    in
+    let formal_typ_of_typ_map type_map typ = (match typ with 
+            | A.Object (_) -> L.pointer_type (L.pointer_type (ltype_of_typ type_map typ))
+            | _               -> ltype_of_typ type_map typ)
     
   in 
     let populate_type_map context (counter, (tmap, chunguini)) sc_decl =
@@ -75,10 +80,10 @@ let translate (classes : sclass_decl list) =
       and perm_len = List.length sc_decl.spermitted
         in 
           let perm_arr = L.array_type string_t perm_len
-          in let (typs, vnames) = (List.split all_vars) 
+          in let (typs, _) = (List.split all_vars) 
       (* i32_t to hold position in array of vtables *)
-            in let all_typs = i32_t :: (perm_arr :: (List.map (ltype_of_typ tmap) typs))
-              and (new_var_index_map, _) = List.fold_left (fun (acc, count) var_name -> ((StringMap.add var_name count acc), (count + 1)) ) (StringMap.empty, 2) vnames
+            in let all_typs = i32_t :: (perm_arr :: (List.map (formal_typ_of_typ_map tmap) typs))
+              and (new_var_index_map, _) = List.fold_left (fun (acc, count) (typ, var_name) -> ((StringMap.add var_name (count, typ) acc), (count + 1)) ) (StringMap.empty, 2) all_vars
         (* and (new_fun_index_map, _) = (StringMap.empty, 0) *)
       (* in let () = print_endline "_______________________________1" *)
               in let (new_fun_index_map, _) = 
@@ -98,12 +103,12 @@ let translate (classes : sclass_decl list) =
       
           in let ltype_map = ltype_of_typ type_map 
         (* in let () = print_endline (string_of_int(get_class_index chunguini "IceCream")) *)
-
-  in
-  let formal_typ_of_typ typ = (match typ with 
-          | A.Object (_) -> L.pointer_type (L.pointer_type (ltype_map typ))
-          | _               -> ltype_map typ)
-in
+    in
+    let formal_typ_of_typ typ = (match typ with 
+    | A.Object (_) -> L.pointer_type (L.pointer_type (ltype_map typ))
+    | _               -> ltype_map typ)
+  
+  in 
   (* making vtable types *)
   let make_vtable_typ context (guini, vtable_list) sc_decl = 
     let all_funcs = sc_decl.smeths
@@ -168,11 +173,22 @@ in let _ = L.struct_set_body curr_class_type struct_arr false *)
   in let print_func : L.llvalue = 
     L.declare_function "printf" print_t the_module in
 
+  let printerr_t : L.lltype = 
+    L.var_arg_function_type i32_t [| L.pointer_type i8_t |]
+  in let printerr_func : L.llvalue = 
+    L.declare_function "printerr" printerr_t the_module in
+
   let getline_t : L.lltype = 
     L.var_arg_function_type (L.pointer_type string_t) [| |]
   in let getline_func : L.llvalue = 
-    L.declare_function "getLine" getline_t the_module 
-  in 
+    L.declare_function "readaline" getline_t the_module in 
+
+  (* let intstr_t : L.lltype = 
+    L.var_arg_function_type (L.pointer_type string_t) [| i32_t |]
+  in let intstr_func : L.llvalue = 
+    L.declare_function "intstr" intstr_t the_module 
+  in  *)
+  
   let build_class_functions (cls : sclass_decl) =
     let curr_name = cls.sclass_name in 
     
@@ -204,8 +220,9 @@ in let _ = L.struct_set_body curr_class_type struct_arr false *)
     (* let (the_function, _) = StringMap.find fdecl.sfname function_decls in *)
     let builder = L.builder_at_end context (L.entry_block (the_function_llval)) in
 
-    let format_str = L.build_global_stringptr "%s\n" "fmt" builder in
-    (* and int_format_str = L.build_global_stringptr "%d\n" "fmt" builder  *)
+    let format_str = L.build_global_stringptr "%s" "fmt" builder 
+    and format_str_ln = L.build_global_stringptr "%s\n" "fmt" builder 
+    and format_str_int = L.build_global_stringptr "%d" "fmt" builder in
    (* and float_format_str = L.build_global_stringptr "%g\n" "fmt" builder in *)
 
     (* let lookup n = try StringMap.find n local_vars
@@ -291,31 +308,37 @@ in let _ = L.struct_set_body curr_class_type struct_arr false *)
 
             
         | SAssign (n, e) -> let (e', m') = (expr builder m e) in 
-              let (t, _) = (try (StringMap.find n m) with Not_found -> raise (Failure ("couldn't find " ^ n))) in 
+              let (t, llval) = (try (StringMap.find n m) with Not_found -> raise (Failure ("couldn't find " ^ n))) in 
               (if (is_object t) then 
-                
-                
-                
-                (e', m') else let _ = (L.build_store e' (snd (StringMap.find n m)) builder) in (e', m'))
+                let lltypel = formal_typ_of_typ t 
+                and lltyper = L.type_of e'
+                in let bitcasted = (if lltyper <> lltypel then L.build_bitcast e' lltypel "cast_assign" builder else e') 
+                in
+              
+                let temp = L.build_load bitcasted "temp" builder in 
+                let _ = L.build_store temp llval builder
+                in (llval, m') 
+              else let _ = (L.build_store e' llval builder) in (llval, m'))
 
               (* old code in case this messes up again *)
 
               (* let _ = L.build_store e' (snd (StringMap.find n m)) builder in  *)
                 (* (e', m') *)
 
-        | SDeclAssign (_, n, e) -> 
+        | SDeclAssign (t, n, e) -> 
 
           let e' = fst (expr builder m e) 
-          in let lltype = ltype_map t 
+          in let lltypel = formal_typ_of_typ t
+          in let lltype = ltype_map t
+          
           in let m' = (if (is_object t) then 
-            (* let _ = print_endline "before alloca in sdeclassign" in *)
             let local = L.build_alloca (L.pointer_type lltype) n builder in
-            (* let _ = print_endline "before load in sdeclassign" in *)
-            let temp = L.build_load e' "temp" builder in
-            (* let _ = print_endline "before stor in sdeclassign" in *)
+            let lltyper = L.type_of e'
+            in let bitcasted = (if lltyper <> lltypel then L.build_bitcast e' lltypel "cast_assign" builder else e')
+            in 
+
+            let temp = L.build_load bitcasted "temp" builder in
              let _ = L.build_store temp local builder in 
-            
-            
              StringMap.add n (t, local) m
           else 
           let local = L.build_alloca lltype n builder 
@@ -324,32 +347,50 @@ in let _ = L.struct_set_body curr_class_type struct_arr false *)
                 in (e', m')
 
         | SClassVarAssign(name, var, e) -> 
-          (* let (t, llval) = (try (StringMap.find n m) with Not_found -> raise (Failure ("couldn't find " ^ n))) in 
-          (if (is_object t) then (e', m') else let _ = (L.build_store e' (snd (StringMap.find n m)) builder) in (e', m')) *)
-
             let e' = fst (expr builder m e) 
             and (typ, lvalptr) = (try (StringMap.find name m) with Not_found -> raise (Failure ("couldn't find " ^ name))) 
           in let lval = L.build_load lvalptr "temp" builder 
           in 
               let cname = get_typ_name typ 
+              in let var_typ = get_mem_var chunguini cname var
               in 
                   let gep = L.build_struct_gep lval (get_var_index chunguini cname var) (name ^ var) builder
-                  
-          
-                in let _ = L.build_store e' gep builder
-            in (e', m) 
+                  (* let _ = print_endline (L.string_of_llvalue gep) *)
+                  in (if (is_object var_typ) then 
+                    let lltyper = L.type_of e'
+                  (* let _ = print_endline (L.string_of_lltype lltyper) *)
+                    and lltypel = formal_typ_of_typ var_typ 
+                    (* let _ = print_endline (L.string_of_lltype lltypel) *)
+                    in let bitcasted = (if (lltypel <> lltyper) then L.build_bitcast e' lltypel "cast_assign" builder else e')
+                    (* in let temp = L.build_load bitcasted "temp" builder  *)
+                    in let _ = L.build_store bitcasted gep builder
+                    in (gep, m) 
+
+
+                    else let _ = (L.build_store e' gep builder) in (gep, m))
         | SCall("Olympus", "print", [e]) ->
-          (L.build_call print_func [| format_str ; (fst (expr builder m e)) |]
-          "printf" builder, m)
-        | SCall("Olympus", "getLine", []) ->
-            let call = L.build_call getline_func [| |] "getLine" builder in 
-            (* let load_lval = L.build_load call "temp" builder in *)
+            (L.build_call print_func [| format_str ; (fst (expr builder m e)) |]
+            "printf" builder, m)
+        | SCall("Olympus", "println", [e]) ->
+            (L.build_call print_func [| format_str_ln ; (fst (expr builder m e)) |]
+            "printf" builder, m)
+        | SCall("Olympus", "printi", [e]) ->
+              (L.build_call print_func [| format_str_int ; (fst (expr builder m e)) |]
+              "printf" builder, m)
+        | SCall("Olympus", "printerr", [e]) ->
+              (L.build_call printerr_func [| (fst (expr builder m e)) |]
+              "printf" builder, m)
+        | SCall("Olympus", "readaline", []) ->
+            let call = L.build_call getline_func [| |] "readaline" builder in 
             let bcast = L.build_bitcast call (L.pointer_type string_t) "temp" builder in
             (L.build_load bcast "get_temp" builder, m)
-            
+        (* | SCall("Olympus", "intstr", [e]) ->
+            let call = L.build_call intstr_func [| (fst (expr builder m e)) |] "intstr" builder in 
+            let bcast = L.build_bitcast call (L.pointer_type string_t) "temp" builder in
+            (L.build_load bcast "get_temp" builder, m) *)
             
         | SCall(caller, func_name, e_list) -> 
-          let (typ, lvalptr) = (try StringMap.find caller m with Not_found -> raise (Failure ("codegen.ml " ^ (string_of_int __LINE__) ^  ": " ^ caller ^ "not found")))
+          let (typ, lvalptr) = (try StringMap.find caller m with Not_found -> raise (Failure ("codegen.ml " ^ (string_of_int __LINE__) ^  ": " ^ caller ^ " of " ^ func_name ^ " not found")))
         (* in let _ = print_endline "________________________ before get vtable ptr" *)
         in let lval = L.build_load lvalptr "temp" builder 
           in let class_name = (get_typ_name typ)
@@ -372,11 +413,27 @@ in let _ = L.struct_set_body curr_class_type struct_arr false *)
               
                 in let func = L.build_load code_fun "function" builder
 
-            in let arg_lls = (fst (List.split (List.map (expr builder m) e_list)))
-          in let ll = (if func_origin <> class_name then L.build_bitcast lvalptr (formal_typ_of_typ (A.Object func_origin)) "cast_val" builder else lvalptr)
+            in let arg_lls = lvalptr :: (fst (List.split (List.map (expr builder m) e_list)))
+          (* in let _ = print_endline () *)
+            
+          in let convert_objs (llval_list : L.llvalue list) = 
+            let convert_arg ((ftyp, _), llvalr) = 
+              (if (is_object ftyp) then
+              let lltypel = formal_typ_of_typ ftyp
+              and lltyper = L.type_of llvalr
+              in (if (lltypel <> lltyper) then L.build_bitcast llvalr lltypel "arg_cast" builder else llvalr)
+
+            else llvalr)
+            in 
+            let curr_fun = get_fun_decl chunguini class_name func_name
+          in let curr_form_list = curr_fun.sformals
+        in List.map convert_arg (List.combine curr_form_list llval_list)
+          in let converted_args = convert_objs arg_lls
+
+          in let _ = (if func_origin <> class_name then L.build_bitcast lvalptr (formal_typ_of_typ (A.Object func_origin)) "cast_val" builder else lvalptr)
           (* in let bitcast = L.build_bitcast lval (ltype_map (A.Object func_origin)) *)
             in let is_univ = (get_fun_decl chunguini func_origin func_name).suniv
-            in let new_lls = (if is_univ then arg_lls else ll :: arg_lls)
+            in let new_lls = (if is_univ then arg_lls else  converted_args)
             in let arg_arr = Array.of_list new_lls
             (* Option.get (L.lookup_function func_name the_module) *)
             in let function_typ = get_fun_decl chunguini class_name func_name
@@ -458,6 +515,13 @@ in let _ = L.struct_set_body curr_class_type struct_arr false *)
                                 (* Special "return nothing" instr *) 
                                 A.Void -> L.build_ret_void builder
                                 (* Build return statement *)
+                              | A.Object(c_name) -> 
+                                  let e' = fst (expr builder map e)
+                                  in let lltyper = L.type_of e'
+                                  and lltypel = formal_typ_of_typ (A.Object c_name)
+                                  in let bitcasted = (if lltyper <> lltypel then L.build_bitcast e' lltypel "ret_bitcast" builder else e')
+                                  in L.build_ret bitcasted builder
+                               
                               | _ -> L.build_ret (fst (expr builder map e)) builder
                           in (builder, map)
                       
@@ -530,35 +594,12 @@ in let _ = L.struct_set_body curr_class_type struct_arr false *)
               (builder', map) *)
 
         | SLocal (t, n) -> 
-          (* let e' = fst (expr builder m e) 
-              in let lltype = ltype_map t in
-          let m' = (if (is_object t) then 
-            let temp = L.build_alloca (L.pointer_type lltype) "temp" builder 
-            in let _ = L.build_store e' temp builder in 
-            let local = L.build_load temp n builder in
-             StringMap.add n (t, local) m
-          else 
-          let local = L.build_alloca lltype n builder 
-            in let _ = L.build_store e' local builder 
-            in StringMap.add n (t, local) m)
-                in (e', m') *)
-          let local = L.build_alloca (ltype_map t) n builder in
-          (* let lval = L.build_load local "local" builder in *)
-          (* 
-             (if (is_object t) then 
-                let temp = L.build_alloca (L.pointer_type lltype) "temp" builder )
-          *)
-            let _ = 
-              (match t with 
-                Object (name) ->
-                  let gep = L.build_struct_gep local 0 "vtable" builder in
-                  (* let _ = print_endline "got gep" in *)
-                  let vtable_ll = get_vtable_ll chunguini name
-                  (* in let () = print_endline "after got llvalue" *)
-                    in L.build_store vtable_ll gep builder 
-                | _ -> local)
-            in
-            (builder, StringMap.add n (t, local) map) (* stores type of the local var so can be used in expr ^*)
+          let local = (if (is_object t) then 
+            L.build_alloca (L.pointer_type (ltype_map t)) n builder
+            else 
+            L.build_alloca (ltype_map t) n builder)
+           
+          in (builder, StringMap.add n (t, local) map)
         | _ -> let not_implemented_err = "Codegen: not implemented yet!" in 
               raise (Failure not_implemented_err) 
 

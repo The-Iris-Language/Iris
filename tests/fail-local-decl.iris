@@ -5,7 +5,7 @@ class Main () {
             int hello;
             int hello; 
             
-            Olympus.print("Variable Assigned!");
+            Olympus.println("Variable Assigned!");
             return 0;
         }
 }

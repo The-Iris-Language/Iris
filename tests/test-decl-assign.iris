@@ -3,7 +3,7 @@ class Main () {
     public: 
         int univ main() {
             string hello = "hello world!";
-            Olympus.print(hello);
+            Olympus.println(hello);
             return 0;
         }
 }

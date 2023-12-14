@@ -1,0 +1,11 @@
+class Main () {
+    public:
+        int univ main() {
+            string whoa = "jshagdf";
+            Olympus.printerr("error");
+            Olympus.print("no newline                  hi there");
+            Olympus.println(whoa);
+            Olympus.printi(12);
+            Olympus.println("");
+        }
+}

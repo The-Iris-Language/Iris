@@ -3,7 +3,7 @@ class Main () {
     public: 
         int univ main() {
             int hello;
-            Olympus.print("Variable Declared");
+            Olympus.println("Variable Declared");
             return 0;
         }
 }

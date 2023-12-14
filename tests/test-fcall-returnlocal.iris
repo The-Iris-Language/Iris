@@ -19,7 +19,7 @@ class Main () {
             IceCream i = new IceCream(); 
             int num = i.getOne();
             if (num == 1) {
-                Olympus.print("successfully returned local");
+                Olympus.println("successfully returned local");
             }
             return 0; 
         } 

@@ -1,1 +1,1 @@
-Fatal error: exception Failure("d.color expects type string, but an expression of type int was supplied")
+Fatal error: exception Failure("class variable color has type string, but an expression with type int was found.")

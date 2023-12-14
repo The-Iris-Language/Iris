@@ -4,7 +4,7 @@ class Main () {
     public:
         int univ main() {
             float number = 5.3;
-            Olympus.print("Float initialization successful");
+            Olympus.println("Float initialization successful");
             return 0;
         }
 }

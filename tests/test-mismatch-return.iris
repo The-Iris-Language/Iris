@@ -1,6 +1,13 @@
 class Bush () {
     public:
         int leaves;
+        void print() {
+            Olympus.println("bush initialized");
+        }
+
+        Animal sniff () {
+            return new Dog();
+        }
 }
 
 class Animal () {
@@ -16,39 +23,82 @@ class Animal () {
             a.x = 4;
             return a;
        }
+
+       int class_count(Animal a) {
+            Olympus.println(a.noise(8));
+            return 0;
+       }
+
 }
 
 class Dog of Animal () {
     public:
+        string noise(int volume) {
+            return "ruff ruff";
+        }
         Dog fun() {
             Dog d = new Dog();
             return d;
         }
 
         void fun_two(Animal a) {
-            Olympus.print("yay");
-            return;
+            Olympus.println("yay");
         }
 }
 
 class Main () {
     public:
         int univ main() {
+            .~*
+            Olympus.print("hello");
+            int i = 12;
             Animal a = new Animal();
+            
             a.x = 10;
-            Dog d = new Dog();
+            
             a = a.fun_a();
+            
             if (a.x == 4) {
-                Olympus.print("Got new instance");
+                Olympus.println("Got new instance");
             }
             if (a.x == 10) {
-                Olympus.print("Got old instance");
+                Olympus.println("Got old instance");
             }
-            ..a = d.fun();
+            *~.
+           
+            .. a = d.fun();
+            .. a.x = 10;
+            .. if (a.x == 10) {
+            ..     Olympus.println(a.noise(1));
+            .. }
+            Dog d = new Dog();
 
+
+            Bush b = new Bush();
+            b.leaves = 10;
+            Animal a = new Animal();
+            Olympus.println("assign below");
+            a.shrub = b;
+            Bush c = a.shrub;
+            if (c.leaves == 10) {
+                Olympus.println("10 leaves");
+            }
+
+            a = b.sniff();
+            Olympus.println(a.noise(8));
+
+
+            int x = a.class_count(d);
+
+            ..Animal another_animal;
+            ..another_animal = new Animal();
+            ..Olympus.println(another_animal.noise(3));
             ..Bush b = new Bush();
             ..a.shrub = b;
+            ..Bush c = a.shrub;
+            ..c.print();
 
             ..d.fun_two(d);
+            return 0;
         }
 }

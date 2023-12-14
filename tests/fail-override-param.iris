@@ -3,21 +3,21 @@
 class Animal () {
     public:
         void univ bark() {
-            Olympus.print("roar!");
+            Olympus.println("roar!");
         }
 }
 
 class Dog of Animal() {
     public:
         void univ bark(int i) {
-            Olympus.print("roar!");
+            Olympus.println("roar!");
         }
 }
 
 class Main () {
     public: 
         int univ main() {
-            Olympus.print("Hello world!");
+            Olympus.println("Hello world!");
             return 0;
         }
 }

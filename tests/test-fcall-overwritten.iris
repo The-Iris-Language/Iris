@@ -9,7 +9,7 @@ class IceCream (Main) {
         }
 
         void yay() {
-            Olympus.print("yay");
+            Olympus.println("yay");
         }
 
 }
@@ -27,9 +27,9 @@ class Main () {
     public: 
         int univ main() {
             IceCream i = new IceCream();
-            Olympus.print(i.getFlavor());
+            Olympus.println(i.getFlavor());
             Gelato g = new Gelato();
-            Olympus.print(g.getFlavor());
+            Olympus.println(g.getFlavor());
             return 0;
         }
 }

@@ -9,22 +9,22 @@ class Main () {
     public: 
         int univ main() {
             int a = 1 + 2;
-            Olympus.print("a = 3");
+            Olympus.println("a = 3");
             a = -1 + 2;
-            Olympus.print("a = 1");
+            Olympus.println("a = 1");
             a = -5 + a;
-            Olympus.print("a = -4");
+            Olympus.println("a = -4");
             a = -5 + -6;
-            Olympus.print("a = -11");
+            Olympus.println("a = -11");
             Dog d;
             d.age = 1 + 1;
-            Olympus.print("d.age = 2");
+            Olympus.println("d.age = 2");
             d.age = -5 + -5;
-            Olympus.print("d.age = -10");
+            Olympus.println("d.age = -10");
             d.age = a + a; 
-            Olympus.print("d.age = -22");
+            Olympus.println("d.age = -22");
             a = d.age + 1;
-            Olympus.print("a = -21");
+            Olympus.println("a = -21");
             return 0;
         }
 }

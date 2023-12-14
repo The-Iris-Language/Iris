@@ -8,7 +8,7 @@ class Main () {
             cube.size = 4;
 
 
-            Olympus.print("Element accessed!");
+            Olympus.println("Element accessed!");
             return 0;
         }
 }

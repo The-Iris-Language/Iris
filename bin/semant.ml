@@ -95,34 +95,55 @@ let error line = "semant.ml line " ^ (string_of_int line) ^ ": "
    Check each defined class *)
   let check classes = 
 
+    (* dummy class definitions for use during semantic checking *)
     let olympus_print = { univ = true;
                           typ = Void;
                           fname = "print";
                           formals = [(String, "out")];
-                          body = [Expr(Noexpr)]}  
-    in let olympus_getline = { univ = true;
-                            typ = String;
-                            fname = "getLine";
-                            formals = [];
-                            body = [Expr(Noexpr)]}
-    (* and olympus_int_to_string = { univ = true;
+                          body = [Expr(Noexpr)]}
+    in let olympus_println = { univ = true;
+                               typ = Void;
+                               fname = "println";
+                               formals = [(String, "out")];
+                               body = [Expr(Noexpr)]}
+    in let olympus_printerr = { univ = true;
+                                typ = Void;
+                                fname = "printerr";
+                                formals = [(String, "out")];
+                                body = [Expr(Noexpr)]}
+    in let olympus_printi = { univ = true;
+                              typ = Void;
+                              fname = "printi";
+                              formals = [(Int, "i")];
+                              body = [Expr(Noexpr)]}
+    in let olympus_readaline = { univ = true;
                                   typ = String;
-                                  fname = "int_to_string";
-                                  formals = [(Int, "num")];
-                                  body = [Expr(Noexpr)]} 
-    and olympus_float_to_string = { univ = true;
-                                  typ = String;
-                                  fname = "float_to_string";
-                                  formals = [(Float, "num")];
-                                  body = [Expr(Noexpr)]
+                                  fname = "readaline";
+                                  formals = [];
+                                  body = [Expr(Noexpr)]}
+    (* in let olympus_intstr = { univ = true;
+                              typ = String;
+                              fname = "intstr";
+                              formals = [(Int, "num")];
+                              body = [Expr(Noexpr)]}  *)
+    (* in let olympus_float_to_string = { univ = true;
+                                       typ = String;
+                                       fname = "floattostr";
+                                       formals = [(Float, "num")];
+                                       body = [Expr(Noexpr)]
     } *)
-
+    
     in let olympus_class = { class_name = "Olympus"; 
                              parent_name = "Object"; 
                              permitted = [];
-                             mems = [("public", (MemberFun olympus_print) 
-                                                 :: (MemberFun olympus_getline) (*:: (MemberFun olympus_int_to_string) :: (MemberFun olympus_float_to_string)*) 
-                                                 :: [])] }
+                             mems = [("public",   (MemberFun olympus_print) 
+                                               :: (MemberFun olympus_readaline)
+                                               :: (MemberFun olympus_println)
+                                               :: (MemberFun olympus_printerr)
+                                               :: (MemberFun olympus_printi)
+                                               (* :: (MemberFun olympus_intstr)  *)
+                                               (* :: (MemberFun olympus_float_to_string) *) 
+                                               :: [])] }
     in let object_class =  { class_name = "Object";
                              parent_name = ""; 
                              permitted = [];
@@ -196,11 +217,11 @@ let error line = "semant.ml line " ^ (string_of_int line) ^ ": "
       and parent_class = cls.parent_name
 
       (*  *)
-
+    in let check_function (func : func_decl) =
       (* TODO
         BIG TODO DO NOT FORGET
         write check_func function that defines these within it! *)
-      in let rec check_expr m (e : expr) = 
+      let rec check_expr m (e : expr) = 
         let not_implemented_err = "not implemented expr: " ^ (string_of_expr e)
         in match e with 
           Literal l -> ((Int, SLiteral l), m)
@@ -209,7 +230,10 @@ let error line = "semant.ml line " ^ (string_of_int line) ^ ": "
         | Fliteral f -> ((Float, SFliteral(f)), m)
         | Id n -> (try let (t, _) = StringMap.find n m 
                       in ((t, SId(n)), m)
-                  with Not_found -> raise (Failure ( "variable " ^ n ^ " not found")))
+                  with Not_found -> 
+                    (try let (_, (t, _)) = find_var big_chungus curr_class n 
+                  in ((t, SClassVar("self", n)), m)
+                  with _ -> raise (Failure ( "variable " ^ n ^ " not found"))))
         | Unop (uop, e) -> let ((t, e'), m') = check_expr m e in
                             let wrong_type_err = "type: " ^ (string_of_typ t) ^ " is invalid for unop" ^ (string_of_uop Not)
                             in 
@@ -252,22 +276,22 @@ let error line = "semant.ml line " ^ (string_of_int line) ^ ": "
           | _    -> (try find_func big_chungus caller function_string
             with _ -> 
               let (typ, _) = (try StringMap.find caller m  
-                with Not_found -> raise (Failure ( caller ^ "is not a class or local variable")))
+                with Not_found -> raise (Failure (caller ^ " is not a class or local variable")))
               in 
                 let cname = (match typ with 
                   | Object (c) -> c
                   | _ -> raise (Failure ( (string_of_typ typ) ^ "Not an object")))
                 in 
                   find_func big_chungus cname function_string))
-          in (match encap with 
-            "private:" -> raise (Failure ( "function " ^ function_string ^ " is not accessible"))
-            | _       ->      
+          in (if ((encap = "private:") && (caller <> "self")) 
+              then raise (Failure ( "function " ^ function_string ^ " is not accessible")) 
+            else      
               let sxpr_list = List.map (check_expr m) args 
                 (* in let m_with_formals = List.fold_left (fun (new_map, (typ, name)) -> (StringMap.add name (typ, name) new_map)) m func_d.formals *)
                   in let sl  = List.map (fun ((t, sexpr), _) -> (t, sexpr)) sxpr_list
                     in let args = (try List.combine sl func_d.formals
                                 with _ -> raise (Failure ( "Number of arguments doesn't match")))
-                              in let _ = List.map (fun ((t1, _), (t2, _)) -> let  mismatch_err = "argument of type " ^ string_of_typ t1 
+                              in let _ = List.map (fun ((t1, _), (t2, _)) -> let  mismatch_err = function_string ^ " argument of type " ^ string_of_typ t1 
                                                                               ^ " does not match argument of  " ^ string_of_typ t2 
                                                                               in mismatch_types mismatch_err t2 t1) args
                   in ((func_d.typ, SCall(caller, function_string, sl)), m))
@@ -280,7 +304,16 @@ let error line = "semant.ml line " ^ (string_of_int line) ^ ": "
               ^ " was found." in
               let _ = mismatch_types mismatch_err typ1 typ2 in  
                 ((typ2, SAssign(n, sexpr)), m')
-          with Not_found -> raise (Failure ( "variable " ^ n ^ " not found"))) 
+          with Not_found -> 
+            (try let (_, var) = find_var big_chungus curr_class n 
+              and (sexpr, m') = check_expr m e in
+              let typ1 = fst var and typ2 = fst sexpr in 
+              let  mismatch_err = "member " ^ n ^ " has type " ^ (string_of_typ (typ1) )
+              ^ ", but an expression with type " ^ string_of_typ (typ2) 
+              ^ " was found." in
+              let _ = mismatch_types mismatch_err typ1 typ2 in  
+                ((typ2, SClassVarAssign("self", n, sexpr)), m')
+          with _ -> raise (Failure ( "variable " ^ n ^ " not found"))))
                           (* try let _ = StringMap.find n m in
                       raise (Failure ("local variable " ^ n ^ " already exists"))
                     with Not_found -> ((SLocal (t, n)), m)) *)
@@ -342,12 +375,12 @@ let error line = "semant.ml line " ^ (string_of_int line) ^ ": "
         | _ -> raise (Failure not_implemented_err)
       
 
-      in let check_function (func : func_decl) =
+     
 
         (* Will have StringMap for Class Variables *)
         (* TODO: eventually check formals / binds !! *)
           
-        let rec check_stmt m (s : stmt) = 
+      in let rec check_stmt m (s : stmt) = 
           let not_implemented_err = "not implemented stmt: " ^ string_of_stmt s
         in let void_err = "void type cannot be used to declare variable: " ^ string_of_stmt s
         in match s with 

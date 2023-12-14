@@ -6,7 +6,7 @@ class Main () {
 
             .. different types
             hello = "hello";
-            Olympus.print("Variable Assigned!");
+            Olympus.println("Variable Assigned!");
             return 0;
         }
 }

@@ -21,11 +21,11 @@ class Animal (Main) {
         }
         
         void noise() {
-            Olympus.print("Noise");
+            Olympus.println("Noise");
         }
 
         void funFact() {
-            Olympus.print("There are 5 different animal classes: Mammals, Birds, Insects, Amphibians, and Reptiles!");
+            Olympus.println("There are 5 different animal classes: Mammals, Birds, Insects, Amphibians, and Reptiles!");
         }
 
     private:
@@ -49,11 +49,11 @@ class Cat of Animal (Main) {
         }
         
         void noise() {
-            Olympus.print("Meow!");
+            Olympus.println("Meow!");
         }
 
         void funFact() {
-            Olympus.print("I can land on all fours!");
+            Olympus.println("I can land on all fours!");
         }    
 }
 
@@ -68,11 +68,11 @@ class Dog of Animal (Main) {
         }
 
         void noise() {
-            Olympus.print("Bark!");
+            Olympus.println("Bark!");
         }
 
         void funFact() {
-            Olympus.print("I have a great sense of smell!");
+            Olympus.println("I have a great sense of smell!");
         }
 }
 
@@ -87,11 +87,11 @@ class Chicken of Animal (Main) {
         }
 
         void noise() {
-            Olympus.print("Cluck!");
+            Olympus.println("Cluck!");
         }
 
         void funFact() {
-            Olympus.print("I am one of the closest living descendants to dinosaurs!");
+            Olympus.println("I am one of the closest living descendants to dinosaurs!");
         }
 }
 
@@ -106,11 +106,11 @@ class Snake of Animal (Main) {
         }
 
         void noise() {
-            Olympus.print("Hiss!");
+            Olympus.println("Hiss!");
         }
 
         void funFact() {
-            Olympus.print("I can be very venomous!");
+            Olympus.println("I can be very venomous!");
         }
 }
 
@@ -125,11 +125,11 @@ class Frog of Animal (Main) {
         }
 
         void noise() {
-            Olympus.print("Croak!");
+            Olympus.println("Croak!");
         }
 
         void funFact() {
-            Olympus.print("I have excellent night vision");
+            Olympus.println("I have excellent night vision");
         }
 }
 
@@ -143,11 +143,11 @@ class Bee of Animal (Main) {
             canFly = true;
         }
         void noise() {
-            Olympus.print("Buzz!");
+            Olympus.println("Buzz!");
         }
 
         void funFact() {
-            Olympus.print("");
+            Olympus.println("");
         }
 }
 
@@ -161,18 +161,18 @@ class Richard of Animal (Main) {
             canFly = false;
         }
         void noise() {
-            Olympus.print("Howdy folks!");
+            Olympus.println("Howdy folks!");
         }
 
         void funFact() {
-            Olympus.print("This is someone you know very well ;)");
+            Olympus.println("This is someone you know very well ;)");
         }
 }
 
 class Main () {
     public:
         int univ main() {
-            Olympus.print("wot wot");
+            Olympus.println("wot wot");
             ..run();
         }
 }

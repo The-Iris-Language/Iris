@@ -5,7 +5,7 @@ class Main () {
             .. variable is not defined
             nothello = 5;
 
-            Olympus.print("Variable Assigned!");
+            Olympus.println("Variable Assigned!");
             return 0;
         }
 }

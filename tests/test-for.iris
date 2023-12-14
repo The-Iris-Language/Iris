@@ -2,10 +2,10 @@
 class Main () {
     public:
         int univ main() {
-            Olympus.print("Before for loop");
+            Olympus.println("Before for loop");
             for (int i = 0; i < 5; i++) {
-                Olympus.print("Incremented i");
+                Olympus.println("Incremented i");
             }
-            Olympus.print("After for loop");
+            Olympus.println("After for loop");
         }
 }

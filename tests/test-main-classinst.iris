@@ -18,7 +18,7 @@ class Main () {
     public:
        int univ main () {
             Animal a;
-            Olympus.print("Animal declared in main");
+            Olympus.println("Animal declared in main");
             return 0;
        }
 }

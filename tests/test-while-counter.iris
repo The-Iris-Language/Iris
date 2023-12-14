@@ -5,8 +5,8 @@ class Main() {
             int i = 0;
             while(i != 7) {
                 i++;
-                Olympus.print("Incremented i");
+                Olympus.println("Incremented i");
             }
-            Olympus.print("while done");
+            Olympus.println("while done");
         }
 }

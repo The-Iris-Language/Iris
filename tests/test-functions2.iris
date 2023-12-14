@@ -5,10 +5,14 @@ class IceCream () {
         string getFlavor() {
             return "yum";   
         }
+
+        void setFlavor(string f) {
+            flavor = f;
+        }
         
         float getTemp() {
             
-            Olympus.print("got temp!");
+            Olympus.println("got temp!");
             return 32.0;
         }
         .~*
@@ -19,14 +23,20 @@ class IceCream () {
             bebe.flavor = "YUMMY";
             return bebe;
         }*~.
-        .~*
+    
         void yay() {
             printyay();
+            if (temp == 1) {
+                Olympus.println("bruh");
+            }
         }
+        
+    private:
 
         void printyay() {
-            Olympus.print("yay");
-        }*~.
+            temp = 1;
+            Olympus.println("yay");
+        }
 }
 
 class Gelato of IceCream () {
@@ -42,15 +52,20 @@ class Gelato of IceCream () {
 class Main () {
     public: 
         int univ main() {
-            Olympus.print("josh is da goat");
+            Olympus.println("josh is da goat");
             IceCream i = new IceCream();
             Gelato g = new Gelato();
             i.getTemp();
             g.getTemp();
             ..i.yay();
             ..IceCream j = i.update();
-            ..Olympus.print(j.getFlavor());
-            ..Olympus.print("past j");
+            ..Olympus.println(j.getFlavor());
+            ..Olympus.println("past j");
+            i.setFlavor("cookies and cream");
+            Olympus.println(i.flavor);
+            g.setFlavor("chocolate");
+            Olympus.println(g.flavor);
+            i.yay();
             return 0;
         }
         int getOne() {

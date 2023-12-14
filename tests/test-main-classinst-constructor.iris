@@ -18,7 +18,7 @@ class Main () {
     public:
        int univ main () {
             Animal a = new Animal();
-            Olympus.print("Animal malloc'd in main");
+            Olympus.println("Animal malloc'd in main");
             return 0;
        }
 }

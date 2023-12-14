@@ -24,9 +24,9 @@ class Main () {
             a.legs = 3;
             
             if (a.legs == 3) {
-                Olympus.print("three legs!");
+                Olympus.println("three legs!");
             }
-            Olympus.print(a.name);
+            Olympus.println(a.name);
             return 0; 
         }
     }

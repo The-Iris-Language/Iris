@@ -9,13 +9,13 @@ class IceCream () {
         
         float getTemp(string message) {
             
-            Olympus.print(message);
+            Olympus.println(message);
             return 32.0;
         }
 
         int func(int num) {
             if (num == 1) {
-                Olympus.print("great success!");
+                Olympus.println("great success!");
             }
             return num;
         }
@@ -28,7 +28,7 @@ class Main () {
             i.getTemp("hallo");
             int num = 1;
             i.func(num);
-            Olympus.print(i.getFlavor());
+            Olympus.println(i.getFlavor());
             return 0;
         }
 }

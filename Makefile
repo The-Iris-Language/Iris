@@ -13,6 +13,13 @@ test :
 	cc -o $(file).exe $(file).s Olympus.o
 	./$(file).exe
 
+.PHONY : demo $(file)
+demo : 
+	dune exec --no-build iris demos/$(file).iris > $(file).ll
+	/opt/homebrew/opt/llvm@14/bin/llc $(file).ll > $(file).s
+	cc -o $(file).exe $(file).s Olympus.o
+	./$(file).exe
+
 .PHONY : ll $(file)
 ll : 
 	/opt/homebrew/opt/llvm@14/bin/llc $(file).ll > $(file).s
@@ -38,7 +45,7 @@ Olympus : Olympus.c
 .PHONY : clean
 clean :
 	dune clean
-	rm -rf testall.log *.diff *.ll *.s *.exe *.o *.opam *.out
+	rm -rf testall.log *.diff *.ll *.s *.exe *.o *.opam *.out *.err
 
 
 # Building the zip

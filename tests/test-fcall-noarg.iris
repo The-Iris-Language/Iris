@@ -12,7 +12,7 @@ class Main () {
     public: 
         int univ main() {
             IceCream i = new IceCream();
-            Olympus.print(i.getFlavor());
+            Olympus.println(i.getFlavor());
             return 0;
         }
 }

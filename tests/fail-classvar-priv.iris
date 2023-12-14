@@ -12,6 +12,6 @@ class Main () {
             .. constructors
             Dog d = new Dog();
             d.age = 5;
-            Olympus.print("Assignment succesful!");
+            Olympus.println("Assignment succesful!");
         }
 }

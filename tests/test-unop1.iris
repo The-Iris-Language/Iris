@@ -12,7 +12,7 @@ class Main () {
             b = !b;
             float f = -1.35;
             f = -f;
-            Olympus.print("! and - successful");
+            Olympus.println("! and - successful");
             return 0;
         }
 }

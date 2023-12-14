@@ -1,7 +1,0 @@
-class Main () {
-    public:
-        int univ main() {
-            string s = Olympus.getLine();
-            Olympus.print(s);
-        }
-}

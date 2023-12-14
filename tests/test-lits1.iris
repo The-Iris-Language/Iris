@@ -10,7 +10,7 @@ class Main () {
             b = false;
             string s;
             s = "yo";
-            Olympus.print("success");
+            Olympus.println("success");
             return 0;
         }
 }

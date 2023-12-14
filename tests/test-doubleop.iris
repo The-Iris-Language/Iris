@@ -5,21 +5,21 @@ class Main () {
             int a = 0;
             a++;
             if (a == 1) {
-                Olympus.print("successfully incremented a");
+                Olympus.println("successfully incremented a");
             }
             a--;
             if (a == 0) {
-                Olympus.print("successfully decremented a"); 
+                Olympus.println("successfully decremented a"); 
             }
 
             float f = 4.35;
             f++; 
             if (f == 5.35) {
-                Olympus.print("successfully incremented f");
+                Olympus.println("successfully incremented f");
             }
             f--;
             if (f == 4.35) {
-                Olympus.print("successfully decremented f");
+                Olympus.println("successfully decremented f");
             }
         }
 }

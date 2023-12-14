@@ -12,7 +12,7 @@ class Animal () {
 
         void yell() {
 
-            Olympus.print("waahh");
+            Olympus.println("waahh");
         }
 
     permit: 
@@ -35,11 +35,11 @@ class Main () {
             Animal a = new Animal();
             a.legs = 0;
             a.color = "brown";
-            .. Olympus.print(a.color);
+            .. Olympus.println(a.color);
             .. a.yell();
             Dog d = new Dog();
             d.legs = 10;
-            Olympus.print("Set a.legs to 0");
+            Olympus.println("Set a.legs to 0");
             return 0;
        }
 }

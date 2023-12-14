@@ -5,7 +5,7 @@ class Main () {
             int i = 0;
             while (i < 3) {
                 i++;
-                Olympus.print("in while loop");
+                Olympus.println("in while loop");
             }
         }
         int getOne() {
