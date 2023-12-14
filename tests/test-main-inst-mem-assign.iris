@@ -20,7 +20,7 @@ class Animal () {
         bool alive;
 }
 
-class Dog () {
+class Dog of Animal () {
     public:
         int legs1;
     permit: 
@@ -39,7 +39,7 @@ class Main () {
             .. a.yell();
             Dog d = new Dog();
             d.legs = 10;
-            .. Olympus.print("Set a.legs to 0");
+            Olympus.print("Set a.legs to 0");
             return 0;
        }
 }

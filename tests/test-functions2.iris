@@ -49,12 +49,12 @@ class Main () {
     public: 
         int univ main() {
             IceCream i = new IceCream();
-            Gelato g = new Gelato();
-            i.getTemp();
-            i.yay();
-            IceCream j = i.update();
-            Olympus.print(j.getFlavor());
-            Olympus.print("past j");
+            ..Gelato g = new Gelato();
+            ..i.getTemp();
+            ..i.yay();
+            ..IceCream j = i.update();
+            ..Olympus.print(j.getFlavor());
+            ..Olympus.print("past j");
             return 0;
         }
         int getOne() {

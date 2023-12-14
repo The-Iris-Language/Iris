@@ -3,6 +3,9 @@
 class Main () {
     public:
         int univ main() {
-            Olympus.print();
+            Olympus.print("This demo will show how encapsulation works in Iris.");
+            Olympus.print("Please select a function to call in the predefined class.");
+            .. list out functions
+            Olympus.print("Note that if a non-public function is selected, the program will fail.");
         }
 }

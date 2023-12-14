@@ -95,11 +95,16 @@ let error line = "semant.ml line " ^ (string_of_int line) ^ ": "
    Check each defined class *)
   let check classes = 
 
-    let olympus_print  = { univ = true;
-                            typ = Void;
-                            fname = "print";
-                            formals = [(String, "out")];
-                            body = [Expr(Noexpr)]}                        
+    let olympus_print = { univ = true;
+                          typ = Void;
+                          fname = "print";
+                          formals = [(String, "out")];
+                          body = [Expr(Noexpr)]}  
+    (* in let olympus_getline = { univ = true;
+                            typ = String;
+                            fname = "getLine";
+                            formals = [];
+                            body = [Expr(Noexpr)]}                *)
     (* and olympus_int_to_string = { univ = true;
                                   typ = String;
                                   fname = "int_to_string";
@@ -115,11 +120,13 @@ let error line = "semant.ml line " ^ (string_of_int line) ^ ": "
     in let olympus_class = { class_name = "Olympus"; 
                              parent_name = "Object"; 
                              permitted = [];
-                             mems = [("public", (MemberFun olympus_print) (*:: (MemberFun olympus_int_to_string) :: (MemberFun olympus_float_to_string)*) ::[])] }
-    in let object_class =  { class_name = "Object"; 
-            parent_name = ""; 
-            permitted = [];
-            mems = [] }
+                             mems = [("public", (MemberFun olympus_print) 
+                                                (* :: (MemberFun olympus_getline) :: (MemberFun olympus_int_to_string) :: (MemberFun olympus_float_to_string)*) 
+                                                 :: [])] }
+    in let object_class =  { class_name = "Object";
+                             parent_name = ""; 
+                             permitted = [];
+                             mems = [] }
     in let big_chungus = List.fold_left build_chungus StringMap.empty (object_class :: (olympus_class :: classes)) 
       in let classes = object_class :: classes
         in let name_compare c1 c2 = compare c1.class_name c2.class_name in
@@ -364,8 +371,27 @@ let error line = "semant.ml line " ^ (string_of_int line) ^ ": "
               let (stmt1, _) = check_stmt m1 b1 in
               let (stmt2, _) = check_stmt m1 b2 in 
               (SIf(b, stmt1, stmt2), m)
-          (* | For(e1, e2, e3, st) -> SFor(expr e1, check_bool_expr e2, expr e3, check_stmt st)
-          | While(p, s) -> SWhile(check_bool_expr p, check_stmt s) *)
+
+          (* | For(e1, e2, e3, st) -> 
+              let (e1', m1) = check_expr m e1 in
+              let (e2', m2) = check_expr m1 e2 in 
+              let (e3', m3) = check_expr m2 e3 in 
+                let (typ, _) =  e2' in
+                  let _ = (match typ with 
+                  Bool -> ()
+                  | _ -> raise (Failure ( "Condition in for loop is not a bool"))) in
+              let (st', _) = check_stmt m3 st in
+              (SFor(e1', e2', e3', st'), m) *)
+              
+          | While(p, s) -> 
+            let (b, m1) = check_expr m p in 
+               let (typ, _) = b in
+                 let _ = (match typ with 
+                    Bool -> ()
+                  | _ -> raise (Failure ( "Predicate in while loop is not a bool"))) in
+              let (stmt1, _) = check_stmt m1 s in
+            (SWhile(b, stmt1), m)
+
           | Return e -> let ((t, e'), m') = check_expr m e in
             (* func is the argument of check_func (to be written) *)
             let  mismatch_err =  "return gives " ^ string_of_typ t ^ " expected " ^

@@ -167,7 +167,12 @@ in let _ = L.struct_set_body curr_class_type struct_arr false *)
     L.var_arg_function_type i32_t [| L.pointer_type i8_t |]
   in let print_func : L.llvalue = 
     L.declare_function "printf" print_t the_module in
-  
+(* 
+  let getline_t : L.lltype = 
+    L.var_arg_function_type i32_t [| |]
+  in let getline_func : L.llvalue = 
+    L.declare_function "getLine" getline_t the_module 
+  in  *)
   let build_class_functions (cls : sclass_decl) =
     let curr_name = cls.sclass_name in 
     
@@ -191,7 +196,7 @@ in let _ = L.struct_set_body curr_class_type struct_arr false *)
   let build_function_body (func_ll : (L.llvalue * sfunc_decl)) =
     let the_function = snd func_ll in
     let the_function_llval = fst func_ll in
-    let curr_func_name = the_function.sfname in
+    (* let curr_func_name = the_function.sfname in *)
     let formal_list = (snd func_ll).sformals in
     (* let _ = print_endline ((snd func_ll).sfname ^ " func_formals len is " ^ (string_of_int (List.length formal_list))) in *)
     (if (the_function.sorigin <> curr_name) then ()
@@ -286,8 +291,11 @@ in let _ = L.struct_set_body curr_class_type struct_arr false *)
 
             
         | SAssign (n, e) -> let (e', m') = (expr builder m e) in 
-                              let _ = L.build_store e' (snd (StringMap.find n m)) builder in 
-                            (e', m')
+              let (t, llval) = (try (StringMap.find n m) with Not_found -> raise (Failure ("couldn't find " ^ n))) in 
+              (if (is_object t) then (e', m') else let _ = (L.build_store e' (snd (StringMap.find n m)) builder) in (e', m'))
+
+              (* let _ = L.build_store e' (snd (StringMap.find n m)) builder in  *)
+                (* (e', m') *)
         | SDeclAssign (_, n, e) -> 
           let e' = fst (expr builder m e) 
               in let lltype = ltype_map t in
@@ -309,11 +317,14 @@ in let _ = L.struct_set_body curr_class_type struct_arr false *)
               in 
                   let gep = L.build_struct_gep lval (get_var_index chunguini cname var) (name ^ var) builder
                   in
+          
                     let _ = L.build_store e' gep builder
             in (e', m) 
         | SCall("Olympus", "print", [e]) ->
           (L.build_call print_func [| format_str ; (fst (expr builder m e)) |]
-          "printf" builder, m)       
+          "printf" builder, m)
+        (* | SCall("Olympus", "getLine", [e]) ->
+            (L.build_call getline_func [| |] "getLine" builder, m)     *)
         | SCall(caller, func_name, e_list) -> 
           let (typ, lval) = (try StringMap.find caller m with Not_found -> raise (Failure ("codegen.ml " ^ (string_of_int __LINE__) ^  ": " ^ caller ^ "not found")))
         (* in let _ = print_endline "________________________ before get vtable ptr" *)
@@ -436,7 +447,7 @@ in let _ = L.struct_set_body curr_class_type struct_arr false *)
             let then_bb = L.append_block context "then" the_function_llval in
             (* Position builder in "then" block and build the statement *)
             let (then_builder, _) = stmt ((L.builder_at_end context then_bb), map') then_stmt in
-            (* Add a branch to the "then" block (to the merge block) 
+            (* Add a branch to the "then" block (to th merge block) 
             if a terminator doesn't already exist for the "then" block *)
             let () = add_terminal then_builder branch_instr in
 
@@ -451,6 +462,42 @@ in let _ = L.struct_set_body curr_class_type struct_arr false *)
             let _ = L.build_cond_br bool_llval then_bb else_bb builder in
             (* Move to the merge block for further instruction building *)
             (L.builder_at_end context merge_bb, map')
+
+          | SWhile (predicate, body) ->
+              (* First create basic block for condition instructions -- this will
+              serve as destination in the case of a loop *)
+            let pred_bb = L.append_block context "while" the_function_llval in
+                  (* In current block, branch to predicate to execute the condition *)
+            let _ = L.build_br pred_bb builder in
+              
+            (* Create the body's block, generate the code for it, and add a branch
+            back to the predicate block (we always jump back at the end of a while
+            loop's body, unless we returned or something) *)
+            let body_bb = L.append_block context "while_body" the_function_llval in
+            let (while_builder, _) = stmt ((L.builder_at_end context body_bb), map) body in
+            let () = add_terminal while_builder (L.build_br pred_bb) in
+              
+                  (* Generate the predicate code in the predicate block *)
+            let pred_builder = L.builder_at_end context pred_bb in
+            let (bool_val, _) = expr pred_builder map predicate in
+              
+                  (* Hook everything up *)
+            let merge_bb = L.append_block context "merge" the_function_llval in
+            let _ = L.build_cond_br bool_val body_bb merge_bb pred_builder in
+              (L.builder_at_end context merge_bb, map)
+
+        (* | SFor (e1, e2, e3, body) -> 
+            let (_, map') = stmt (builder, map) (SBlock [SExpr e1 ; SWhile (e2, SBlock [body ; SExpr e3]) ] )
+            (* Build the code for each statement in the function *)
+            in let (builder', _) = stmt (builder, map') (SBlock the_function.sbody) in
+            
+              (* Add a return if the last block falls off the end *)
+             let _ = add_terminal builder' (match the_function.styp with
+                  A.Void -> L.build_ret_void
+                | A.Float -> L.build_ret (L.const_float float_t 0.0)
+                | t -> L.build_ret (L.const_int (ltype_map t) 0)) 
+              in
+              (builder', map) *)
 
         | SLocal (t, n) -> 
           (* let e' = fst (expr builder m e) 

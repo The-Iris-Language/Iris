@@ -1,0 +1,12 @@
+.. Tests while loop with a counter
+class Main() {
+    public:
+        int univ main() {
+            int i = 0;
+            while(i != 7) {
+                i++;
+                Olympus.print("Incremented i");
+            }
+            Olympus.print("while done");
+        }
+}

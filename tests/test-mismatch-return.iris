@@ -3,6 +3,11 @@ class Animal () {
         string noise(int volume) {
             return "ruh roh raggy";
         }
+
+        Animal fun_a () {
+            Animal a = new Animal();
+            return a;
+        }
 }
 
 class Dog of Animal () {
@@ -12,7 +17,8 @@ class Dog of Animal () {
             return d;
         }
 
-        void fun_two(Animal d) {
+        void fun_two(Animal a) {
+            Olympus.out.prin7
             return;
         }
 }
@@ -23,7 +29,8 @@ class Main () {
         int univ main() {
             Animal a = new Animal();
             Dog d = new Dog();
+            a = a.fun_a();
             a = d.fun();
-            d.fun_two(d);
+            ..d.fun_two(d);
         }
 }

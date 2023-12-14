@@ -1,0 +1,29 @@
+class Plant () {
+    public: 
+        int leaves;
+}
+
+
+class Animal () {
+    public: 
+        int height;
+        Plant noise () {
+            Olympus.print("howl");
+            Plant p = new Plant();
+            p.leaves = 3;
+            return p;
+        }
+}
+
+class Main () {
+    public: 
+        int univ main() {
+            string hello = "hello world!";
+            Olympus.print(hello);
+            Animal a = new Animal();
+            a.height = 1;
+            Plant p = new Plant();
+            p = a.noise();
+            return 0;
+        }
+}

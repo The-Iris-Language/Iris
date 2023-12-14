@@ -1,0 +1,14 @@
+.. Tests simple while loop
+class Main () {
+    public: 
+        int univ main() {
+            int i = 0;
+            while (i < 3) {
+                i++;
+                Olympus.print("in while loop");
+            }
+        }
+        int getOne() {
+            return 1;
+        }
+}
