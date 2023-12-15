@@ -55,7 +55,7 @@ assign-and-access assign1 assign2 classvar-local-assign decl-assign doubleop \
 fcall-inherited fcall-noarg fcall-overwritten fcall-returnlocal fcall-witharg \
 fcall-withinclass float hello-world if1 if2 if3 inherit-memvar lits1 local-main \
 main-classinst main-inst-mem-assign main-return-new mismatch-return opassign \
-print-classvar prints sub-ints univ2 unop1 while-counter while
+print-classvar prints sub-ints univ1 univ2 unop1 while-counter while
 
 
 FAILS = \
