@@ -74,7 +74,7 @@ class Animal (Main) {
  ~  funFact methods of Animal
 *~.
 
-class Cat of Animal (Main) {
+class Cat of Animal () {
     public:
         void noise() {
             Olympus.println("Meow!");
@@ -85,7 +85,7 @@ class Cat of Animal (Main) {
         }    
 }
 
-class Dog of Animal (Main) {
+class Dog of Animal () {
     public:
 
         void noise() {
@@ -97,7 +97,7 @@ class Dog of Animal (Main) {
         }
 }
 
-class Chicken of Animal (Main) {
+class Chicken of Animal () {
     public:
 
         void noise() {
@@ -109,7 +109,7 @@ class Chicken of Animal (Main) {
         }
 }
 
-class Snake of Animal (Main) {
+class Snake of Animal () {
     public:
 
         void noise() {
@@ -121,7 +121,7 @@ class Snake of Animal (Main) {
         }
 }
 
-class Frog of Animal (Main) {
+class Frog of Animal () {
     public:
 
         void noise() {
@@ -133,7 +133,7 @@ class Frog of Animal (Main) {
         }
 }
 
-class Bee of Animal (Main) {
+class Bee of Animal () {
     public:
         void noise() {
             Olympus.println("Buzz!");
@@ -144,7 +144,7 @@ class Bee of Animal (Main) {
         }
 }
 
-class Richard of Animal (Main) {
+class Richard of Animal () {
     public:
         void noise() {
             Olympus.println("Howdy folks!");
@@ -155,8 +155,12 @@ class Richard of Animal (Main) {
         }
 }
 
+.~*
+ ~ AnimalGame is a class that contains methods to run the game
+*~.
 class AnimalGame () {
     public:
+        .. runs the game including the command loop to make guesses, get hints, and quit
         void run() {
             string input = "";
             int count = 0;
@@ -190,6 +194,8 @@ class AnimalGame () {
             }
         }
 
+
+        .. method to get kind of animal based on user input
         Animal getAnimal(string input) {
             Animal a;
             if (Olympus.streq(input, "1")) {
@@ -252,6 +258,7 @@ class AnimalGame () {
             return a; 
         }
 
+        .. method to perform operations to make a guess
         bool makeGuess(Animal a, int count) {
 
             .. gets user guess
@@ -276,6 +283,7 @@ class AnimalGame () {
             return true;
         }
 
+        .. method to perform operations for giving hints
         void giveHint(Animal a) {
 
             .. printing for requesting a hint
