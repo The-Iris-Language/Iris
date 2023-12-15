@@ -12,10 +12,9 @@ After downloading and unzipping the zip file, run 'make' in terminal.
 This will compile the compiler into an executable. Building Iris requires 
 the same environment as MicroC. 
 
-We've had some strange behavior with VSCode Terminal vs. a local terminal, so 
-maybe try both if one environment doesn't work. We haven't changed anything 
-about our dev enironment since the beginning, so hopefully whatever has worked
-for past deliverables will work now.
+You can run our test suite with `sh runtests`, and can see the output of a 
+single test to terminal with `make test file=<FILENAME>`. You can run our demos
+ with `make demo file=<FILENAME>`.
 
 # How to run test script
 
@@ -81,9 +80,6 @@ failure tests:
     opassign2
     -- Tests for failure binary operation and assignment on a non-int/float: bool
     
-    ovveride-param
-    -- Tests for failure of overriding inherited function, but with different parameters
-    
     plusplus
     -- Tests for failure of ++ on non-int/float
 
@@ -93,8 +89,6 @@ failure tests:
     univ2
     -- Tests failure for calling an instance method with a class name
     
-    wrong-return
-    -- Tests for failure of wrong return type
 
 passing tests:
     assign-and-access:

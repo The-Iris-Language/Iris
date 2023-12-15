@@ -51,18 +51,23 @@ clean :
 # Building the zip
 
 TESTS = \
-assign-and-access assign1 assign2 hello-world lits1 local-main main-classinst \
-main-inst-mem-assign print-classvar
+assign-and-access assign1 assign2 classvar-local-assign decl-assign doubleop \
+fcall-inherited fcall-noarg fcall-overwritten fcall-returnlocal fcall-witharg \
+fcall-withinclass float hello-world if1 if2 if3 inherit-memvar lits1 local-main \
+main-classinst main-inst-mem-assign main-return-new mismatch-return opassign \
+print-classvar prints sub-ints univ2 unop1 while-counter while
+
 
 FAILS = \
-assign-typ assign-undeclared classvar-int classvar-priv classvar-typ-assign \
-duplicate-classes duplicate-other-classes id-DNE local-decl local-dup
+assign-typ assign-undeclared classvar-DNE classvar-int classvar-priv classvar-typ-assign \
+decl-assign duplicate-classes duplicate-other-classes id-DNE local-decl local-dup no-parent \
+opassign1 opassign2 plusplus univ1 univ2
 
 
 TESTFILES = $(TESTS:%=test-%.iris) $(TESTS:%=test-%.out) \
 	    $(FAILS:%=fail-%.iris) $(FAILS:%=fail-%.err)
 
-ZIPFILES = bin dune-project lib Makefile \
+ZIPFILES = bin demos dune-project lib Makefile \
 	README Olympus.c runtests \
 	$(TESTFILES:%=tests/%) 
 
