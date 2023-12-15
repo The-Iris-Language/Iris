@@ -1,3 +1,4 @@
+.. Triggers the runtime error for an invalid variable permitted access
 class Animal () {
     public:
         int paws;

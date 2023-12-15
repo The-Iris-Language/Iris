@@ -52,7 +52,7 @@ void class_permitted(char *str1, char **permits, int list_len) {
             return;
         }
     }
-    printf("Class %s does not have access!\n", str1);
+    printf("RUNTIME ERROR: Class %s does not have access!\n", str1);
     exit(1);
 }
 

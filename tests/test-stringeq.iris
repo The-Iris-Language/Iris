@@ -1,0 +1,25 @@
+.. tests if == also works for strings (we call Olympus.streq every time we 
+.. see an == for strings)
+class Main () {
+    public: 
+        int univ main() {
+            ..string input = Olympus.readaline();
+            string input = "howdy";
+
+            string str = "howdy";
+
+            if (Olympus.streq(str, input)) {
+                Olympus.print("Strings are ");
+            }
+
+            if (str == input) {
+                Olympus.println("equal!");
+            } else {
+                Olympus.println("not equal!");
+            }
+        }
+
+        void univ p() {
+            Olympus.println("print!");
+        }
+}

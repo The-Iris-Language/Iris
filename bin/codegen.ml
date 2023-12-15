@@ -138,10 +138,6 @@ let translate (classes : sclass_decl list) =
                   
                   in ((StringMap.add sc_decl.sclass_name ((decl, (vtable_struct, dummy_vtable_inst)), mem_maps) guini), vtable_list @ [L.pointer_type vtable_struct])
   
-(* in let curr_class_type = (ltype_map (A.Object curr_name))
-in let struct_arr = (L.struct_element_types curr_class_type)
-in let _ = Array.set struct_arr 0 (L.pointer_type (L.type_of table) )
-in let _ = L.struct_set_body curr_class_type struct_arr false *)
   in let (chunguini, _) = List.fold_left (make_vtable_typ context) (chunguini, []) classes
   in let update_ltypes (sc_decl : sclass_decl) = 
       let curr_lltype = (ltype_map (A.Object sc_decl.sclass_name))
@@ -154,21 +150,6 @@ in let _ = L.struct_set_body curr_class_type struct_arr false *)
               L.struct_set_body curr_lltype struct_arr false
     in let _ = List.map update_ltypes classes
           
-
-
-    
-  (* let main_class = find_class "Main" classes in *) 
-  (* in let vtable_arr = Array.of_list vtable_list  *)
-  (* in let vtables_struct = L.struct_type context vtable_arr  *)
-  (* temp for testing *)
-  (* in let vtables_llval = L.declare_global vtables_struct "big_vtable" the_module  *)
-  (* in let big_vtable = L.named_struct_type context ("big_vtable") 
-  in let _ = L.struct_set_body big_vtable vtable_arr false
-  in let zero_big_table_args =  L.const_named_struct big_vtable [| L.const_int i32_t 0 |]
-  in let zero_big_table_inst = L.define_global ("big_vtable_data") zero_big_table_args the_module  *)
-(* in let () = print_endline (L.string_of_llvalue zero_big_table_inst) *)
- 
-
 (* built-ins *)
   in let print_t : L.lltype = 
     L.var_arg_function_type i32_t [| L.pointer_type i8_t |]
@@ -235,7 +216,8 @@ in let _ = L.struct_set_body curr_class_type struct_arr false *)
                    with Not_found -> StringMap.find n global_vars
                   in *)
     
-    let check_permit class_location mem_lval = 
+    let check_permit class_location mem_lval_ptr = 
+          let mem_lval = L.build_load mem_lval_ptr "temp" builder in 
           let permit_length_ptr = L.build_struct_gep mem_lval 1 "permit_length_ptr" builder in
           let permit_length = L.build_load permit_length_ptr "permit_length" builder in
 
@@ -386,9 +368,10 @@ in let _ = L.struct_set_body curr_class_type struct_arr false *)
                   let gep = L.build_struct_gep lval (get_var_index chunguini cname var) (name ^ var) builder
                   (* let _ = print_endline (L.string_of_llvalue gep) *)
                   in let obj_class = get_class_decl chunguini cname
+
                   in let is_permit = List.exists (fun (_, var_n) -> var_n = var) obj_class.spermitted_vars
-                  (* in let _ = if (is_permit) then print_endline "var is permit" else print_endline "var is not" *)
-                  in let _ = (if (not is_permit) then () else check_permit curr_name lval)
+                  in let _ = (if (not is_permit) then () else check_permit curr_name lvalptr)
+
                   in (if (is_object var_typ) then 
                     let lltyper = L.type_of e'
                   (* let _ = print_endline (L.string_of_lltype lltyper) *)
@@ -428,71 +411,52 @@ in let _ = L.struct_set_body curr_class_type struct_arr false *)
             
         | SCall(caller, func_name, e_list) -> 
           (* ADDING UNIV FUNCTIONS *)
-          (* let class_name = 
-            (if is_univ then  
-              let _ = (ltype_map caller) 
-          in caller 
-                with _ -> 
-          let (typ, lvalptr) = (try StringMap.find caller m 
-                                with Not_found -> raise (Failure ("codegen.ml " ^ (string_of_int __LINE__) ^  ": " ^ caller ^ " of " ^ func_name ^ " not found")))
-          in let lval = L.build_load lvalptr "temp" builder 
-          in let vtable_ptr = L.build_struct_gep lval 0 "vtable" builder
-          in let vtable = L.build_load vtable_ptr "vtable" builder
-          in let function_index = get_fun_index chunguini class_name (func_name)
-          in let code_fun = L.build_struct_gep vtable function_index "fun_to_call" builder
-          in let func = L.build_load code_fun "function" builder
-             ) 
-            in let func_origin = (get_fun_decl chunguini class_name func_name).sorigin
-            
-             *)
 
              (* let _ = print_endline "top of scall" in *)
           let is_univ = 
               (try let _ = (ltype_map (Object(caller))) in true
                 with _ -> false)
-    in
-        let ((class_name, vtable_ptr), arg_lls) = 
-          (if is_univ 
-            then ((caller, get_vtable_ll chunguini caller), (fst (List.split (List.map (expr builder m) e_list))))
-          else 
-            let (typ, lvalptr) = (try StringMap.find caller m with Not_found -> raise (Failure ("codegen.ml " ^ (string_of_int __LINE__) ^  ": " ^ caller ^ " of " ^ func_name ^ " not found")))
-            in let lval = L.build_load lvalptr "temp" builder
-          in let cname = (get_typ_name typ)
-         in let fun_encap = (get_fun_decl chunguini cname func_name).sencap
-        (* in let _ =  *)
-        (* in let _ = print_endline "made it!" *)
-        
-        in let _ = (if (fun_encap <> "permit:") then () else check_permit curr_name lval)
-        in ((cname, L.build_struct_gep lval 0 "vtable" builder), lvalptr :: (fst (List.split (List.map (expr builder m) e_list)))))
+          in
+            let ((class_name, vtable), arg_lls) = 
+              (if is_univ 
+                then ((caller, get_vtable_ll chunguini caller), (fst (List.split (List.map (expr builder m) e_list))))
+              else 
+                let (typ, lvalptr) = (try StringMap.find caller m with Not_found -> raise (Failure ("codegen.ml " ^ (string_of_int __LINE__) ^  ": " ^ caller ^ " of " ^ func_name ^ " not found")))
+                in let lval = L.build_load lvalptr "temp" builder
+              in let cname = (get_typ_name typ)
+            in let fun_encap = (get_fun_decl chunguini cname func_name).sencap
+            
+            in let _ = (if (fun_encap <> "permit:") then () else check_permit curr_name lvalptr)
+          in let vtable_ptr = L.build_struct_gep lval 0 "vtable" builder
+            in ((cname, L.build_load vtable_ptr "vtable" builder), lvalptr :: (fst (List.split (List.map (expr builder m) e_list)))))
 
-        in let vtable = L.build_load vtable_ptr "vtable" builder
-               
+                    in let function_index = get_fun_index chunguini class_name (func_name)
+                    in let code_fun = L.build_struct_gep vtable function_index "fun_to_call" builder
+                  
+                    in let func = L.build_load code_fun "function" builder
 
-                in let function_index = get_fun_index chunguini class_name (func_name)
-                in let code_fun = L.build_struct_gep vtable function_index "fun_to_call" builder
-              
-                in let func = L.build_load code_fun "function" builder
+              in let convert_objs (llval_list : L.llvalue list) = 
+                let convert_arg ((ftyp, _), llvalr) = 
+                  (if (is_object ftyp) then
+                  let lltypel = formal_typ_of_typ ftyp
+                  and lltyper = L.type_of llvalr
+                  in (if (lltypel <> lltyper) then L.build_bitcast llvalr lltypel "arg_cast" builder else llvalr)
 
-          in let convert_objs (llval_list : L.llvalue list) = 
-            let convert_arg ((ftyp, _), llvalr) = 
-              (if (is_object ftyp) then
-              let lltypel = formal_typ_of_typ ftyp
-              and lltyper = L.type_of llvalr
-              in (if (lltypel <> lltyper) then L.build_bitcast llvalr lltypel "arg_cast" builder else llvalr)
+                else llvalr)
+              in let curr_fun = get_fun_decl chunguini class_name func_name
+              in let curr_form_list = curr_fun.sformals
 
-            else llvalr)
-          in let curr_fun = get_fun_decl chunguini class_name func_name
-          in let curr_form_list = curr_fun.sformals
-        in List.map convert_arg (List.combine curr_form_list llval_list)
-          in let converted_args = convert_objs arg_lls
-            in let arg_arr = Array.of_list converted_args
-            in let function_typ = get_fun_decl chunguini class_name func_name
-            in let ret_ty = function_typ.styp
-            in let result = (match ret_ty with 
-              A.Void -> ""
-            | _ -> func_name ^ "_result")
-            in let call = L.build_call func arg_arr result builder
-          in (call, m)
+            in List.map convert_arg (List.combine curr_form_list llval_list)
+              in let converted_args = convert_objs arg_lls
+                in let arg_arr = Array.of_list converted_args
+                in let function_typ = get_fun_decl chunguini class_name func_name
+                in let ret_ty = function_typ.styp
+                in let result = (match ret_ty with 
+                  A.Void -> ""
+                | _ -> func_name ^ "_result")
+
+                in let call = L.build_call func arg_arr result builder
+              in (call, m)
            
         | SClassVar(name, var) -> 
           let (typ, lvalptr) = StringMap.find name m
@@ -501,7 +465,11 @@ in let _ = L.struct_set_body curr_class_type struct_arr false *)
             let cname = get_typ_name typ
             in 
                 let gep = L.build_struct_gep lval (get_var_index chunguini cname var) (name ^ var) builder
-                in 
+                
+               in let obj_class = get_class_decl chunguini cname
+               in let is_permit = List.exists (fun (_, var_n) -> var_n = var) obj_class.spermitted_vars
+               in let _ = (if (not is_permit) then () else check_permit curr_name lvalptr) in
+
                   (L.build_load gep (name ^ var) builder, m)
                   (* (L.build_load (snd (StringMap.find n m)) n builder, m) *)
         | SOpAssign (n, op, e) -> let load_val =  L.build_load (snd (StringMap.find n m)) n builder
@@ -619,6 +587,7 @@ in let _ = L.struct_set_body curr_class_type struct_arr false *)
             of this alternative. *)
             let _ = L.build_cond_br bool_llval then_bb else_bb builder in
             (* Move to the merge block for further instruction building *)
+
             (L.builder_at_end context merge_bb, map')
 
           | SWhile (predicate, body) ->
@@ -667,17 +636,6 @@ in let _ = L.struct_set_body curr_class_type struct_arr false *)
         | _ -> let not_implemented_err = "Codegen: not implemented yet!" in 
               raise (Failure not_implemented_err) 
 
-            (* in let m' = (if (is_object t) then 
-              (* let _ = print_endline "before alloca" in *)
-              let local = L.build_alloca (L.pointer_type lltype) "temp" builder in
-              (* let _ = print_endline "before load" in *)
-              let temp = L.build_load e' n builder in
-              (* let _ = print_endline "before stor" in *)
-               let _ = L.build_store temp local builder in 
-              
-              
-               StringMap.add n (t, local) m *)
-
         (* Build the code for each statement in the function *)
         in let formals_llvals = Array.to_list (L.params the_function_llval)
       in let build_alloca_formals m ((t, n), l) = 
@@ -697,19 +655,6 @@ in let _ = L.struct_set_body curr_class_type struct_arr false *)
             let formal = L.build_alloca (ltype_map t) n builder in 
             let _ = L.build_store l formal builder in formal) 
         in (StringMap.add n (t, formal) m)
-          (* in let formal =  *)
-        (* in let _ = print_endline ("built alloca " ^ (L.string_of_llvalue formal)) *)
-        (* in let _ = L.build_store l formal builder *)
-        
-      (* in let _ = print_endline ("built store " ^ (L.string_of_llvalue s)) *)
-           (* in 
-            (if (is_object t) 
-            then let load = L.build_load formal n builder  *)
-          (* in let _ = print_endline ("built load " ^ (L.string_of_llvalue load))  *)
-        (* in (StringMap.add n (t, load) m) 
-            else (StringMap.add n (t, formal) m)) *)
-        
-        (* in let _ = if () *)
           
           
           in let formal_map = List.fold_left build_alloca_formals StringMap.empty (List.combine formal_list formals_llvals)
@@ -732,9 +677,5 @@ in
     L.define_global (curr_name ^ "_vtable_data") table the_module 
     
   in let _ = List.map build_class_functions classes 
-  (* in let _ = L.delete_global zero_big_table_inst *)
-  (* in let big_table_inst =  L.const_named_struct big_vtable (Array.of_list instantiated_vtable_llvalues)
-  in let _ = L.define_global ("big_vtable_data") big_table_inst the_module  *)
   
-    (* let _ = build_function_body main_func_ll *)
 in the_module

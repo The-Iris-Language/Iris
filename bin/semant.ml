@@ -1,4 +1,4 @@
-(* Semantic checking for the MicroC compiler *)
+(* Semantic checking for the Iris compiler *)
 
 open Ast
 open Sast
@@ -183,17 +183,6 @@ let error line = "semant.ml line " ^ (string_of_int line) ^ ": "
     *)
 
     
-    (* DONT FORGET TO PUT THIS BACK INTO build_sast *)
-(*   
-  let name_compare c1 c2 = compare c1.class_name c2.class_name in
-  let check_dups checked a_class = 
-    let dup_err = "duplicate class " ^ a_class.class_name
-    in match checked with 
-      (* No duplicate bindings *)
-      (first_class :: _) when a_class.class_name = first_class.class_name -> 
-             raise (Failure dup_err)
-      | _ -> a_class :: checked
-    in let dup_checked = List.fold_left check_dups [] (List.sort name_compare classes)  *)
 
   (* build SAST. then if main() and Main exist: return SAST, else throw error *)
 
@@ -288,7 +277,7 @@ let error line = "semant.ml line " ^ (string_of_int line) ^ ": "
                 else 
               let (typ, _) = (try StringMap.find caller m  
                 with 
-                    Not_found -> raise (Failure (caller ^ " is not a class or local variable")))
+                    Not_found -> raise (Failure (caller ^ " is not a local variable")))
               in
                 let cname = (match typ with 
                   | Object (c) -> c
@@ -506,32 +495,6 @@ let error line = "semant.ml line " ^ (string_of_int line) ^ ": "
   
         in let check_encap lists ((enc_level, mems) : encap) = 
           List.fold_left (check_mem enc_level) lists mems
-        
-
-          (* (match mem with
-            MemberFun(f) -> 
-              let sfunc = check_function f
-              in 
-                (match enc with 
-                  "permit" -> ((vars, perm_vars), (meths, sfunc :: perm_meths))
-                  | _        -> ((vars, perm_vars), (sfunc :: meths, perm_meths)))
-          | MemberVar(v) -> 
-            (* TO DO: make sure that the type actually exists and variable?? *)
-            (match enc with 
-              "permit" -> ((vars, v :: perm_vars), (meths, perm_meths))
-              | _ -> ((v :: vars, perm_vars), (meths, perm_meths)))) check for valid class name (if class type) and duplicate and ladida *)
-        
-          
-          (* maybe we allow for up to 3 encap blocks *)
-          (* made one big function because we want to assign each encap into corresponding public, permit, and private *)
-        (* in let check_encap_list (encaps : encap list) = 
-          (* let invalid_encaps_error = "encapsulation is malformed"  *)
-            (* if (List.length encaps > 3) then raise (Failure invalid_encaps_error) 
-            else                                    TODO: check for dup labels ??? *)
-          let first = List.nth encaps 0 in
-            (fst first, List.map check_member (snd first)) :: [] eventually need to loop over encaps and check their mems *)
-              
-      (* in let check_class (cls : class_decl) =  *)
         
           in let ((vars, permitted_vars), meths) = List.fold_left check_encap (([], []), []) cls.mems
         in (* TODO: check permitted list for valid names, *) 

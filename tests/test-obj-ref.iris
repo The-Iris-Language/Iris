@@ -1,0 +1,29 @@
+.. Tests setting object members in functions
+class Animal () {
+    public:
+        int x;
+
+        void set_x() {
+            x = 11;
+        }
+
+}
+
+class Main () {
+    public:
+        int univ main() {
+            Animal a = new Animal();
+            
+            a.x = 10;
+            
+            a.set_x();
+
+            if (a.x == 10) {
+                Olympus.println("not changed :'(");
+            } else if (a.x == 11) {
+                Olympus.println("changed :D");
+            }
+            
+            return 0;
+        }
+}

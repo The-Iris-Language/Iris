@@ -34,6 +34,13 @@ corresponding test name and terminates with '.out' as its name. The test
 script will not successfully compile a test program when it is incorrect.
 
 # What is in the test suite 
+NOTE: For invalid permitted access, those tests are not under the "fail" tests 
+      because it is a runtime error, not a compile-time error. Thus, the script 
+      will check for the correct error message that we put to stdout. This 
+      runtime error exits the porgram early, so it will not print the 'OK' like
+      the other tests. This occurs in test-fail-classvar-permit, 
+      test-fail-classvar-assign-permit, and test-fail-permit-fun.
+
 failure tests:
 
     assign-typ
@@ -92,13 +99,13 @@ failure tests:
     
 
 passing tests:
-    assign-and-access:
+    assign-and-access
     -- Declare, assign, and print a string variable in three separate statements 
 
-    assign1:
+    assign1
     -- Declare and assign an int variable in two separate statements
     
-    assign2:
+    assign2
     -- Declare and assign a string variable in two separate statements
 
     classvar-local-assign
@@ -109,6 +116,12 @@ passing tests:
     
     doubleop
     -- Tests unary operators ++ and -- on ints and floats
+
+    fail-classvar-permit
+    -- Triggers the runtime error for an invalid permitted access
+
+    fail-classvar-assign-permit
+    -- Tests that a non-permitted class variable can't be assigned
 
     fcall-inherited
     -- Tests calling a function that has been inherited
@@ -146,16 +159,16 @@ passing tests:
     inherit-memvar
     -- Test inheritance of member variables and their assignment 
 
-    lits1:
+    lits1
     -- Declare and assign int, bool, and string locals in main(declaration and assign are on 2 lines)
     
-    local-main:
+    local-main
     -- Declare a local variable in main
 
-    main-classinst:
+    main-classinst
     -- Declare an instance of a class in main
 
-    main-inst-mem-assign:
+    main-inst-mem-assign
     -- Assign a value to a public member variable in a class instance
 
     main-return-new
@@ -167,7 +180,7 @@ passing tests:
     opassign
     -- Tests op assign on ints and floats
 
-    print-classvar:
+    print-classvar
     -- Access a public string class variable in a call to Olympus.print
 
     prints

@@ -1,5 +1,5 @@
 .. Tests accessing a permit variable 
-class Animal (Plant, Main) {
+class Animal (Plant) {
     public:
         int paws;
 

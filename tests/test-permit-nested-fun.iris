@@ -1,3 +1,4 @@
+.. Tests calling a permitted function through a public function
 class Animal (Main) {
     public:
         int paws;

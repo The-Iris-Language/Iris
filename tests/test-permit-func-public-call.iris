@@ -1,0 +1,36 @@
+
+class Animal (Main) {
+    public: 
+        void ignore() {
+            Olympus.println("...");
+        }
+
+    permit:
+        void noise() {
+            Olympus.println("Noise");
+        }
+}
+
+class Duck of Animal (Farmer) {
+    permit:
+        void noise() {
+            Olympus.println("Quack!");
+        }
+}
+
+class Farmer of Animal (Main) {
+    public:
+        void callAnimal(Animal a) {
+            a.noise();
+        }
+}
+
+class Main () {
+    public:
+        int univ main() {
+            Farmer f = new Farmer();
+            Duck d = new Duck();
+            f.callAnimal(d);
+            return 0;
+        }
+}

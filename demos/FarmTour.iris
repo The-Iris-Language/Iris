@@ -1,196 +1,183 @@
 class Animal (Main) {
     public: 
-        Animal Animal() {
-            animal = "";
-            type = "";
-            legs = 0;
-            name = "";
+        void ignore() {
+            Olympus.println("...");
         }
 
     permit:
         void noise() {
-            Olympus.print("Noise");
+            Olympus.println("Noise");
         }
 }
 
-class Farmer of Human (Main) {
+class Farmer of Animal (Main) {
     public:
-        Farmer Farmer() {
-            animal = "Mammal";
-            type = "Human"
-            legs = 2;
-            name = "Farmer Bob";
-        }
-
         void callAnimal(Animal a) {
             a.noise();
         }
 }
 
 class Cow of Animal (Farmer) {
-    public:
-        Cow Cow() {
-            animal = "Mammal";
-            type = "Cow";
-            legs = 4;
-            name = "Bessie";
-        }
     permit: 
         void noise() {
-            Olympus.print("Mooooooooo!");
+            Olympus.println("Mooooooooo!");
         }
 }
 
 class Pig of Animal (Farmer) {
-    public:
-        Pig Pig() {
-            animal = "Mammal";
-            type = "Pig";
-            legs = 4;
-            name = "Wilbur";
-        }
-
     permit: 
         void noise() {
-            Olympus.print("Oink oink!");
+            Olympus.println("Oink oink!");
         }
 }
 
-class Duck of Animal (Farmer, Main) {
-    public:
-        Duck Duck() {
-            animal = "Bird"; 
-            type = "Duck";
-            legs = 2;
-            name = "Waddles";
-        }
+class Duck of Animal (Farmer, FarmTour) {
     permit:
         void noise() {
-            Olympus.print("Quack!");
+            Olympus.println("Quack!");
         }
 }
 
 class Sheep of Animal (Farmer) {
-    public:
-        Sheep Sheep() {
-            animal = "Mammal"; 
-            type = "Sheep";
-            legs = 2;
-            name = "Skittles";
-        }
     permit:
         void noise() {
-            Olympus.print("Baaaaaaah!");
+            Olympus.println("Baaaaaaah!");
         }
 }
 
-
-class Main () {
+class FarmTour (Main) {
     public:
-        int univ main() {
-            Olympus.print("Welcome to Farmer Bob's farm! Let's see what animals we can see");
-            Olympus.print("There's Farmer bob")
-            run();
-        }
-
         void run() {
             Farmer bob = new Farmer();
             string input = "";
             int seen = 0;
-
-            Olympus.print("Farmer Bob asks: "What animal would you like to see?"");
-
-            while(seen != 4) {
-                Olympus.print("Please enter p for pig, co for cow, d for duck, s for sheep, or q to leave");
-                input = Olympus.getLine();
+            
+            Olympus.println("Welcome to Farmer Bob's farm! Let's see what animals we can see.");
+            Olympus.println("There's Farmer Bob! Farmer Bob asks: 'What animal would you like to see?'");
+            
+            while (seen != 4) {
+                Olympus.print("Please enter p for pig, co for cow, d for duck, s for sheep, or q to leave: ");
+                input = Olympus.readaline();
+                
                 if (input == "p") {
                     seePig(bob);
                     seen++;
                 } else if (input == "co") {
                     seeCow(bob);
-                    seen+;
-                } else if (input == "d) {
+                    seen++;
+                } else if (input == "d") {
                     seeDuck(bob);
                     seen++;
                 } else if (input == "s") {
                     seeSheep(bob);
                     seen++;
                 } else if (input == "q") {
-                    Olympus.print("Farmer Bob says: "Thanks for coming to visit!"");
-                    return
+                    Olympus.println("Farmer Bob says: 'Thanks for coming to visit!'");
+                    return;
                 } else {
-                    Olympus.print("Farmer Bob says: "We don't have that animal here, maybe next time!);
+                    Olympus.println("Farmer Bob says: 'We don't have that animal here, maybe next time!'");
                 }
-                Olympus.print("Farmer Bob asks: "What animal would you like to see next?"");
-            }
-            Olympus.print("Farmer Bob says: "That's all the animals we have here, thanks for coming to visit!");
+
+                if (seen < 4) {
+                    Olympus.println("Farmer Bob asks: 'What animal would you like to see next?'");
+                }
+           }
+
+            Olympus.println("Farmer Bob says: 'That's all the animals we have here, thanks for coming to visit!'");
         } 
 
         void seePig(Farmer f) {
             Pig p = new Pig();
+
             string input = "";
-            Olympus.print("Farmer Bob says: "Sure thing! Let's go say hi to my friend Wilbur."");
-            Olympus.print("You approach the pig pen and see a large pig sitting in the mud.");
-            Olympus.print("Will you try calling Wilbur? y/n");
-            input = Olympus.getLine;
+            Olympus.println("Farmer Bob says: 'Sure thing! Let's go say hi to my friend Wilbur.'");
+            Olympus.println("You approach the pig pen and see a large pig sitting in the mud.");
+
+            Olympus.print("Will you try calling Wilbur? y/n: ");
+            input = Olympus.readaline();
+
             if (input == "y") {
-                Olympus.print("You try calling Wilbur");
+                Olympus.println("You try calling Wilbur");
                 p.ignore();
-                Olympus.print("It seems Wilbur ignored you.");
+                Olympus.println("It seems Wilbur ignored you.");
             } else {
-                Olympus.print("Farmer Bob says: "Let me call Wilbur over: Wilbur!"");
+                Olympus.println("Farmer Bob says: 'Let me call Wilbur over: Wilbur!'");
                 f.callAnimal(p);
-                Olympus.print("Wilbur walks over and you give him a pat on the nose.");
+                Olympus.println("Wilbur walks over and you give him a pat on the nose.");
             }
         }
+        
         void seeCow(Farmer f) {
             Cow c = new Cow();
+
             string input = "";
-            Olympus.print("Farmer Bob says: "Sure thing! Let's go say hi to my friend Bessie."");
-            Olympus.print("You approach the left side of the field and see a large cow grazing.");
-            Olympus.print("Will you try calling Bessie? y/n");
-            input = Olympus.getLine;
+            Olympus.println("Farmer Bob says: 'Sure thing! Let's go say hi to my friend Bessie.'");
+            Olympus.println("You approach the left side of the field and see a large cow grazing.");
+
+            Olympus.print("Will you try calling Bessie? y/n: ");
+            input = Olympus.readaline();
+
             if (input == "y") {
-                Olympus.print("You try calling Bessie");
+                Olympus.println("You try calling Bessie");
                 c.ignore();
-                Olympus.print("It seems Bessie ignored you.");
+                Olympus.println("It seems Bessie ignored you.");
             } else {
-                Olympus.print("Farmer Bob says: "Let me call Bessie over: Bessie!"");
+                Olympus.println("Farmer Bob says: 'Let me call Bessie over: Bessie!'");
                 f.callAnimal(c);
-                Olympus.print("Bessie walks over and you give her a pat on the nose.");
+                Olympus.println("Bessie walks over and you give her a pat on the nose.");
             }
+
         }
+        
         void seeDuck(Farmer f) {
             Duck d = new Duck();
+
             string input = "";
-            Olympus.print("Farmer Bob says: "Sure thing! Let's go say hi to my friend Waddles."");
-            Olympus.print("You approach a pond and see a duck swimming around.");
-            Olympus.print("Will you try calling Waddles? y/n");
-            input = Olympus.getLine;
+            Olympus.println("Farmer Bob says: 'Sure thing! Let's go say hi to my friend Waddles.'");
+            Olympus.println("You approach a pond and see a duck swimming around.");
+
+            Olympus.print("Will you try calling Waddles? y/n: ");
+            input = Olympus.readaline();
+            d.noise();
+
             if (input == "y") {
-                Olympus.print("You try calling Waddles");
+                Olympus.println("You try calling Waddles");
+                d.noise();
+                Olympus.println("Farmer Bob says: 'Look at that, she came over!'");
             } else {
-                Olympus.print("Farmer Bob says: "Let me call Waddles over: Waddles!"");
-            }
-            c.noise();
-            Olympus.print("Waddles approaches you and give her a pet.");
-        }
-        void seeSheep(Farmer f) {
-            Sheep s = new Sheep();
-            string input = "";
-            Olympus.print("Farmer Bob says: "Sure thing! Let's go say hi to my friend Skittles."");
-            Olympus.print("You approach the right side of the field and see a sheep grazing on grass.");
-            Olympus.print("Will you try calling Skittles? y/n");
-            input = Olympus.getLine;
-            if (input == "y") {
-                Olympus.print("You try calling Skittles");
-                s.ignore();
-                Olympus.print("It seems Skittles ignored you.");
-            } else {
-                Olympus.print("Farmer Bob says: "Let me call Skittles over: Skittles!"");
-                f.callAnimal(s);
-                Olympus.print("Skittles approaches and give her a pet.");
+                Olympus.println("Farmer Bob says: 'Let me call Waddles over: Waddles!'");
+                f.callAnimal(d);
+                Olympus.println("Waddles waddles over and you give her a pat");
             }
         }
 
+        void seeSheep(Farmer f) {
+            Sheep s = new Sheep();
+            
+            string input = "";
+            Olympus.println("Farmer Bob says: 'Sure thing! Let's go say hi to my friend Skittles.'");
+            Olympus.println("You approach the right side of the field and see a sheep grazing on grass.");
+            
+            Olympus.print("Will you try calling Skittles? y/n: ");
+            input = Olympus.readaline();
+            
+            if (input == "y") {
+                Olympus.println("You try calling Skittles");
+                s.ignore();
+                Olympus.println("It seems Skittles ignored you.");
+            } else {
+                Olympus.println("Farmer Bob says: 'Let me call Skittles over: Skittles!'");
+                f.callAnimal(s);
+                Olympus.println("Skittles approaches and give her a pet.");
+            }
+        }
+}
+
+class Main () {
+    public:
+        int univ main() {
+            FarmTour ft = new FarmTour();
+            ft.run();
+            return 0;
+        }
 }
