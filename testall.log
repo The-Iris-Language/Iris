@@ -1,0 +1,9 @@
+/opt/homebrew/opt/llvm@14/bin/lli
+
+###### Testing test-hello-world
+dune exec iris tests/test-hello-world.iris > test-hello-world.ll
+/opt/homebrew/opt/llvm@14/bin/llc -relocation-model=pic test-hello-world.ll > test-hello-world.s
+cc -o test-hello-world.exe test-hello-world.s Olympus.o
+./test-hello-world.exe
+diff -b test-hello-world.out tests/test-hello-world.out > test-hello-world.diff
+###### SUCCESS

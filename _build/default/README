@@ -12,10 +12,9 @@ After downloading and unzipping the zip file, run 'make' in terminal.
 This will compile the compiler into an executable. Building Iris requires 
 the same environment as MicroC. 
 
-You can run our test suite with `sh runtests`. You can see the output of a 
-single test to terminal with `make test file=<FILENAME>`, and can run our demos
- with `make demo file=<FILENAME>` (these might require changes to our Makefile 
- since the llc variable paths might differ for you).
+You can run our test suite with `sh runtests`, and can see the output of a 
+single test to terminal with `make test file=<FILENAME>`. You can run our demos
+ with `make demo file=<FILENAME>`.
 
 # How to run test script
 
