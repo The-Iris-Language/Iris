@@ -14,7 +14,6 @@
 
 class Animal (Main) {
     public: 
-        
         .. These functions set private member variables
         void setAnimal(string s) {
             animal = s;
@@ -87,7 +86,6 @@ class Cat of Animal () {
 
 class Dog of Animal () {
     public:
-
         void noise() {
             Olympus.println("Bark!");
         }
@@ -99,7 +97,6 @@ class Dog of Animal () {
 
 class Chicken of Animal () {
     public:
-
         void noise() {
             Olympus.println("Cluck!");
         }
@@ -111,7 +108,6 @@ class Chicken of Animal () {
 
 class Snake of Animal () {
     public:
-
         void noise() {
             Olympus.println("Hiss!");
         }
@@ -123,7 +119,6 @@ class Snake of Animal () {
 
 class Frog of Animal () {
     public:
-
         void noise() {
             Olympus.println("Croak!");
         }
@@ -335,11 +330,6 @@ class Main () {
 
             AnimalGame ag = new AnimalGame();
             ag.run();
-            .~*
-             ~ if univ doesn't work:
-             ~ AnimalGame ag = new AnimalGame();
-             ~ ag.run();
-            *~.
             return 0;
         }
 }
