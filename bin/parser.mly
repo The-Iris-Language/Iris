@@ -5,13 +5,14 @@
 open Ast
 %}
 
-%token SEMI COLON DOT LPAREN RPAREN LBRACE RBRACE LBRACK RBRACK COMMA PLUS MINUS TIMES DIVIDE ASSIGN PEQ MEQ TEQ DEQ SELF
+%token SEMI COLON DOT LPAREN RPAREN LBRACE RBRACE LBRACK RBRACK COMMA 
+%token PLUS MINUS TIMES DIVIDE ASSIGN PEQ MEQ TEQ DEQ SELF
 %token NOT EQ NEQ LT LEQ GT GEQ AND OR PPLUS MMINUS
-%token RETURN IF ELSE FOR WHILE INT BOOL FLOAT VOID CHAR STRING UNIV 
+%token RETURN IF ELSE FOR WHILE INT BOOL FLOAT VOID STRING UNIV 
 %token CLASS PUBLIC PERMIT PRIVATE OF NEW
 %token <int> LITERAL
 %token <bool> BLIT
-%token <string> ID FLIT CHARLIT STRINGLIT 
+%token <string> ID FLIT STRINGLIT 
 %token EOF
 
 %start program
@@ -94,23 +95,6 @@ fun_decl:
       formals = List.rev $4;
       body = List.rev $7 } }
 
-
-// TODO: why can't we do this? ask??
-// fdecl:
-//     univ_opt typ ID LPAREN formals_opt RPAREN LBRACE var_decl_list stmt_list RBRACE 
-//      { { 
-//       univ = $1;   
-//       typ = $2;
-//       fname = $3;
-//       formals = List.rev $5;
-//       locals = List.rev $8;
-//       body = List.rev $9 } }
-
-// univ_opt:
-//  /* nothing */   { false }
-//  | UNIV          { true }
-
-    
 formals_opt:
     /* nothing */ { [] }
   | formal_list   { $1 }
@@ -124,16 +108,9 @@ typ:
   | BOOL   { Bool  }
   | FLOAT  { Float }
   | VOID   { Void  }
-  | CHAR   { Char  } 
   | STRING { String }
   | ID     { Object($1) }
   
-
-/*
-var_decls:
-    /* nothing     { [] }
-  | var_decls var_decl { $2 :: $1 } */
-
 var_decl:
    typ ID SEMI { ($1, $2) }
 
@@ -152,8 +129,6 @@ stmt:
   | WHILE LPAREN expr RPAREN stmt           { While($3, $5)         }
   | typ ID SEMI                             { Local($1, $2)         }
 
- /* int y = 1; --> evaluates to 1 */ 
- /* int y; --> doesn't evaluate to anything */
 
 expr_opt:
     /* nothing */ { Noexpr }    
@@ -163,7 +138,6 @@ expr:
     LITERAL                             { Literal($1)                }
   | FLIT	                              { Fliteral($1)               }
   | BLIT                                { BoolLit($1)                }
-  | CHARLIT	                            { CharLit($1)                } 
   | STRINGLIT                           { StringLit($1)              }
   | ID                                  { Id($1)                     }
   | expr PLUS   expr                    { Binop($1, Add,   $3)       }

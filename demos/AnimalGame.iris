@@ -171,11 +171,12 @@ class AnimalGame () {
             Animal a = getAnimal(input);
     
             .. command loop for the game
-            while (!Olympus.streq(input, "q")) {
+            while (!Olympus.streq(input, "q") || count != 3) {
                 Olympus.print("Please enter g to make a guess, h for a hint, or q to quit: ");
                 input = Olympus.readaline();
                 if (Olympus.streq(input, "q")) { .. Player wants to quit
                     Olympus.println("Thank you for playing the game. We hope you had fun!!"); 
+                    return;
                 } else if (Olympus.streq(input, "g")) { .. Player wants to make a guess
                     if (!makeGuess(a, count)) { .. Increment if player got guess wrong
                         count++;
@@ -241,7 +242,7 @@ class AnimalGame () {
                 a = b;
             } else {
                 Richard r = new Richard();
-                r.setAnimal("Mammal");
+                r.setAnimal("Compiler");
                 r.setType("Richard");
                 r.setLegs(2);
                 r.setFur(false);
@@ -264,7 +265,7 @@ class AnimalGame () {
                 count++;
                 if (count == 3) {
                     Olympus.println("You have used up all your guesses.");
-                    Olympus.println("The correct animal is: ");
+                    Olympus.print("The correct animal is: ");
                     Olympus.println(a.getType());
                     Olympus.println("You'll get 'em next time :)!");
                 }

@@ -10,7 +10,12 @@ Josh Kim                   joshua.kim634361@tufts.edu
 
 After downloading and unzipping the zip file, run 'make' in terminal. 
 This will compile the compiler into an executable. Building Iris requires 
-the same environment as MicroC.
+the same environment as MicroC. 
+
+We've had some strange behavior with VSCode Terminal vs. a local terminal, so 
+maybe try both if one environment doesn't work. We haven't changed anything 
+about our dev enironment since the beginning, so hopefully whatever has worked
+for past deliverables will work now.
 
 # How to run test script
 
@@ -37,6 +42,9 @@ failure tests:
     assign-undeclared 
     -- Assign an undeclared variable a value
 
+    classvar-DNE
+    -- Tests for failure of accessing a class var that DNE
+
     classvar-int
     -- Access a member variable from an int
 
@@ -45,6 +53,9 @@ failure tests:
 
     classvar-typ-assign
     -- Assign a class member with an expression of a different type
+
+    decl-assign
+    -- Tests for failure of declaration and assignment of mismatched types
 
     duplicate-classes
     -- Define two Mains 
@@ -61,6 +72,30 @@ failure tests:
     local-dup
     -- Declare two variables of the same name of different types in the same function
 
+    no-parent
+    -- Tests for failure for undeclared Parent: Non-Main class
+
+    opassign1
+    -- Tests for failure binary operation and assignment on a non-int/float: float
+
+    opassign2
+    -- Tests for failure binary operation and assignment on a non-int/float: bool
+    
+    ovveride-param
+    -- Tests for failure of overriding inherited function, but with different parameters
+    
+    plusplus
+    -- Tests for failure of ++ on non-int/float
+
+    univ1
+    -- Tests failure for calling a class method with an instance
+
+    univ2
+    -- Tests failure for calling an instance method with a class name
+    
+    wrong-return
+    -- Tests for failure of wrong return type
+
 passing tests:
     assign-and-access:
     -- Declare, assign, and print a string variable in three separate statements 
@@ -71,12 +106,51 @@ passing tests:
     assign2:
     -- Declare and assign a string variable in two separate statements
 
-    assign-and-access: 
-    -- Declare, assign, and print a string variable in three separate statements
+    classvar-local-assign
+    -- Declare a class in a local variable and assign its member variable
+
+    decl-assign
+    -- Assign a local string variable and print it
+    
+    doubleop
+    -- Tests unary operators ++ and -- on ints and floats
+
+    fcall-inherited
+    -- Tests calling a function that has been inherited
+
+    fcall-noarg
+    -- Tests a function call of a func with no arguments
+
+    fcall-overwritten
+    -- Tests a function call of a func that has been overrided
+    
+    fcall-returnlocal
+    -- Tests a function call that returns a locally declared value in the function
+
+    fcall-witharg
+    -- Test function calls with arguments
+
+    fcall-withinclass
+    -- Tests calling a function with a func call of a func within a class
+
+    float
+    -- Test float literals
     
     hello-world;
     -- Print out the string "Hello world!" using Olympus.print printing function
-    
+
+    if1
+    -- Test true case of if (no else) 
+
+    if2
+    -- Test true case of if-else statement 
+
+    if3
+    -- Test false case of if-else statement
+
+    inherit-memvar
+    -- Test inheritance of member variables and their assignment 
+
     lits1:
     -- Declare and assign int, bool, and string locals in main(declaration and assign are on 2 lines)
     
@@ -89,15 +163,48 @@ passing tests:
     main-inst-mem-assign:
     -- Assign a value to a public member variable in a class instance
 
+    main-return-new
+    -- Tests returning a new object
+
+    mismatch-return
+    -- Tests returning a descendant of a class into a declared class variable (e.g. Animal a = new Dog;)
+    
+    opassign
+    -- Tests op assign on ints and floats
+
     print-classvar:
     -- Access a public string class variable in a call to Olympus.print
 
+    prints
+    -- Tests print, println, printerr, and printi, our built-in print functions
 
-# What needs to be added
+    sub-ints
+    -- Tests adding ints and assigning to variables or class vars
 
-While we have built our inheritance tree and implemented public and private 
-variables, we still need to handle inheriting and overloading parent members, 
-function calls (with encapsulation checking), and permitted members in classes.
-We also have to add smaller features like float and char literals, additional
-binary and unary operators, if/while statements, and a few other MicroC features
-that are included in our langauge.
+    univ1
+    -- Tests calling a class method 
+
+    univ2
+    -- Tests calling an instance method
+
+    unop1
+    -- Test unop (!) on bool declaration and assignment, and isolated assignment
+    and (-) on int/float declaration and assignment, and isolated assignment
+
+    while-counter
+    -- Tests while loop with a counter
+    
+    while
+    -- Tests simple while loop
+
+
+# What has been implemented
+
+We've implemented classes and related features, such as dynamic dispatch of 
+methods (e.g. the Animal a = new Dog() with calling a Dog function), the 
+inheritance of member variables and functions, overloading of methods by child,
+classes, calling and semantic checking for classes and all of their methods. We have
+implemented runtime checking of permitted functions and membervariables
+
+
+Although in our original proposal, we have not implemented Lists. 

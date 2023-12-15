@@ -228,8 +228,7 @@ let error line = "semant.ml line " ^ (string_of_int line) ^ ": "
         BIG TODO DO NOT FORGET
         write check_func function that defines these within it! *)
       let rec check_expr m (e : expr) = 
-        let not_implemented_err = "not implemented expr: " ^ (string_of_expr e)
-        in match e with 
+        match e with 
           Literal l -> ((Int, SLiteral l), m)
         | BoolLit b -> ((Bool, SBoolLit b), m)
         | StringLit s -> ((String, SStringLit(s)), m)
@@ -273,22 +272,32 @@ let error line = "semant.ml line " ^ (string_of_int line) ^ ": "
                                   | Float -> ((Float, SDoubleOp(n, doubleop)), m)
                                   | _     -> raise (Failure (  (string_of_typ typ) ^ " is not a valid type for double op")))
         | Call (caller, function_string, (args : expr list)) -> 
+          let err = "class " ^ caller ^ " not defined" in 
+          let _ = err in 
           let ((_, encap), func_d) = 
-          (* TODO CHANGEEEE check for instance vs class name 
-            WE NEED TO CHECK FOR 
-          *)
           (match caller with 
           "self" -> find_func big_chungus curr_class function_string
-          | _    -> (try find_func big_chungus caller function_string
-            with _ -> 
+          | _    -> 
+            let is_univ = (try let _ = find_func big_chungus caller function_string
+                               in true 
+                           with _ -> false) in               
+            (if is_univ then let (tple, func_e) = find_func big_chungus caller function_string
+              in (if (func_e.univ = true)
+                  then (tple, func_e)
+                  else raise (Failure (func_e.fname ^ " is not a class method")))
+                else 
               let (typ, _) = (try StringMap.find caller m  
-                with Not_found -> raise (Failure (caller ^ " is not a class or local variable")))
-              in 
+                with 
+                    Not_found -> raise (Failure (caller ^ " is not a class or local variable")))
+              in
                 let cname = (match typ with 
                   | Object (c) -> c
                   | _ -> raise (Failure ( (string_of_typ typ) ^ "Not an object")))
                 in 
-                  find_func big_chungus cname function_string))
+                  let (tple, func_e) = find_func big_chungus cname function_string
+              in (if func_e.univ <> true 
+                then (tple, func_e)
+                else raise (Failure (func_e.fname ^ " is a class method")))))                
           in (if ((encap = "private:") && (caller <> "self")) 
               then raise (Failure ( "function " ^ function_string ^ " is not accessible")) 
             else      
@@ -378,10 +387,6 @@ let error line = "semant.ml line " ^ (string_of_int line) ^ ": "
         | NewObject (n) -> let _ = find_class big_chungus n in 
                             ((Object (n), (SNewObject (n))), m)                                                  
         | Noexpr -> ((Void, SNoexpr), m)
-        | _ -> raise (Failure not_implemented_err)
-      
-
-     
 
         (* Will have StringMap for Class Variables *)
         (* TODO: eventually check formals / binds !! *)
@@ -585,7 +590,7 @@ let error line = "semant.ml line " ^ (string_of_int line) ^ ": "
       in 
         { sclass_name = sclass.sclass_name;
           sparent_name = sclass.sparent_name;
-          spermitted = sclass.spermitted;
+          spermitted = sclass.sclass_name :: sclass.spermitted;
           svars = sclass.svars;
           smeths = List.map add_self_to_func sclass.smeths
         }

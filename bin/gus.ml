@@ -1,3 +1,7 @@
+(* Module for big_chungus (large lookup/symbol table)*)
+(* Ayda Aricanli, Trevor Sullivan, Valerie Zhang, Josh Kim, Tim Valk *)
+
+
 module StringMap = Map.Make(String)
 open Ast
 (* 
@@ -6,15 +10,7 @@ open Ast
     -> IT IS NOT THE SAME AS IN THE PHOTO!!!!!!  
   - the second tuple of chungus is (var_map, func_map) !!!
 
-
 *)
-(* Make chungus str map(assuming encap is checked):
-   let build_chungus s c <- c is class_decl, s is chungus
-    1. make tuple (parent name, permitted classes list)
-    2. make func str map and var str map 
-    3. let add_encap e <- encap so we can fold_l 
-    4. make tuple of ((parent, permitted), (func str map, var str map)) 
-    5. add tuple to s *)
 let find_class chungus cname = 
   let class_not_defined = "class " ^ cname ^ " not defined" in
   (try StringMap.find cname chungus with 
@@ -142,13 +138,7 @@ let dup_memvar symbols p_name (_, cvar_name) =
   in  let symbol_value = (parent_permit, (full_vmap, full_fmap))
           in 
           StringMap.add c_decl.class_name symbol_value symbols
-  (* in List.fold_left build_chungus StringMap.empty classes (* returns the structure *) *)
 
-(* call this whenever a function is not "self", since that is always allowed within a class *)
-  (* caller class is the class that the function call shows up in *)
-  (* target class is the class that the function can be found in ie. Cat.meow() || Cat c = new Cat(); c.meow()*)
-
-(* OOOGA BOOOGA ???*)
 let rec is_permitted chungus caller_name target_name func_name =
   let target_class = StringMap.find target_name chungus in 
   let (funcs, _) = fst (snd target_class)
@@ -156,22 +146,7 @@ let rec is_permitted chungus caller_name target_name func_name =
     (try let (encap, _) = StringMap.find func_name funcs
     in
       (match encap with 
-        "public" -> true 
-      | "private" -> false
-      | _ -> (* "permit" *)
-          (let target_permits = snd (fst target_class) 
-          in 
-            (try let _ = List.find caller_name target_permits in true with 
-             Not_found -> false)))
+        "private:" -> false 
+      | _ -> true)
     with Not_found -> is_permitted chungus caller_name (find_parent_name chungus target_name) func_name)
   
-(* 
-get_func
-get_var
-
-var_permitted
-check-inheritance for both vars and funcs
-
-wrapper function that checks members in general (calls on the above)
-
-*)

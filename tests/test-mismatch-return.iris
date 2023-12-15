@@ -1,3 +1,4 @@
+.. Tests returning a descendant of a class into a declared class variable
 class Bush () {
     public:
         int leaves;

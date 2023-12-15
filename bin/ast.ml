@@ -1,8 +1,5 @@
-(* Ocamlyacc parser for Iris 
-   Ayda Aricanli, Trevor Sullivan, Valerie Zhang, Josh Kim, Tim Valk *)
-
-
 (* Iris Abstract Syntax Tree and functions for printing it *)
+(* Ayda Aricanli, Trevor Sullivan, Valerie Zhang, Josh Kim, Tim Valk *)
 
 type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq |
           And | Or  
@@ -25,7 +22,6 @@ type expr =
   | Fliteral of string (* change to float *)
   | BoolLit of bool
   | StringLit of string
-  | CharLit of string
   | Id of string
   | Binop of expr * op * expr 
   | Unop of uop * expr
@@ -134,7 +130,6 @@ let rec string_of_expr = function
   | BoolLit(true) -> "true"
   | BoolLit(false) -> "false"
   | StringLit(l) -> l
-  | CharLit(l) -> l
   | Id(s) -> s
   | Binop(e1, o, e2) ->
       string_of_expr e1 ^ " " ^ string_of_op o ^ " " ^ string_of_expr e2

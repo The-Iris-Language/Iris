@@ -1,0 +1,14 @@
+.. Tests calling a class method 
+class Dog () {
+    public:
+        string univ numLegs() {
+            return "4";
+        }
+}
+class Main() {
+    public:
+        int univ main() {
+            Olympus.println(Dog.numLegs());
+            return 0;
+        }
+}

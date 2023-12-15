@@ -83,8 +83,8 @@ let translate (classes : sclass_decl list) =
           let perm_arr = L.array_type string_t perm_len
           in let (typs, _) = (List.split all_vars) 
       (* i32_t to hold position in array of vtables *)
-            in let all_typs = i32_t :: (perm_arr :: (List.map (formal_typ_of_typ_map tmap) typs))
-              and (new_var_index_map, _) = List.fold_left (fun (acc, count) (typ, var_name) -> ((StringMap.add var_name (count, typ) acc), (count + 1)) ) (StringMap.empty, 2) all_vars
+            in let all_typs = i32_t :: (i32_t :: (perm_arr :: (List.map (formal_typ_of_typ_map tmap) typs)))
+              and (new_var_index_map, _) = List.fold_left (fun (acc, count) (typ, var_name) -> ((StringMap.add var_name (count, typ) acc), (count + 1)) ) (StringMap.empty, 3) all_vars
         (* and (new_fun_index_map, _) = (StringMap.empty, 0) *)
       (* in let () = print_endline "_______________________________1" *)
               in let (new_fun_index_map, _) = 
@@ -142,7 +142,7 @@ let translate (classes : sclass_decl list) =
 in let struct_arr = (L.struct_element_types curr_class_type)
 in let _ = Array.set struct_arr 0 (L.pointer_type (L.type_of table) )
 in let _ = L.struct_set_body curr_class_type struct_arr false *)
-  in let (chunguini, vtable_list) = List.fold_left (make_vtable_typ context) (chunguini, []) classes
+  in let (chunguini, _) = List.fold_left (make_vtable_typ context) (chunguini, []) classes
   in let update_ltypes (sc_decl : sclass_decl) = 
       let curr_lltype = (ltype_map (A.Object sc_decl.sclass_name))
         (* in let _ = print_endline (L.string_of_lltype curr_lltype)  *)
@@ -158,17 +158,18 @@ in let _ = L.struct_set_body curr_class_type struct_arr false *)
 
     
   (* let main_class = find_class "Main" classes in *) 
-  in let vtable_arr = Array.of_list vtable_list 
+  (* in let vtable_arr = Array.of_list vtable_list  *)
   (* in let vtables_struct = L.struct_type context vtable_arr  *)
   (* temp for testing *)
   (* in let vtables_llval = L.declare_global vtables_struct "big_vtable" the_module  *)
-  in let big_vtable = L.named_struct_type context ("big_vtable") 
+  (* in let big_vtable = L.named_struct_type context ("big_vtable") 
   in let _ = L.struct_set_body big_vtable vtable_arr false
   in let zero_big_table_args =  L.const_named_struct big_vtable [| L.const_int i32_t 0 |]
-  in let zero_big_table_inst = L.define_global ("big_vtable_data") zero_big_table_args the_module 
+  in let zero_big_table_inst = L.define_global ("big_vtable_data") zero_big_table_args the_module  *)
 (* in let () = print_endline (L.string_of_llvalue zero_big_table_inst) *)
  
-(* HALLO *)
+
+(* built-ins *)
   in let print_t : L.lltype = 
     L.var_arg_function_type i32_t [| L.pointer_type i8_t |]
   in let print_func : L.llvalue = 
@@ -189,11 +190,10 @@ in let _ = L.struct_set_body curr_class_type struct_arr false *)
   in let streq_func : L.llvalue = 
     L.declare_function "streq" streq_t the_module in 
 
-  (* let intstr_t : L.lltype = 
-    L.var_arg_function_type (L.pointer_type string_t) [| i32_t |]
-  in let intstr_func : L.llvalue = 
-    L.declare_function "intstr" intstr_t the_module 
-  in  *)
+  let permi_t : L.lltype = 
+    L.var_arg_function_type void_t [| string_t ; (L.pointer_type string_t) ; i32_t|]
+  in let permi_func : L.llvalue = 
+    L.declare_function "class_permitted" permi_t the_module in 
   
   let build_class_functions (cls : sclass_decl) =
     let curr_name = cls.sclass_name in 
@@ -234,7 +234,22 @@ in let _ = L.struct_set_body curr_class_type struct_arr false *)
     (* let lookup n = try StringMap.find n local_vars
                    with Not_found -> StringMap.find n global_vars
                   in *)
-    let rec expr builder m ((t, e) : sexpr)  = 
+    
+    let check_permit class_location mem_lval = 
+          let permit_length = L.build_struct_gep mem_lval 1 "permit_length" builder in
+          let permit_list_ptr = L.build_struct_gep mem_lval 2 "permit_list_ptr" builder in 
+          (* let _ = print_endline (L.string_of_llvalue permit_list) in *)
+          (* let _ = print_endline (L.string_of_lltype (L.type_of permit_list)) in *)
+          let permit_list = L.build_load permit_list_ptr "temp" builder in
+
+          let bit_casted = L.build_bitcast permit_list (L.pointer_type string_t) "bitcast_permit" builder in 
+
+          let class_string = L.build_global_stringptr class_location class_location builder in 
+          let _ = L.build_call permi_func [| class_string ; bit_casted ; permit_length |] "" builder 
+          in ()
+
+    in
+     let rec expr builder m ((t, e) : sexpr)  = 
         (* let not_implemented_err = "Codegen Error 198: not implemented yet! " ^ (string_of_sexpr (t, e)) in *)
       match e with
           SLiteral   i -> (L.const_int i32_t i, m)
@@ -371,8 +386,6 @@ in let _ = L.struct_set_body curr_class_type struct_arr false *)
                     (* in let temp = L.build_load bitcasted "temp" builder  *)
                     in let _ = L.build_store bitcasted gep builder
                     in (gep, m) 
-
-
                     else let _ = (L.build_store e' gep builder) in (gep, m))
         | SCall("Olympus", "print", [e]) ->
             (L.build_call print_func [| format_str ; (fst (expr builder m e)) |]
@@ -399,32 +412,58 @@ in let _ = L.struct_set_body curr_class_type struct_arr false *)
             (L.build_load bcast "get_temp" builder, m) *)
             
         | SCall(caller, func_name, e_list) -> 
-          let (typ, lvalptr) = (try StringMap.find caller m with Not_found -> raise (Failure ("codegen.ml " ^ (string_of_int __LINE__) ^  ": " ^ caller ^ " of " ^ func_name ^ " not found")))
-        (* in let _ = print_endline "________________________ before get vtable ptr" *)
-        in let lval = L.build_load lvalptr "temp" builder 
-          in let class_name = (get_typ_name typ)
-        in let func_origin = (get_fun_decl chunguini class_name func_name).sorigin
-        (* in let _ = print_endline "________________________ before get vtable ptr" *)
-            in let vtable_ptr = L.build_struct_gep lval 0 "vtable" builder
-              (* in let class_index = L.build_load class_index_ptr "vtable_index_int" builder *)
+          (* ADDING UNIV FUNCTIONS *)
+          (* let class_name = 
+            (if is_univ then  
+              let _ = (ltype_map caller) 
+          in caller 
+                with _ -> 
+          let (typ, lvalptr) = (try StringMap.find caller m 
+                                with Not_found -> raise (Failure ("codegen.ml " ^ (string_of_int __LINE__) ^  ": " ^ caller ^ " of " ^ func_name ^ " not found")))
+          in let lval = L.build_load lvalptr "temp" builder 
+          in let vtable_ptr = L.build_struct_gep lval 0 "vtable" builder
+          in let vtable = L.build_load vtable_ptr "vtable" builder
+          in let function_index = get_fun_index chunguini class_name (func_name)
+          in let code_fun = L.build_struct_gep vtable function_index "fun_to_call" builder
+          in let func = L.build_load code_fun "function" builder
+             ) 
+            in let func_origin = (get_fun_decl chunguini class_name func_name).sorigin
+            
+             *)
 
-                (* in let curr_vtable = get_vtable_ll chunguini class_name *)
-          (* in let () = print_endline (L.string_of_llvalue class_index) *)
-                (* in let curr_vtable = L.build_in_bounds_gep zero_big_table_inst [|L.const_int i32_t 0 ; class_index|] "curr_vtable" builder *)
-              (* in let _ = print_endline "________________________ before grabbing vtable" *)
+             
+          let is_univ = 
+              (try let _ = (ltype_map (Object(caller))) in true
+                with _ -> false)
+             
+
+    in
+        let ((class_name, vtable_ptr), arg_lls) = 
+          (if is_univ 
+            then ((caller, get_vtable_ll chunguini caller), (fst (List.split (List.map (expr builder m) e_list))))
+          else 
+            let (typ, lvalptr) = (try StringMap.find caller m with Not_found -> raise (Failure ("codegen.ml " ^ (string_of_int __LINE__) ^  ": " ^ caller ^ " of " ^ func_name ^ " not found")))
+            in let lval = L.build_load lvalptr "temp" builder
+          in let cname = (get_typ_name typ)
+         in let fun_encap = (get_fun_decl chunguini cname func_name).sencap
+        (* in let _ =  *)
+        in let _ = (if (fun_encap <> "permit:") then () else check_permit curr_name lval)
+        in ((cname, L.build_struct_gep lval 0 "vtable" builder), lvalptr :: (fst (List.split (List.map (expr builder m) e_list)))))
+
+        in let func_origin = (get_fun_decl chunguini class_name func_name).sorigin
+        in let vtable = L.build_load vtable_ptr "vtable" builder
+
+           
+       
+              
               in let vtable = L.build_load vtable_ptr "vtable" builder
-                (* in let _ = print_endline "______________________________ loaded vtable" *)
+               
 
                 in let function_index = get_fun_index chunguini class_name (func_name)
-              (* in let () = print_endline "________________________ before code_fun"  *)
                 in let code_fun = L.build_struct_gep vtable function_index "fun_to_call" builder
-              (* in let () = print_endline "________________________ after code_fun"  *)
               
                 in let func = L.build_load code_fun "function" builder
 
-            in let arg_lls = lvalptr :: (fst (List.split (List.map (expr builder m) e_list)))
-          (* in let _ = print_endline () *)
-            
           in let convert_objs (llval_list : L.llvalue list) = 
             let convert_arg ((ftyp, _), llvalr) = 
               (if (is_object ftyp) then
@@ -433,18 +472,11 @@ in let _ = L.struct_set_body curr_class_type struct_arr false *)
               in (if (lltypel <> lltyper) then L.build_bitcast llvalr lltypel "arg_cast" builder else llvalr)
 
             else llvalr)
-            in 
-            let curr_fun = get_fun_decl chunguini class_name func_name
+          in let curr_fun = get_fun_decl chunguini class_name func_name
           in let curr_form_list = curr_fun.sformals
         in List.map convert_arg (List.combine curr_form_list llval_list)
           in let converted_args = convert_objs arg_lls
-
-          in let _ = (if func_origin <> class_name then L.build_bitcast lvalptr (formal_typ_of_typ (A.Object func_origin)) "cast_val" builder else lvalptr)
-          (* in let bitcast = L.build_bitcast lval (ltype_map (A.Object func_origin)) *)
-            in let is_univ = (get_fun_decl chunguini func_origin func_name).suniv
-            in let new_lls = (if is_univ then arg_lls else  converted_args)
-            in let arg_arr = Array.of_list new_lls
-            (* Option.get (L.lookup_function func_name the_module) *)
+            in let arg_arr = Array.of_list converted_args
             in let function_typ = get_fun_decl chunguini class_name func_name
             in let ret_ty = function_typ.styp
             in let result = (match ret_ty with 
@@ -676,10 +708,10 @@ in let _ = L.struct_set_body curr_class_type struct_arr false *)
 in
     L.define_global (curr_name ^ "_vtable_data") table the_module 
     
-  in let instantiated_vtable_llvalues = List.map build_class_functions classes 
-  in let _ = L.delete_global zero_big_table_inst
-  in let big_table_inst =  L.const_named_struct big_vtable (Array.of_list instantiated_vtable_llvalues)
-  in let _ = L.define_global ("big_vtable_data") big_table_inst the_module 
+  in let _ = List.map build_class_functions classes 
+  (* in let _ = L.delete_global zero_big_table_inst *)
+  (* in let big_table_inst =  L.const_named_struct big_vtable (Array.of_list instantiated_vtable_llvalues)
+  in let _ = L.define_global ("big_vtable_data") big_table_inst the_module  *)
   
     (* let _ = build_function_body main_func_ll *)
 in the_module

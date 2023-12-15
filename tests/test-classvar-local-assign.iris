@@ -1,3 +1,5 @@
+.. Declare a class in a local variable and assign its member variable 
+
 class Plant () {
     public: 
         int leaves;

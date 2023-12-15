@@ -1,3 +1,17 @@
+/*
+ *      Olympus.c
+ *      
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ */
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -15,6 +29,8 @@ char** readaline() {
     return s;
 }
 
+
+
 bool streq(char *str1, char *str2) {
     int result = strcmp(str1, str2);
 
@@ -28,6 +44,18 @@ bool streq(char *str1, char *str2) {
 void printerr(char* out) {
     fprintf(stderr, "%s\n", out);
 }
+
+
+void class_permitted(char *str1, char **permits, int list_len) {
+    printf("in C func");
+    for (int i = 0; i < list_len; i++) {
+        if (streq(str1, permits[i])) {
+            return;
+        }
+    }
+    exit(1);
+}
+
 
 // char **inttostr(int i) {
 //     char **s = malloc(8);

@@ -1,0 +1,15 @@
+.. Tests failure for calling a class method with an instance
+class Dog () {
+    public:
+        int univ numLegs() {
+            return 4;
+        }
+}
+class Main() {
+    public:
+        int univ main() {
+            Dog d = new Dog();
+            d.numLegs();
+            return 0;
+        }
+}

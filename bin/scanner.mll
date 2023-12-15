@@ -65,7 +65,6 @@ rule token = parse
 | "bool"    { BOOL }
 | "float"   { FLOAT }
 | "void"    { VOID }
-| "char"    { CHAR }
 | "string"  { STRING }
 | "true"    { BLIT(true)  }
 | "false"   { BLIT(false) }
@@ -74,7 +73,6 @@ rule token = parse
 | digits '.'  digit* as lxm { FLIT(lxm) }
 | ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']* as lxm { ID(lxm) }
 | eof { EOF }
-| ['\'']char['\''] as lxm { CHARLIT(lxm) } 
 | ['\"']string_char*['\"'] as lxm { STRINGLIT(String.sub lxm 1 (String.length lxm - 2)) }
 | _ as character { raise (Failure("illegal character " ^ Char.escaped character)) }
 

@@ -1,4 +1,4 @@
-..tests op assign on ints and floats
+.. Tests op assign on ints and floats
 class Main () {
     public:
         int univ main() {
