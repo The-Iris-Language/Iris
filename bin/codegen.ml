@@ -248,7 +248,7 @@ in let _ = L.struct_set_body curr_class_type struct_arr false *)
 
           (* let bit_casted = L.build_bitcast permit_list (L.pointer_type string_t) "bitcast_permit" builder in  *)
 
-          let class_string = L.build_global_stringptr class_location class_location builder in 
+          let class_string = L.build_global_stringptr class_location "class_location" builder in 
           let _ = L.build_call permi_func [| class_string ; str_ptr ; permit_length |] "" builder 
           in ()
 
@@ -258,7 +258,7 @@ in let _ = L.struct_set_body curr_class_type struct_arr false *)
       match e with
           SLiteral   i -> (L.const_int i32_t i, m)
         | SBoolLit   b -> (L.const_int i1_t (if b then 1 else 0), m)
-        | SStringLit s -> (L.build_global_stringptr s s builder, m)
+        | SStringLit s -> (L.build_global_stringptr s "global_str" builder, m)
         | SFliteral  s -> 
           (* let f = Float.of_string s 
           in
@@ -541,7 +541,7 @@ in let _ = L.struct_set_body curr_class_type struct_arr false *)
           let gep_num_perms = L.build_struct_gep local 1 "num_permitted" builder in
           let _ = L.build_store num_perms_llval gep_num_perms builder in
 
-          let perm_llval_arr = Array.of_list (List.map (fun str -> L.build_global_stringptr str str builder) perm_list) in
+          let perm_llval_arr = Array.of_list (List.map (fun str -> L.build_global_stringptr str "temp_str" builder) perm_list) in
           let perm_arr_llval = L.const_array string_t perm_llval_arr in 
           let gep_perm = L.build_struct_gep local 2 "permit_list" builder in
           let _ = L.build_store perm_arr_llval gep_perm builder in
