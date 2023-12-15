@@ -1,6 +1,5 @@
-(* Module for big_chungus (large lookup/symbol table)*)
+(* Module for big_chungus (large lookup/symbol table) *)
 (* Ayda Aricanli, Trevor Sullivan, Valerie Zhang, Josh Kim, Tim Valk *)
-
 
 module StringMap = Map.Make(String)
 open Ast

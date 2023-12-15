@@ -236,16 +236,21 @@ in let _ = L.struct_set_body curr_class_type struct_arr false *)
                   in *)
     
     let check_permit class_location mem_lval = 
+          let _ = print_endline "made it!" in
           let permit_length = L.build_struct_gep mem_lval 1 "permit_length" builder in
+          let _ = print_endline (L.string_of_llvalue permit_length) in
           let permit_list_ptr = L.build_struct_gep mem_lval 2 "permit_list_ptr" builder in 
-          (* let _ = print_endline (L.string_of_llvalue permit_list) in *)
-          (* let _ = print_endline (L.string_of_lltype (L.type_of permit_list)) in *)
+          let _ = print_endline (L.string_of_llvalue permit_list_ptr) in
+          let _ = print_endline (L.string_of_lltype (L.type_of permit_list_ptr)) in
           let permit_list = L.build_load permit_list_ptr "temp" builder in
-
-          let bit_casted = L.build_bitcast permit_list (L.pointer_type string_t) "bitcast_permit" builder in 
+          let _ = print_endline (L.string_of_lltype (L.type_of permit_list)) in
+          let str_ptr = L.build_gep permit_list [| L.const_int i32_t 0 ; L.const_int i32_t 0 |] "str_ptr" builder in
+          let _ = print_endline (L.string_of_llvalue str_ptr) in
+          let _ = print_endline (L.string_of_lltype (L.type_of str_ptr)) in
+          (* let bit_casted = L.build_bitcast permit_list (L.pointer_type string_t) "bitcast_permit" builder in  *)
 
           let class_string = L.build_global_stringptr class_location class_location builder in 
-          let _ = L.build_call permi_func [| class_string ; bit_casted ; permit_length |] "" builder 
+          let _ = L.build_call permi_func [| class_string ; str_ptr ; permit_length |] "" builder 
           in ()
 
     in
@@ -431,12 +436,10 @@ in let _ = L.struct_set_body curr_class_type struct_arr false *)
             
              *)
 
-             
+             let _ = print_endline "top of scall" in
           let is_univ = 
               (try let _ = (ltype_map (Object(caller))) in true
                 with _ -> false)
-             
-
     in
         let ((class_name, vtable_ptr), arg_lls) = 
           (if is_univ 
@@ -447,16 +450,12 @@ in let _ = L.struct_set_body curr_class_type struct_arr false *)
           in let cname = (get_typ_name typ)
          in let fun_encap = (get_fun_decl chunguini cname func_name).sencap
         (* in let _ =  *)
+        (* in let _ = print_endline "made it!" *)
+        
         in let _ = (if (fun_encap <> "permit:") then () else check_permit curr_name lval)
         in ((cname, L.build_struct_gep lval 0 "vtable" builder), lvalptr :: (fst (List.split (List.map (expr builder m) e_list)))))
 
-        in let func_origin = (get_fun_decl chunguini class_name func_name).sorigin
         in let vtable = L.build_load vtable_ptr "vtable" builder
-
-           
-       
-              
-              in let vtable = L.build_load vtable_ptr "vtable" builder
                
 
                 in let function_index = get_fun_index chunguini class_name (func_name)

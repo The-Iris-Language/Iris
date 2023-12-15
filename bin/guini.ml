@@ -1,3 +1,7 @@
+(* This module contains helper functions to access fields in chunguini, 
+used to keep track of information necessary to generate accurate LLVM code *)
+(* Ayda Aricanli, Trevor Sullivan, Valerie Zhang, Josh Kim, Tim Valk *)
+
 module StringMap = Map.Make(String)
 
 let get_class chunguini cname = 

@@ -200,11 +200,15 @@ passing tests:
 
 # What has been implemented
 
-We've implemented classes and related features, such as dynamic dispatch of 
-methods (e.g. the Animal a = new Dog() with calling a Dog function), the 
-inheritance of member variables and functions, overloading of methods by child,
-classes, calling and semantic checking for classes and all of their methods. We have
-implemented runtime checking of permitted functions and membervariables
+We've implemented classes and related features, such as polymorphism, dynamic 
+dispatch of methods in the polymorphic case (e.g. `Animal a = new Dog()` where 
+`a` calls a Dog-specific function), the inheritance of member variables and 
+functions, overloading of methods by child classes, and `univ` methods. This 
+involves semantic checking of methods, inheritance, and public and private 
+encapsulation levels, since those can be checked at compile-time. We have also 
+implemented runtime checking of permitted functions and member variables to 
+disallow non-permitted classes, as, due to the polymorphic case, we cannot do
+this at compile-time.
 
-
-Although in our original proposal, we have not implemented Lists. 
+Although they were included in our original proposal, we have not implemented 
+Lists. This has been updated in our final Language reference manual.

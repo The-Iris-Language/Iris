@@ -1,4 +1,5 @@
 (* Semantically-checked Abstract Syntax Tree and functions for printing it *)
+(* Ayda Aricanli, Trevor Sullivan, Valerie Zhang, Josh Kim, Tim Valk  *)
 
 open Ast
 
@@ -8,7 +9,6 @@ and sx =
   | SFliteral of string
   | SBoolLit of bool
   | SStringLit of string
-  (* | SCharLit of string *)
   | SId of string
   | SBinop of sexpr * op * sexpr
   | SUnop of uop * sexpr
@@ -61,10 +61,7 @@ type sclass_decl = {
   sparent_name : string;
   spermitted: string list;
   svars: bind list;
-  (* spermittedvars: bind list; *)
   smeths: sfunc_decl list;  (* change to a tuple of (origin class, sfun_decl) *)
-  (* spermittedmeths: sfunc_decl list; *)
-  (* smems: sencap list; *)
 }
 
 type sprogram = sclass_decl list
@@ -78,7 +75,6 @@ let rec string_of_sexpr (t, e) =
   | SBoolLit(false) -> "false"
   | SFliteral(l) -> l
   | SStringLit(l) -> l
-  (*| SSCharList(l) -> l *)
   | SId(s) -> s
   | SBinop(e1, o, e2) ->
       string_of_sexpr e1 ^ " " ^ string_of_op o ^ " " ^ string_of_sexpr e2
@@ -129,13 +125,6 @@ let rec string_of_sfuncs = function
     []                  -> ""
   | sfdecl :: rest -> "\n" ^ string_of_sfdecl sfdecl ^ string_of_sfuncs rest
 
-
-(* let string_of_scdecl cdecl =
-  "class " ^ cdecl.sclass_name ^ " of " ^ cdecl.sparent_name ^
-      " (" ^ String.concat ", " cdecl.spermitted ^ ")" ^
-      " {\n" ^ 
-      string_of_svars cdecl.svars ^ string_of_sfuncs cdecl.smeths ^ "\n" ^
-      "}\n" *)
 let string_of_scdecl cdecl = 
   "class " ^ cdecl.sclass_name ^ " of " ^ cdecl.sparent_name ^
       " (" ^ String.concat ", " cdecl.spermitted ^ ")" ^

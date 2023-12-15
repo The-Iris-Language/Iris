@@ -12,7 +12,8 @@ class Main () {
     public: 
         int univ main() {
             Animal a = new Animal();
-            a.cant();
+            Olympus.println("here");
+            ..a.cant();
             Olympus.printerr("hello");
             return 0;
         }
