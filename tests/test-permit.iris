@@ -1,10 +1,13 @@
-
-class Animal () {
+class Animal (Main) {
     public:
         int paws;
+
+        int canHe() {
+            cant();
+        }
     permit: 
         void cant() {
-            
+            Olympus.println("he could");
         }
 }
 
@@ -14,6 +17,7 @@ class Main () {
             Animal a = new Animal();
             Olympus.println("here");
             a.cant();
+            a.canHe();
             Olympus.printerr("hello");
             return 0;
         }

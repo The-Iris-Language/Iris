@@ -1,10 +1,14 @@
-
 class Animal () {
     public:
         int paws;
+
+        int canHe() {
+            cant();
+        }
     permit: 
+        int cant_touch_this;
         void cant() {
-            
+            Olympus.println("he could");
         }
 }
 
@@ -13,7 +17,7 @@ class Main () {
         int univ main() {
             Animal a = new Animal();
             Olympus.println("here");
-            a.cant();
+            a.cant_touch_this = 10;
             Olympus.printerr("hello");
             return 0;
         }

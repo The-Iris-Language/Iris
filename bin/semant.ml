@@ -478,14 +478,16 @@ let error line = "semant.ml line " ^ (string_of_int line) ^ ": "
       
           
       (* check_encap, check_class... *)
-        in let check_mem (vars, meths) (mem : member)  =
+        in let check_mem enc ((vars, permitted_vars), meths) (mem : member)  =
             (match mem with
               MemberFun(f) -> 
                 let sfunc = check_function f
-                in (vars, (sfunc :: meths))
+                in ((vars, permitted_vars), (sfunc :: meths))
             | MemberVar(v) -> 
-                (v :: vars, meths)
-              (* TO DO: make sure that the type actually exists and variable?? *)
+              (match enc with 
+              "permit:" -> ((v :: vars, v :: permitted_vars), meths)
+              | _ -> ((v :: vars , permitted_vars), meths)
+              )
               )
 
 
@@ -502,8 +504,8 @@ let error line = "semant.ml line " ^ (string_of_int line) ^ ": "
             ps_updated @ (List.fold_left delete_local [] fs)
 
   
-        in let check_encap lists ((_, mems) : encap) = 
-          List.fold_left (check_mem) lists mems
+        in let check_encap lists ((enc_level, mems) : encap) = 
+          List.fold_left (check_mem enc_level) lists mems
         
 
           (* (match mem with
@@ -531,7 +533,7 @@ let error line = "semant.ml line " ^ (string_of_int line) ^ ": "
               
       (* in let check_class (cls : class_decl) =  *)
         
-          in let (vars, meths) = List.fold_left check_encap ([], []) cls.mems
+          in let ((vars, permitted_vars), meths) = List.fold_left check_encap (([], []), []) cls.mems
         in (* TODO: check permitted list for valid names, *) 
             let curr_meths = (if (curr_class <> "Object") then
             let sp_class = List.find (fun p_class -> p_class.sclass_name = parent_class) scls_accum 
@@ -543,11 +545,18 @@ let error line = "semant.ml line " ^ (string_of_int line) ^ ": "
               in 
                 sp_class.svars @ (List.rev vars)
               else (List.rev vars))
+
+            in let curr_perm_vars = (if (curr_class <> "Object") then
+              let sp_class = List.find (fun p_class -> p_class.sclass_name = parent_class) scls_accum 
+              in 
+                sp_class.spermitted_vars @ (List.rev permitted_vars)
+              else (List.rev permitted_vars))
       in
           { sclass_name = cls.class_name;
             sparent_name = cls.parent_name;
             spermitted = cls.permitted;
             svars = curr_vars;
+            spermitted_vars = curr_perm_vars;
             smeths = curr_meths
             (* List.find (fun func1 -> func1.sfname = p.sfname)  *)
           } :: scls_accum
@@ -592,6 +601,7 @@ let error line = "semant.ml line " ^ (string_of_int line) ^ ": "
           sparent_name = sclass.sparent_name;
           spermitted = sclass.sclass_name :: sclass.spermitted;
           svars = sclass.svars;
+          spermitted_vars = sclass.spermitted_vars;
           smeths = List.map add_self_to_func sclass.smeths
         }
         

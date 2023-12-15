@@ -97,7 +97,7 @@ let translate (classes : sclass_decl list) =
             in 
               let _ = L.struct_set_body new_struct arr_vars false
               (* in let () = print_endline ((string_of_int counter) ^ " " ^ c_name) *)
-                in (counter + 1, (StringMap.add c_name new_struct tmap, StringMap.add c_name (((i1_t), (L.const_int i1_t 0)), (new_var_index_map, new_fun_index_map)) chunguini))
+                in (counter + 1, (StringMap.add c_name new_struct tmap, StringMap.add c_name ((sc_decl, ((i1_t), (L.const_int i1_t 0))), (new_var_index_map, new_fun_index_map)) chunguini))
         
       in 
         let (_, (type_map, chunguini)) = List.fold_left (populate_type_map context) (0, (StringMap.empty, StringMap.empty)) classes
@@ -134,9 +134,9 @@ let translate (classes : sclass_decl list) =
               in let dummy_vtable_inst = L.define_global (sc_decl.sclass_name ^ "_vtable_data") dummy_args the_module 
             (* in let _ = print_endline (L.string_of_llvalue dummy_vtable_inst)     *)
             in 
-                  let ((_, _), mem_maps) = StringMap.find sc_decl.sclass_name guini
+                  let ((decl, (_, _)), mem_maps) = StringMap.find sc_decl.sclass_name guini
                   
-                  in ((StringMap.add sc_decl.sclass_name ((vtable_struct, dummy_vtable_inst), mem_maps) guini), vtable_list @ [L.pointer_type vtable_struct])
+                  in ((StringMap.add sc_decl.sclass_name ((decl, (vtable_struct, dummy_vtable_inst)), mem_maps) guini), vtable_list @ [L.pointer_type vtable_struct])
   
 (* in let curr_class_type = (ltype_map (A.Object curr_name))
 in let struct_arr = (L.struct_element_types curr_class_type)
@@ -236,17 +236,16 @@ in let _ = L.struct_set_body curr_class_type struct_arr false *)
                   in *)
     
     let check_permit class_location mem_lval = 
-          let _ = print_endline "made it!" in
-          let permit_length = L.build_struct_gep mem_lval 1 "permit_length" builder in
-          let _ = print_endline (L.string_of_llvalue permit_length) in
-          let permit_list_ptr = L.build_struct_gep mem_lval 2 "permit_list_ptr" builder in 
-          let _ = print_endline (L.string_of_llvalue permit_list_ptr) in
-          let _ = print_endline (L.string_of_lltype (L.type_of permit_list_ptr)) in
-          let permit_list = L.build_load permit_list_ptr "temp" builder in
-          let _ = print_endline (L.string_of_lltype (L.type_of permit_list)) in
+          let permit_length_ptr = L.build_struct_gep mem_lval 1 "permit_length_ptr" builder in
+          let permit_length = L.build_load permit_length_ptr "permit_length" builder in
+
+          let permit_list = L.build_struct_gep mem_lval 2 "permit_list_ptr" builder in 
+
+          (* let permit_list = L.build_load permit_list_ptr "temp" builder in *)
+
           let str_ptr = L.build_gep permit_list [| L.const_int i32_t 0 ; L.const_int i32_t 0 |] "str_ptr" builder in
-          let _ = print_endline (L.string_of_llvalue str_ptr) in
-          let _ = print_endline (L.string_of_lltype (L.type_of str_ptr)) in
+
+
           (* let bit_casted = L.build_bitcast permit_list (L.pointer_type string_t) "bitcast_permit" builder in  *)
 
           let class_string = L.build_global_stringptr class_location class_location builder in 
@@ -295,7 +294,11 @@ in let _ = L.struct_set_body curr_class_type struct_arr false *)
             | A.And | A.Or ->
                 raise (Failure "internal error: semant should have rejected and/or on float")
             ) e1' e2' "tmp" builder 
-            else (match bnop with
+            else if typ = A.String then (match bnop with 
+              A.Equal -> fst (expr builder m (A.Bool, SCall("Olympus", "streq", [e1 ; e2])))
+              | _ -> raise (Failure "Invalid operation on string")
+            )
+          else (match bnop with
               A.Add     -> L.build_add
             | A.Sub     -> L.build_sub
             | A.Mult    -> L.build_mul
@@ -382,14 +385,21 @@ in let _ = L.struct_set_body curr_class_type struct_arr false *)
               in 
                   let gep = L.build_struct_gep lval (get_var_index chunguini cname var) (name ^ var) builder
                   (* let _ = print_endline (L.string_of_llvalue gep) *)
+                  in let obj_class = get_class_decl chunguini cname
+                  in let is_permit = List.exists (fun (_, var_n) -> var_n = var) obj_class.spermitted_vars
+                  (* in let _ = if (is_permit) then print_endline "var is permit" else print_endline "var is not" *)
+                  in let _ = (if (not is_permit) then () else check_permit curr_name lval)
                   in (if (is_object var_typ) then 
                     let lltyper = L.type_of e'
                   (* let _ = print_endline (L.string_of_lltype lltyper) *)
                     and lltypel = formal_typ_of_typ var_typ 
                     (* let _ = print_endline (L.string_of_lltype lltypel) *)
+                    
                     in let bitcasted = (if (lltypel <> lltyper) then L.build_bitcast e' lltypel "cast_assign" builder else e')
                     (* in let temp = L.build_load bitcasted "temp" builder  *)
                     in let _ = L.build_store bitcasted gep builder
+
+
                     in (gep, m) 
                     else let _ = (L.build_store e' gep builder) in (gep, m))
         | SCall("Olympus", "print", [e]) ->
@@ -436,7 +446,7 @@ in let _ = L.struct_set_body curr_class_type struct_arr false *)
             
              *)
 
-             let _ = print_endline "top of scall" in
+             (* let _ = print_endline "top of scall" in *)
           let is_univ = 
               (try let _ = (ltype_map (Object(caller))) in true
                 with _ -> false)
@@ -524,7 +534,21 @@ in let _ = L.struct_set_body curr_class_type struct_arr false *)
         (* let () = print_endline "----------------------- before alloca" in *)
          let alloca = L.build_alloca (L.pointer_type (ltype_map t)) "temp" builder in 
          (* let () = print_endline "----------------------- before store" in *)
+         let perm_list = get_permit_list chunguini n in 
+         let num_perms = List.length perm_list in
+
+          let num_perms_llval = L.const_int i32_t num_perms in 
+          let gep_num_perms = L.build_struct_gep local 1 "num_permitted" builder in
+          let _ = L.build_store num_perms_llval gep_num_perms builder in
+
+          let perm_llval_arr = Array.of_list (List.map (fun str -> L.build_global_stringptr str str builder) perm_list) in
+          let perm_arr_llval = L.const_array string_t perm_llval_arr in 
+          let gep_perm = L.build_struct_gep local 2 "permit_list" builder in
+          let _ = L.build_store perm_arr_llval gep_perm builder in
+
           let _ = L.build_store local alloca builder in
+          
+
         (* let lval = L.build_load local "local" builder in *)
           
           

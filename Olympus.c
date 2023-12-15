@@ -47,12 +47,12 @@ void printerr(char* out) {
 
 
 void class_permitted(char *str1, char **permits, int list_len) {
-    printf("in C func");
     for (int i = 0; i < list_len; i++) {
         if (streq(str1, permits[i])) {
             return;
         }
     }
+    printf("Class %s does not have access!\n", str1);
     exit(1);
 }
 

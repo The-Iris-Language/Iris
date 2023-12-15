@@ -61,6 +61,7 @@ type sclass_decl = {
   sparent_name : string;
   spermitted: string list;
   svars: bind list;
+  spermitted_vars: bind list;
   smeths: sfunc_decl list;  (* change to a tuple of (origin class, sfun_decl) *)
 }
 
