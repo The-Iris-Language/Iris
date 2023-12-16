@@ -16,6 +16,7 @@
 LLI="$(which lli)"
 
 # Path to the LLVM compiler
+# LLC="llc"
 LLC="$(which llc)"
 
 # Path to the C compiler
