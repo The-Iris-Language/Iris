@@ -79,7 +79,8 @@ failure tests:
     -- Tests for failure of accessing a private class var
 
     classvar-typ-assign
-    -- Tests for failure of assigning a member to an expression of a different type
+    -- Tests for failure of assigning a member to an expression of a different 
+       type
 
     decl-assign
     -- Tests for failure of declaration and assignment of mismatched types
@@ -94,22 +95,27 @@ failure tests:
     -- Tests for failure of accessing undeclared variable
 
     local-decl
-    -- Tests for failure of declaring a duplicate local variable of same type in Main 
+    -- Tests for failure of declaring a duplicate local variable of same type 
+       in Main 
     
     local-dup
-    -- Tests for failure of declaring duplicate local variable of different types in Main
+    -- Tests for failure of declaring duplicate local variable of different 
+       types in Main
 
     no-parent
     -- Tests for failure for undeclared Parent: Non-Main class
 
     opassign1
-    -- Tests for failure of binary operation and assignment on a non-int/float: float
+    -- Tests for failure of binary operation and assignment on a non-int/float: 
+       float
 
     opassign2
-    -- Tests for failure binary operation and assignment on a non-int/float: bool
+    -- Tests for failure binary operation and assignment on a non-int/float: 
+       bool
     
     override-param
-    -- Tests for failure of overriding inherited function, but with different parameters
+    -- Tests for failure of overriding inherited function, but with different 
+       parameters
 
     plusplus
     -- Tests for failure of ++ on non-int/float
@@ -153,13 +159,17 @@ passing tests:
     -- Tests unary operators ++ and -- on ints and floats
 
     fail-classvar-permit
-    -- Tests accessing a permit variable, where triggering the runtime error for an invalid permitted access is expected behavior
+    -- Tests accessing a permit variable, where triggering the runtime error 
+       for an invalid permitted access is expected behavior
 
     fail-classvar-assign-permit
-    -- Tests that a non-permitted class variable can't be assigned, where triggering the runtime error for an invalid variable permitted access is expected behavior
+    -- Tests that a non-permitted class variable can't be assigned, where 
+       triggering the runtime error for an invalid variable permitted access is
+       expected behavior
 
     fail-permit-fun
-    -- Tests that a non-permitted method can't be called, where triggering the runtime error for an invalid permitted access is expected behavior
+    -- Tests that a non-permitted method can't be called, where triggering the 
+       runtime error for an invalid permitted access is expected behavior
 
     fail-permit
     -- Test calling a permitted function in Main when it shouldn't have access
@@ -174,7 +184,8 @@ passing tests:
     -- Tests a function call of a func that has been overrided
     
     fcall-returnlocal
-    -- Tests a function call that returns a locally declared value in the function
+    -- Tests a function call that returns a locally declared value in the 
+       function
 
     fcall-witharg
     -- Test function calls with arguments
@@ -204,7 +215,8 @@ passing tests:
     -- Test inheritance of member variables and their assignment 
 
     lits1
-    -- Declare and assign int, bool, and string locals in main(declaration and assign are on 2 lines)
+    -- Declare and assign int, bool, and string locals in main(declaration and 
+       assign are on 2 lines)
     
     local-main
     -- Test declaring a local variable in Main 
@@ -222,7 +234,8 @@ passing tests:
     -- Tests returning a new object
 
     mismatch-return
-    -- Tests returning a descendant of a class into a declared class variable (e.g. Animal a = new Dog;)
+    -- Tests returning a descendant of a class into a declared class variable 
+       (e.g. Animal a = new Dog;)
     
     obj-ref
     -- Tests setting object members in functions
@@ -231,10 +244,12 @@ passing tests:
     -- Tests op assign on ints and floats
 
     permit-func-public-call
-    -- Tests calling a permitted function via a public funtion in a class (more complex example)
+    -- Tests calling a permitted function via a public funtion in a class 
+       (more complex example)
 
     permit-nested-fun
-    -- Tests calling a permitted function through a public function (simple example)
+    -- Tests calling a permitted function through a public function (simple 
+       example)
 
     permitfun-if
     -- Test calling a permitted function in an if statement
@@ -249,7 +264,8 @@ passing tests:
     -- Tests print, println, printerr, and printi, our built-in print functions
 
     stringeq
-    -- Tests if == also works for strings (we call Olympus.streq every time we see an == for strings)
+    -- Tests if == also works for strings (we call Olympus.streq every time we 
+       see an == for strings)
 
     sub-ints
     -- Tests adding ints and assigning to variables or class vars
@@ -261,7 +277,7 @@ passing tests:
     -- Tests calling an instance method
 
     unop1
-    -- Test unop (!) on bool declaration and assignment, and isolated assignment 
+    -- Test unop (!) on bool declaration and assignment, and isolated assignment
        and (-) on int/float declaration and assignment, and isolated assignment
 
     while-counter
