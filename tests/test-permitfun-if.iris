@@ -1,0 +1,30 @@
+.. Test calling a permitted function 
+class Animal (Main) {
+    public: 
+        void ignore() {
+            Olympus.println("...");
+        }
+
+    permit:
+        void noise() {
+            Olympus.println("Noise");
+        }
+}
+
+class Duck of Animal (Main) {
+    permit:
+        void noise() {
+            Olympus.println("Quack!");
+        }
+}
+
+class Main () {
+    public:
+        int univ main() {
+            Duck d = new Duck();
+            if (true) {
+                d.noise();
+            }
+            return 0;
+        }
+}

@@ -23,7 +23,6 @@ open Guini
 module StringMap = Map.Make(String)
 module IntMap = Map.Make(Int)
 
-
 (* accessing variable in a struct type: use build_struct_gep *)
 
 let translate (classes : sclass_decl list) = 
@@ -216,26 +215,29 @@ let translate (classes : sclass_decl list) =
                    with Not_found -> StringMap.find n global_vars
                   in *)
     
-    let check_permit class_location mem_lval_ptr = 
-          let mem_lval = L.build_load mem_lval_ptr "temp" builder in 
-          let permit_length_ptr = L.build_struct_gep mem_lval 1 "permit_length_ptr" builder in
-          let permit_length = L.build_load permit_length_ptr "permit_length" builder in
+    
 
-          let permit_list = L.build_struct_gep mem_lval 2 "permit_list_ptr" builder in 
-
-          (* let permit_list = L.build_load permit_list_ptr "temp" builder in *)
-
-          let str_ptr = L.build_gep permit_list [| L.const_int i32_t 0 ; L.const_int i32_t 0 |] "str_ptr" builder in
-
-
-          (* let bit_casted = L.build_bitcast permit_list (L.pointer_type string_t) "bitcast_permit" builder in  *)
-
-          let class_string = L.build_global_stringptr class_location "class_location" builder in 
-          let _ = L.build_call permi_func [| class_string ; str_ptr ; permit_length |] "" builder 
-          in ()
-
-    in
+    (* in *)
      let rec expr builder m ((t, e) : sexpr)  = 
+
+     let check_permit class_location mem_lval = 
+      (* let _ = print_endline (L.string_of_llvalue mem_lval_ptr) in *)
+        (* let mem_lval = L.build_load mem_lval_ptr "mem_lval" builder in  *)
+        let permit_length_ptr = L.build_struct_gep mem_lval 1 "permit_length_ptr" builder in
+        let permit_length = L.build_load permit_length_ptr "permit_length" builder in
+
+        let permit_list = L.build_struct_gep mem_lval 2 "permit_list_ptr" builder in 
+
+        (* let permit_list = L.build_load permit_list_ptr "temp" builder in *)
+
+        let str_ptr = L.build_gep permit_list [| L.const_int i32_t 0 ; L.const_int i32_t 0 |] "str_ptr" builder in
+
+
+        (* let bit_casted = L.build_bitcast permit_list (L.pointer_type string_t) "bitcast_permit" builder in  *)
+
+        let class_string = L.build_global_stringptr class_location "class_location" builder in 
+        let _ = L.build_call permi_func [| class_string ; str_ptr ; permit_length |] "" builder 
+in () in 
         (* let not_implemented_err = "Codegen Error 198: not implemented yet! " ^ (string_of_sexpr (t, e)) in *)
       match e with
           SLiteral   i -> (L.const_int i32_t i, m)
@@ -370,7 +372,7 @@ let translate (classes : sclass_decl list) =
                   in let obj_class = get_class_decl chunguini cname
 
                   in let is_permit = List.exists (fun (_, var_n) -> var_n = var) obj_class.spermitted_vars
-                  in let _ = (if (not is_permit) then () else check_permit curr_name lvalptr)
+                  in let _ = (if (not is_permit) then () else check_permit curr_name lval)
 
                   in (if (is_object var_typ) then 
                     let lltyper = L.type_of e'
@@ -426,7 +428,7 @@ let translate (classes : sclass_decl list) =
               in let cname = (get_typ_name typ)
             in let fun_encap = (get_fun_decl chunguini cname func_name).sencap
             
-            in let _ = (if (fun_encap <> "permit:") then () else check_permit curr_name lvalptr)
+            in let _ = (if (fun_encap <> "permit:") then () else check_permit curr_name lval)
           in let vtable_ptr = L.build_struct_gep lval 0 "vtable" builder
             in ((cname, L.build_load vtable_ptr "vtable" builder), lvalptr :: (fst (List.split (List.map (expr builder m) e_list)))))
 
@@ -468,7 +470,7 @@ let translate (classes : sclass_decl list) =
                 
                in let obj_class = get_class_decl chunguini cname
                in let is_permit = List.exists (fun (_, var_n) -> var_n = var) obj_class.spermitted_vars
-               in let _ = (if (not is_permit) then () else check_permit curr_name lvalptr) in
+               in let _ = (if (not is_permit) then () else check_permit curr_name lval) in
 
                   (L.build_load gep (name ^ var) builder, m)
                   (* (L.build_load (snd (StringMap.find n m)) n builder, m) *)
@@ -596,7 +598,6 @@ let translate (classes : sclass_decl list) =
             let pred_bb = L.append_block context "while" the_function_llval in
                   (* In current block, branch to predicate to execute the condition *)
             let _ = L.build_br pred_bb builder in
-              
             (* Create the body's block, generate the code for it, and add a branch
             back to the predicate block (we always jump back at the end of a while
             loop's body, unless we returned or something) *)
@@ -612,19 +613,6 @@ let translate (classes : sclass_decl list) =
             let merge_bb = L.append_block context "merge" the_function_llval in
             let _ = L.build_cond_br bool_val body_bb merge_bb pred_builder in
               (L.builder_at_end context merge_bb, map)
-
-        (* | SFor (e1, e2, e3, body) -> 
-            let (_, map') = stmt (builder, map) (SBlock [SExpr e1 ; SWhile (e2, SBlock [body ; SExpr e3]) ] )
-            (* Build the code for each statement in the function *)
-            in let (builder', _) = stmt (builder, map') (SBlock the_function.sbody) in
-            
-              (* Add a return if the last block falls off the end *)
-             let _ = add_terminal builder' (match the_function.styp with
-                  A.Void -> L.build_ret_void
-                | A.Float -> L.build_ret (L.const_float float_t 0.0)
-                | t -> L.build_ret (L.const_int (ltype_map t) 0)) 
-              in
-              (builder', map) *)
 
         | SLocal (t, n) -> 
           let local = (if (is_object t) then 
@@ -643,11 +631,8 @@ let translate (classes : sclass_decl list) =
         let formal = 
           (if (is_object t) 
           then (let alloca = (L.build_alloca (L.pointer_type (ltype_map t)) "temp" builder) 
-          (* in let _ = print_endline "before load alloca"  *)
             in let temp = L.build_load l "temp" builder 
-            (* in  let _ = print_endline "before store alloca"  *)
             in let _ = L.build_store temp alloca builder 
-          (* in let _ = print_endline "after store alloca"  *)
         in alloca)
            
 
@@ -655,7 +640,6 @@ let translate (classes : sclass_decl list) =
             let formal = L.build_alloca (ltype_map t) n builder in 
             let _ = L.build_store l formal builder in formal) 
         in (StringMap.add n (t, formal) m)
-          
           
           in let formal_map = List.fold_left build_alloca_formals StringMap.empty (List.combine formal_list formals_llvals)
           in let (builder, _) = stmt (builder, formal_map) (SBlock the_function.sbody) in

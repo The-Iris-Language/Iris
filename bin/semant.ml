@@ -213,10 +213,13 @@ let error line = "semant.ml line " ^ (string_of_int line) ^ ": "
 
       (*  *)
     in let check_function (func : func_decl) =
+      let _ = (match func.typ with 
+          Object(n) -> let _ = find_class big_chungus n in ()
+        | _         -> ())
       (* TODO
         BIG TODO DO NOT FORGET
         write check_func function that defines these within it! *)
-      let rec check_expr m (e : expr) = 
+      in let rec check_expr m (e : expr) = 
         match e with 
           Literal l -> ((Int, SLiteral l), m)
         | BoolLit b -> ((Bool, SBoolLit b), m)
@@ -391,10 +394,7 @@ let error line = "semant.ml line " ^ (string_of_int line) ^ ": "
               | _ ->  (try let _ = StringMap.find n m in
                         raise (Failure ( "local variable " ^ n ^ " already exists"))
                       with Not_found -> ((SLocal (t, n)), StringMap.add n (t, n) m)))
-                      (* need to pattern match here or else get compiler warning*)
-                        (* (match t with 
-                        Object (cname) -> ((SLocal (Object (cname), n)), StringMap.add n (t, n) m) 
-                      | _ -> ((SLocal (t, n)), StringMap.add n (t, n) m))) *)
+
           | If(p, b1, b2) -> 
               let (b, m1) = check_expr m p in 
                 let (typ, _) = b in
@@ -404,17 +404,6 @@ let error line = "semant.ml line " ^ (string_of_int line) ^ ": "
               let (stmt1, _) = check_stmt m1 b1 in
               let (stmt2, _) = check_stmt m1 b2 in 
               (SIf(b, stmt1, stmt2), m)
-
-          (* | For(e1, e2, e3, st) -> 
-              let (e1', m1) = check_expr m e1 in
-              let (e2', m2) = check_expr m1 e2 in 
-              let (e3', m3) = check_expr m2 e3 in 
-                let (typ, _) =  e2' in
-                  let _ = (match typ with 
-                  Bool -> ()
-                  | _ -> raise (Failure ( "Condition in for loop is not a bool"))) in
-              let (st', _) = check_stmt m3 st in
-              (SFor(e1', e2', e3', st'), m) *)
               
           | While(p, s) -> 
             let (b, m1) = check_expr m p in 
@@ -437,9 +426,6 @@ let error line = "semant.ml line " ^ (string_of_int line) ^ ": "
                 [Return _ as s]   -> [check_stmt map s]
               | Return _ :: _     -> raise (Failure ("nothing may follow a return"))
               | Block sl :: ss    -> check_stmt_list map (sl @ ss)  (* Flatten blocks *)
-              (* | Local (typ, name) :: ss -> 
-                let (svar, map') = check_stmt map (Local (typ, name)) in
-                (svar, map') :: check_stmt_list (StringMap.add name (typ, name) map') ss *)
               | stmt1 :: ss -> 
                 let (checked_stmt, map') = (check_stmt map stmt1) 
                 in 
@@ -473,7 +459,12 @@ let error line = "semant.ml line " ^ (string_of_int line) ^ ": "
                 let sfunc = check_function f
                 in ((vars, permitted_vars), (sfunc :: meths))
             | MemberVar(v) -> 
-              (match enc with 
+              let typ = fst v 
+              in let _ = 
+              (match typ with 
+                    Object(n) -> let _ = find_class big_chungus n in ()
+                  | _         -> ())
+              in (match enc with 
               "permit:" -> ((v :: vars, v :: permitted_vars), meths)
               | _ -> ((v :: vars , permitted_vars), meths)
               )

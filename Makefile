@@ -26,6 +26,12 @@ ll :
 	cc -o $(file).exe $(file).s Olympus.o
 	./$(file).exe
 
+.PHONY : no-ll $(file)
+no-ll : 
+	/opt/homebrew/opt/llvm@14/bin/llc $(file) > $(file).s
+	cc -o $(file).exe $(file).s Olympus.o
+	./$(file).exe
+
 
 # "make test" Compiles everything and runs the regression tests
 

@@ -1,0 +1,102 @@
+; ModuleID = 'Iris'
+source_filename = "Iris"
+
+%Object_vtable = type {}
+%Animal_vtable = type { void (%Animal**)*, void (%Animal**)* }
+%Animal = type { %Animal_vtable*, i32, [2 x i8*], i8* }
+%Duck_vtable = type { void (%Animal**)*, void (%Duck**)* }
+%Duck = type { %Duck_vtable*, i32, [1 x i8*], i8* }
+%Main_vtable = type { i32 ()* }
+
+@Object_vtable_data = global %Object_vtable zeroinitializer
+@fmt = private unnamed_addr constant [3 x i8] c"%s\00", align 1
+@fmt.1 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
+@fmt.2 = private unnamed_addr constant [3 x i8] c"%d\00", align 1
+@global_str = private unnamed_addr constant [4 x i8] c"...\00", align 1
+@fmt.3 = private unnamed_addr constant [3 x i8] c"%s\00", align 1
+@fmt.4 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
+@fmt.5 = private unnamed_addr constant [3 x i8] c"%d\00", align 1
+@global_str.6 = private unnamed_addr constant [6 x i8] c"Noise\00", align 1
+@Animal_vtable_data = global %Animal_vtable { void (%Animal**)* @Animal_ignore, void (%Animal**)* @Animal_noise }
+@fmt.7 = private unnamed_addr constant [3 x i8] c"%s\00", align 1
+@fmt.8 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
+@fmt.9 = private unnamed_addr constant [3 x i8] c"%d\00", align 1
+@global_str.10 = private unnamed_addr constant [7 x i8] c"Quack!\00", align 1
+@Duck_vtable_data = global %Duck_vtable { void (%Animal**)* @Animal_ignore, void (%Duck**)* @Duck_noise }
+@fmt.11 = private unnamed_addr constant [3 x i8] c"%s\00", align 1
+@fmt.12 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
+@fmt.13 = private unnamed_addr constant [3 x i8] c"%d\00", align 1
+@temp_str = private unnamed_addr constant [5 x i8] c"Duck\00", align 1
+@class_location = private unnamed_addr constant [5 x i8] c"Main\00", align 1
+@Main_vtable_data = global %Main_vtable { i32 ()* @main }
+
+declare i32 @printf(i8*, ...)
+
+declare i32 @printerr(i8*, ...)
+
+declare i8** @readaline(...)
+
+declare i1 @streq(i8*, i8*, ...)
+
+declare void @class_permitted(i8*, i8**, i32, ...)
+
+define void @Animal_ignore(%Animal** %0) {
+entry:
+  %temp = alloca %Animal*, align 8
+  %temp1 = load %Animal*, %Animal** %0, align 8
+  store %Animal* %temp1, %Animal** %temp, align 8
+  %printf = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @fmt.1, i32 0, i32 0), i8* getelementptr inbounds ([4 x i8], [4 x i8]* @global_str, i32 0, i32 0))
+  ret void
+}
+
+define void @Animal_noise(%Animal** %0) {
+entry:
+  %temp = alloca %Animal*, align 8
+  %temp1 = load %Animal*, %Animal** %0, align 8
+  store %Animal* %temp1, %Animal** %temp, align 8
+  %printf = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @fmt.4, i32 0, i32 0), i8* getelementptr inbounds ([6 x i8], [6 x i8]* @global_str.6, i32 0, i32 0))
+  ret void
+}
+
+define void @Duck_noise(%Duck** %0) {
+entry:
+  %temp = alloca %Duck*, align 8
+  %temp1 = load %Duck*, %Duck** %0, align 8
+  store %Duck* %temp1, %Duck** %temp, align 8
+  %printf = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @fmt.8, i32 0, i32 0), i8* getelementptr inbounds ([7 x i8], [7 x i8]* @global_str.10, i32 0, i32 0))
+  ret void
+}
+
+define i32 @main() {
+entry:
+  %malloccall = tail call i8* @malloc(i32 ptrtoint (%Duck* getelementptr (%Duck, %Duck* null, i32 1) to i32))
+  %Duck = bitcast i8* %malloccall to %Duck*
+  %vtable = getelementptr inbounds %Duck, %Duck* %Duck, i32 0, i32 0
+  store %Duck_vtable* @Duck_vtable_data, %Duck_vtable** %vtable, align 8
+  %temp = alloca %Duck*, align 8
+  %num_permitted = getelementptr inbounds %Duck, %Duck* %Duck, i32 0, i32 1
+  store i32 1, i32* %num_permitted, align 4
+  %permit_list = getelementptr inbounds %Duck, %Duck* %Duck, i32 0, i32 2
+  store [1 x i8*] [i8* getelementptr inbounds ([5 x i8], [5 x i8]* @temp_str, i32 0, i32 0)], [1 x i8*]* %permit_list, align 8
+  store %Duck* %Duck, %Duck** %temp, align 8
+  %d = alloca %Duck*, align 8
+  %temp1 = load %Duck*, %Duck** %temp, align 8
+  store %Duck* %temp1, %Duck** %d, align 8
+  %count = alloca i32, align 4
+  store i32 0, i32* %count, align 4
+  %temp2 = load %Duck*, %Duck** %d, align 8
+  %mem_lval = load %Duck*, %Duck** %d, align 8
+  %permit_length_ptr = getelementptr inbounds %Duck, %Duck* %mem_lval, i32 0, i32 1
+  %permit_length = load i32, i32* %permit_length_ptr, align 4
+  %permit_list_ptr = getelementptr inbounds %Duck, %Duck* %mem_lval, i32 0, i32 2
+  %str_ptr = getelementptr [1 x i8*], [1 x i8*]* %permit_list_ptr, i32 0, i32 0
+  call void (i8*, i8**, i32, ...) @class_permitted(i8* getelementptr inbounds ([5 x i8], [5 x i8]* @class_location, i32 0, i32 0), i8** %str_ptr, i32 %permit_length)
+  %vtable3 = getelementptr inbounds %Duck, %Duck* %temp2, i32 0, i32 0
+  %vtable4 = load %Duck_vtable*, %Duck_vtable** %vtable3, align 8
+  %fun_to_call = getelementptr inbounds %Duck_vtable, %Duck_vtable* %vtable4, i32 0, i32 1
+  %function = load void (%Duck**)*, void (%Duck**)** %fun_to_call, align 8
+  call void %function(%Duck** %d)
+  ret i32 0
+}
+
+declare noalias i8* @malloc(i32)

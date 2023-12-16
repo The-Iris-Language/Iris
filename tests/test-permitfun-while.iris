@@ -1,0 +1,40 @@
+.. Test calling a permitted function in while loop
+class Animal (Main) {
+    public: 
+        void ignore() {
+            Olympus.println("...");
+        }
+
+    permit:
+        string s;
+        void noise() {
+            Olympus.println("Noise");
+        }
+}
+
+class Duck of Animal (Main) {
+    permit:
+        void noise() {
+            Olympus.println("Quack!");
+        }
+}
+
+class Main () {
+    public:
+        int univ main() {
+            Duck d = new Duck();
+            int count = 0;
+            ..d.noise();
+            while (count != 2) {
+               Main.call_perm(d);
+                d.noise();
+                .. d.s = "hi";
+                count++;
+            }
+            return 0;
+        }
+
+        void univ call_perm(Duck d) {
+            d.noise();
+        }
+}
