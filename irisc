@@ -1,0 +1,8 @@
+#! /bin/sh
+
+full_path=$1
+file_path=${full_path%.iris}
+dune exec --no-build iris ${full_path} > "${file_path}.ll"
+llc $file_path.ll > "${file_path}.s"
+cc -o "${file_path}.exe" "${file_path}.s" Olympus.o
+

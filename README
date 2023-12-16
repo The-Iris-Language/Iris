@@ -1,4 +1,4 @@
-# README: Iris Compiler
+# README: Final Iris Compiler
 
 Ayda Aricanli              ayda.aricanli@tufts.edu
 Trevor Sullivan            trevor.sullivan@tufts.edu
@@ -12,21 +12,26 @@ After downloading and unzipping the zip file, run 'make' in terminal.
 This will compile the compiler into an executable. Building Iris requires 
 the same environment as MicroC. 
 
-You can run our test suite with `sh runtests`. You can see the output of a 
-single test to terminal with `make test file=<FILENAME>`, and can run our demos
-with `make demo file=<FILENAME>` (these might require changes to our Makefile 
-since the llc variable paths might differ for you).
+Some of these commands might require changes to our Makefile since the llc and 
+lli variable paths might differ across setups. However, they should be symlinked now.
+
+You can compile any Iris program with `./irisc <filename>.iris`, which will 
+create an executable of an Iris program. This script lives in the main Iris 
+directory.
+
 
 # How to run test script
 
-Running the test script may require changing the LLC and LLI variables. 
-"$(which llc)" was giving us trouble on our local machines.
+Running the test script may require changing the LLC and LLI variables based on 
+your setup. `$(which llc)` is currently being used to find the paths.
 
-To run the testing script that runs the test suite, run "sh runtests" in 
-terminal. You can also run 'sh runtests tests/$filename$' to run a specific test.
-To keep intermediary files, run with the '-k' flag. The default options will 
-run our test-hello-world.iris test, which is the only test in the suite right
-now.
+To run the testing script that runs the test suite, run `sh runtests` in the
+main Iris directory. You can also run `sh runtests tests/<filename>` to run a 
+specific test. To keep intermediary files, run with the `-k` flag. The defaults
+run our entire test suite, which includes our unit tests for each feature. You 
+can run a single test to stdout with `make test file=<FILENAME>`, and can run 
+our demos with `make demo file=<FILENAME>` (neither of these should include the
+.iris of the filename). 
 
 The test script diffs the output of the program against a golden standard 
 provided in the test suite. All golden standard files contain the 
@@ -36,9 +41,9 @@ script will not successfully compile a test program when it is incorrect.
 # What is in the test suite 
 
 NOTE: 
-For invalid permitted access, those tests are not under the "fail" tests 
-because it is a runtime error, not a compile-time error. Thus, the script will 
-check for the correct error message that we put to stdout. This runtime error 
+Invalid permitted access tests are not under the "fail" tests section because 
+they produce a runtime error, not a compile-time error. Thus, the script will 
+check for the correct error message that we print to stdout. This runtime error 
 exits the porgram early, so it will not print the 'OK' like the other tests. 
 This occurs in test-fail-classvar-permit, test-fail-classvar-assign-permit, and
 test-fail-permit-fun.
@@ -268,4 +273,4 @@ disallow non-permitted classes, as, due to the polymorphic case, we cannot do
 this at compile-time.
 
 Although they were included in our original proposal, we have not implemented 
-Lists. This has been updated in our final Language reference manual.
+Lists. This has been updated in our final Language Reference Manual.

@@ -12,6 +12,8 @@ http://llvm.moe/ocaml/
 
 *)
 
+(* Ayda Aricanli, Valerie Zhang, *)
+
 (* We'll refer to Llvm and Ast constructs with module names *)
 module L = Llvm
 module A = Ast
@@ -406,15 +408,10 @@ in () in
             let call = L.build_call getline_func [| |] "readaline" builder in 
             let bcast = L.build_bitcast call (L.pointer_type string_t) "temp" builder in
             (L.build_load bcast "get_temp" builder, m)
-        (* | SCall("Olympus", "intstr", [e]) ->
-            let call = L.build_call intstr_func [| (fst (expr builder m e)) |] "intstr" builder in 
-            let bcast = L.build_bitcast call (L.pointer_type string_t) "temp" builder in
-            (L.build_load bcast "get_temp" builder, m) *)
             
         | SCall(caller, func_name, e_list) -> 
           (* ADDING UNIV FUNCTIONS *)
 
-             (* let _ = print_endline "top of scall" in *)
           let is_univ = 
               (try let _ = (ltype_map (Object(caller))) in true
                 with _ -> false)

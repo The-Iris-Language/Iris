@@ -81,7 +81,7 @@ TESTFILES = $(TESTS:%=test-%.iris) $(TESTS:%=test-%.out) \
 	    $(FAILS:%=fail-%.iris) $(FAILS:%=fail-%.err)
 
 ZIPFILES = bin demos dune-project lib Makefile \
-	README Olympus.c runtests \
+	README Olympus.c runtests irisc \
 	$(TESTFILES:%=tests/%) 
 
 iris.zip : $(ZIPFILES)
