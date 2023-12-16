@@ -11,7 +11,7 @@
  ~      animal. Players have up to 3 guesses before the program will reveal
  ~      the answer and quit. 
 *~.
-
+.~**~.
 class Animal (Main) {
     public: 
         .. These functions set private member variables
