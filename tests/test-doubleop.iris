@@ -1,4 +1,4 @@
-..tests ++ and -- on ints and floats
+.. Tests unary operators ++ and -- on ints and floats
 class Main () {
     public:
         int univ main() {

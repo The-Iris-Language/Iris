@@ -1,4 +1,4 @@
-.. tests if == also works for strings (we call Olympus.streq every time we 
+.. Tests if == also works for strings (we call Olympus.streq every time we 
 .. see an == for strings)
 class Main () {
     public: 

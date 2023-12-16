@@ -1,4 +1,4 @@
-.. tests ints, bools, strings
+.. Declare and assign int, bool, and string locals in main(declaration and assign are on 2 lines)
 class Main () {
     public:
         int univ main() {

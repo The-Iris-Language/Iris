@@ -14,8 +14,8 @@ the same environment as MicroC.
 
 You can run our test suite with `sh runtests`. You can see the output of a 
 single test to terminal with `make test file=<FILENAME>`, and can run our demos
- with `make demo file=<FILENAME>` (these might require changes to our Makefile 
- since the llc variable paths might differ for you).
+with `make demo file=<FILENAME>` (these might require changes to our Makefile 
+since the llc variable paths might differ for you).
 
 # How to run test script
 
@@ -34,60 +34,68 @@ corresponding test name and terminates with '.out' as its name. The test
 script will not successfully compile a test program when it is incorrect.
 
 # What is in the test suite 
-NOTE: For invalid permitted access, those tests are not under the "fail" tests 
-      because it is a runtime error, not a compile-time error. Thus, the script 
-      will check for the correct error message that we put to stdout. This 
-      runtime error exits the porgram early, so it will not print the 'OK' like
-      the other tests. This occurs in test-fail-classvar-permit, 
-      test-fail-classvar-assign-permit, and test-fail-permit-fun.
+
+NOTE: 
+For invalid permitted access, those tests are not under the "fail" tests 
+because it is a runtime error, not a compile-time error. Thus, the script will 
+check for the correct error message that we put to stdout. This runtime error 
+exits the porgram early, so it will not print the 'OK' like the other tests. 
+This occurs in test-fail-classvar-permit, test-fail-classvar-assign-permit, and
+test-fail-permit-fun.
 
 failure tests:
 
     assign-typ
-    -- Assign a variable with an expression of a different type
+    -- Tests for failure of miss-assignment in main
 
     assign-undeclared 
-    -- Assign an undeclared variable a value
+    -- Tests for failure of assigning to an undeclared local variable
+
+    classtype-undefined
+    -- Tests for failure due to a misspelled class type
 
     classvar-DNE
     -- Tests for failure of accessing a class var that DNE
 
     classvar-int
-    -- Access a member variable from an int
+    -- Tests for failure of accessing a class variable from an int
 
     classvar-priv
-    -- Access a class member that is private
+    -- Tests for failure of accessing a private class var
 
     classvar-typ-assign
-    -- Assign a class member with an expression of a different type
+    -- Tests for failure of assigning a member to an expression of a different type
 
     decl-assign
     -- Tests for failure of declaration and assignment of mismatched types
 
     duplicate-classes
-    -- Define two Mains 
+    -- Tests for failure for duplicate classes: Main class
 
     duplicate-other-classes
-    -- Define two classes with the same name
+    -- Tests for failure for duplicate classes: Non-Main class
 
     id-DNE
-    -- Access an uninitialized variable
+    -- Tests for failure of accessing undeclared variable
 
     local-decl
-    -- Declare two variables of the same name and type in the same function
+    -- Tests for failure of declaring a duplicate local variable of same type in Main 
     
     local-dup
-    -- Declare two variables of the same name of different types in the same function
+    -- Tests for failure of declaring duplicate local variable of different types in Main
 
     no-parent
     -- Tests for failure for undeclared Parent: Non-Main class
 
     opassign1
-    -- Tests for failure binary operation and assignment on a non-int/float: float
+    -- Tests for failure of binary operation and assignment on a non-int/float: float
 
     opassign2
     -- Tests for failure binary operation and assignment on a non-int/float: bool
     
+    override-param
+    -- Tests for failure of overriding inherited function, but with different parameters
+
     plusplus
     -- Tests for failure of ++ on non-int/float
 
@@ -96,32 +104,50 @@ failure tests:
 
     univ2
     -- Tests failure for calling an instance method with a class name
+
+    wrongreturn
+    -- Tests for failure of wrong return type
     
 
 passing tests:
+    add-ints
+    -- Tests adding ints and assigning to variables or class vars
+
     assign-and-access
-    -- Declare, assign, and print a string variable in three separate statements 
+    -- Tests for assigning and accesing a local variable
 
     assign1
-    -- Declare and assign an int variable in two separate statements
+    -- Test declaring and assigning local int variable in Main
     
     assign2
-    -- Declare and assign a string variable in two separate statements
+    -- Test declaring and assigning local string variable in Main 
 
     classvar-local-assign
-    -- Declare a class in a local variable and assign its member variable
+    -- Declare a class in a local variable and assign its member variable 
+
+    classvar-permit
+    -- Tests accessing a permit variable
+
+    classvarassign-permit
+    -- Tests setting a permit variable 
 
     decl-assign
-    -- Assign a local string variable and print it
+    -- Tests for declaring and assigning in one line
     
     doubleop
     -- Tests unary operators ++ and -- on ints and floats
 
     fail-classvar-permit
-    -- Triggers the runtime error for an invalid permitted access
+    -- Tests accessing a permit variable, where triggering the runtime error for an invalid permitted access is expected behavior
 
     fail-classvar-assign-permit
-    -- Tests that a non-permitted class variable can't be assigned
+    -- Tests that a non-permitted class variable can't be assigned, where triggering the runtime error for an invalid variable permitted access is expected behavior
+
+    fail-permit-fun
+    -- Tests that a non-permitted method can't be called, where triggering the runtime error for an invalid permitted access is expected behavior
+
+    fail-permit
+    -- Test calling a permitted function in Main when it shouldn't have access
 
     fcall-inherited
     -- Tests calling a function that has been inherited
@@ -142,10 +168,13 @@ passing tests:
     -- Tests calling a function with a func call of a func within a class
 
     float
-    -- Test float literals
+    -- Tests float literals
+
+    functions
+    -- Tests dynamic dispatch of inherited and overidden functions
     
-    hello-world;
-    -- Print out the string "Hello world!" using Olympus.print printing function
+    hello-world
+    -- Test printing "Hello world!" using Olympus.println() function
 
     if1
     -- Test true case of if (no else) 
@@ -163,13 +192,16 @@ passing tests:
     -- Declare and assign int, bool, and string locals in main(declaration and assign are on 2 lines)
     
     local-main
-    -- Declare a local variable in main
+    -- Test declaring a local variable in Main 
+
+    main-classinst-constructor
+    -- Tests calling constructor of an object in Main
 
     main-classinst
-    -- Declare an instance of a class in main
+    -- Tests declaring local object instance in main (no constructor)
 
     main-inst-mem-assign
-    -- Assign a value to a public member variable in a class instance
+    -- Tests assigning a value to a class member variable
 
     main-return-new
     -- Tests returning a new object
@@ -177,14 +209,32 @@ passing tests:
     mismatch-return
     -- Tests returning a descendant of a class into a declared class variable (e.g. Animal a = new Dog;)
     
+    obj-ref
+    -- Tests setting object members in functions
+
     opassign
     -- Tests op assign on ints and floats
 
+    permit-func-public-call
+    -- Tests calling a permitted function via a public funtion in a class (more complex example)
+
+    permit-nested-fun
+    -- Tests calling a permitted function through a public function (simple example)
+
+    permitfun-if
+    -- Test calling a permitted function in an if statement
+
+    permitfun-while
+    -- Test calling a permitted function in a while loop
+
     print-classvar
-    -- Access a public string class variable in a call to Olympus.print
+    -- Tests printing a class variable
 
     prints
     -- Tests print, println, printerr, and printi, our built-in print functions
+
+    stringeq
+    -- Tests if == also works for strings (we call Olympus.streq every time we see an == for strings)
 
     sub-ints
     -- Tests adding ints and assigning to variables or class vars
@@ -196,8 +246,7 @@ passing tests:
     -- Tests calling an instance method
 
     unop1
-    -- Test unop (!) on bool declaration and assignment, and isolated assignment
-    and (-) on int/float declaration and assignment, and isolated assignment
+    -- Test unop (!) on bool declaration and assignment, and isolated assignment and (-) on int/float declaration and assignment, and isolated assignment
 
     while-counter
     -- Tests while loop with a counter

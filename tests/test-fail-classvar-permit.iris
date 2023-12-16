@@ -1,4 +1,5 @@
-.. Tests accessing a permit variable 
+.. Tests accessing a permit variable, where triggering the runtime error for 
+.. an invalid permitted access is expected behavior
 class Animal (Plant) {
     public:
         int paws;

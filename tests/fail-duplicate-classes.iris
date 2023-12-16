@@ -1,4 +1,4 @@
-..Tests for failure for duplicate classes: Main class
+.. Tests for failure for duplicate classes: Main class
 class Main () {
     public: 
         int univ main() {

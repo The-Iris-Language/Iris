@@ -12,20 +12,7 @@ module StringMap = Map.Make(String)
 
       therE hAs to be anOthAr wAaY!
 
-      Call(fname, args) as call -> 
-        let fd = find_func fname in
-        let param_length = List.length fd.formals in
-        if List.length args != param_length then
-          raise (Failure ("expecting " ^ string_of_int param_length ^ 
-                          " arguments in " ^ string_of_expr call))
-        else let check_call (ft, _) e = 
-          let (et, e') = expr e in 
-          let err = "illegal argument found " ^ string_of_typ et ^
-            " expected " ^ string_of_typ ft ^ " in " ^ string_of_expr e
-          in (check_assign ft et err, e')
-        in 
-        let args' = List.map2 check_call fd.formals args
-        in (fd.typ, SCall(fname, args')) *)
+
 
         (* TODO:: FINISH THIS ~~~~~~ WAAHHHHH SADDDDD WE CRY BUT WE TIRED OOP
          THERE
@@ -83,9 +70,7 @@ module StringMap = Map.Make(String)
    *   2. Implement codegen
    *   3. Test
    *   4. wahoo
-   *)
-
-let error line = "semant.ml line " ^ (string_of_int line) ^ ": "
+   *) *)
 
 
 
@@ -126,17 +111,6 @@ let error line = "semant.ml line " ^ (string_of_int line) ^ ": "
                              fname = "streq";
                              formals = [(String, "a") ; (String, "b")];
                              body = [Expr(Noexpr)]}
-    (* in let olympus_intstr = { univ = true;
-                              typ = String;
-                              fname = "intstr";
-                              formals = [(Int, "num")];
-                              body = [Expr(Noexpr)]}  *)
-    (* in let olympus_float_to_string = { univ = true;
-                                       typ = String;
-                                       fname = "floattostr";
-                                       formals = [(Float, "num")];
-                                       body = [Expr(Noexpr)]
-    } *)
     
     in let olympus_class = { class_name = "Olympus"; 
                              parent_name = "Object"; 
@@ -167,24 +141,6 @@ let error line = "semant.ml line " ^ (string_of_int line) ^ ": "
     in let _ = List.fold_left check_dups [] (List.sort name_compare classes) 
 
   (* helper functions !!!! WOOOOOO *)
-
-    (* 
-      1. Semantically check classes
-          - semantically member variables -> wildcard
-          - semantically check member functions**
-            - semantically check expr, stmt, lamow** -> stringLit, fcalls, blocks
-            
-        - semantically check encap list (put things into private, public, or permitted, 
-                at this point we will build exactly 1 of each)
-        - 
-
-        - second pass: check inheritance and any function calls for permitted stuff (or possibly, 
-            check permits while we check functions??? idk TODO decide )
-    *)
-
-    
-
-  (* build SAST. then if main() and Main exist: return SAST, else throw error *)
 
   in let build_sast (cdecls : class_decl list) =
 
@@ -488,7 +444,7 @@ let error line = "semant.ml line " ^ (string_of_int line) ^ ": "
           List.fold_left (check_mem enc_level) lists mems
         
           in let ((vars, permitted_vars), meths) = List.fold_left check_encap (([], []), []) cls.mems
-        in (* TODO: check permitted list for valid names, *) 
+          in 
             let curr_meths = (if (curr_class <> "Object") then
             let sp_class = List.find (fun p_class -> p_class.sclass_name = parent_class) scls_accum 
             in 
@@ -512,32 +468,12 @@ let error line = "semant.ml line " ^ (string_of_int line) ^ ": "
             svars = curr_vars;
             spermitted_vars = curr_perm_vars;
             smeths = curr_meths
-            (* List.find (fun func1 -> func1.sfname = p.sfname)  *)
           } :: scls_accum
     in List.fold_left check_class [] cdecls
 
-    (* type sclass_decl = {
-  sclass_name : string;
-  sparent_name : string;
-  spermitted: string list;
-  svars: bind list;
-  spermittedvars: bind list;
-  smeths: string * sfunc_decl list;  (* change to a tuple of (origin class, sfun_decl) *)
-  spermittedmeths: string * sfunc_decl list;
-  (* smems: sencap list; *)
-} *)
      
   (* semantically check all, then make sure main exists *)
   in let sclasses = build_sast classes
-
-  (* in let main_class = find_class "Main" sclasses *)
-
-  (* in let sclasses = check_classes classes  *)
-(*
-  in let main_func (* maybe can be wildcard *) = 
-            find_func ({univ = true; typ = Int; fname = "main"; formals = []; body = []; }) 
-                      (snd (List.nth main_class.mems 0))    (* TODO: need to change bc this may not be public  *)
-                                                          (maybe want to enforce ordering for encap to public, permit, private or smth) *)
 
     in let add_self (sclass : sclass_decl) = 
       let add_self_to_func (sfunc : sfunc_decl) = 
@@ -563,6 +499,5 @@ let error line = "semant.ml line " ^ (string_of_int line) ^ ": "
     in let classes_with_self = List.map add_self sclasses
   in List.rev classes_with_self
 
-(* in List.fold_left [] (fun c -> sclass_decl { sclass_name : c.class_name; *)
 
 

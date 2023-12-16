@@ -1,4 +1,20 @@
 .. Tests printing a class variable
+class Main () {
+    public:
+        int univ main () {
+                
+            Animal a = new Animal();
+            a.name = "animal name is josh"; 
+            a.legs = 3;
+            
+            if (a.legs == 3) {
+                Olympus.println("three legs!");
+            }
+            Olympus.println(a.name);
+            return 0; 
+        }
+    }
+
 class Animal () {
     public:
         int legs;
@@ -15,18 +31,3 @@ class Animal () {
         bool alive;
 }
 
-class Main () {
-    public:
-        int univ main () {
-                
-            Animal a = new Animal();
-            a.name = "animal name is josh"; 
-            a.legs = 3;
-            
-            if (a.legs == 3) {
-                Olympus.println("three legs!");
-            }
-            Olympus.println(a.name);
-            return 0; 
-        }
-    }

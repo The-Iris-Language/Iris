@@ -1,3 +1,4 @@
+.. Tests dynamic dispatch of inherited and overidden functions
 class IceCream () {
     public:
         int temp;

@@ -1,4 +1,4 @@
-.. Test calling a permitted function 
+.. Test calling a permitted function in an if statement
 class Animal (Main) {
     public: 
         void ignore() {

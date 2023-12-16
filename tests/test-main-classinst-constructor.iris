@@ -1,4 +1,4 @@
-.. Tests calling constructor of an object in main
+.. Tests calling constructor of an object in Main
 class Animal () {
     public:
         int legs;

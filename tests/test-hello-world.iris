@@ -1,4 +1,4 @@
-.. Test printing hello world!
+.. Test printing "Hello world!"" using Olympus.println() function
 class Main () {
     public: 
         int univ main() {

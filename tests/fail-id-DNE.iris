@@ -1,4 +1,4 @@
-.. Tests for failure of accessing uninitialized variable
+.. Tests for failure of accessing undeclared variable
 class Main () {
     public: 
         int univ main() {

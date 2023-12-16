@@ -1,4 +1,4 @@
-.. Test calling a permitted function in while loop
+.. Test calling a permitted function in Main when it shouldn't have access
 class Animal (Main) {
     public: 
         void ignore() {

@@ -1,4 +1,4 @@
-.. testing float literals
+.. Tests float literals
 
 class Main () {
     public:

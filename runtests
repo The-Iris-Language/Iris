@@ -13,10 +13,10 @@
 
 # Path to the LLVM interpreter
 # LLI="lli"
-LLI="/opt/homebrew/opt/llvm@14/bin/lli"
+LLI="$(which lli)"
 
 # Path to the LLVM compiler
-LLC="/opt/homebrew/opt/llvm@14/bin/llc"
+LLC="$(which llc)"
 
 # Path to the C compiler
 CC="cc"

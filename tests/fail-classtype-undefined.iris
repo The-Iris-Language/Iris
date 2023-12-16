@@ -1,5 +1,4 @@
-.. tests if == also works for strings (we call Olympus.streq every time we 
-.. see an == for strings)
+.. Tests for failure due to a misspelled class type
 class Animal (Main) {
     public:
         Aminal func () {

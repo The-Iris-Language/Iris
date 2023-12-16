@@ -1,4 +1,4 @@
-
+.. Tests calling a permitted function via a public funtion in a class
 class Animal (Main) {
     public: 
         void ignore() {

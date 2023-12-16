@@ -1,4 +1,5 @@
-.. Triggers the runtime error for an invalid variable permitted access
+.. Tests that a non-permitted class variable can't be assigned, where triggering 
+.. the runtime error for an invalid variable permitted access is expected
 class Animal () {
     public:
         int paws;

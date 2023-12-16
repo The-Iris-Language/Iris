@@ -1,4 +1,4 @@
-.. tests adding ints and assigning to variables or class vars
+.. Tests adding ints and assigning to variables or class vars
 
 class Dog () {
     public:

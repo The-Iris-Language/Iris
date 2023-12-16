@@ -1,10 +1,10 @@
-
+.. Tests that a non-permitted method can't be called, where triggering the 
+.. runtime error for an invalid permitted access is expected behavior
 class Animal () {
     public:
         int paws;
     permit: 
         void cant() {
-            
         }
 }
 

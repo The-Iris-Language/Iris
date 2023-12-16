@@ -1,4 +1,4 @@
-..Tests for failure for duplicate classes: Non-Main class
+.. Tests for failure for duplicate classes: Non-Main class
 class Dog () {
     public:
         int name;

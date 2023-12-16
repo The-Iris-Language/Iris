@@ -1,3 +1,18 @@
+.~*
+ ~
+ ~      FarmTour.iris
+ ~      by: Valerie Zhang
+ ~
+ ~
+ ~      This is an interactive program touring a farm. The program allows
+ ~      the user to see 4 different farm animals with their farmer guide
+ ~      Farmer Bob. The user can choose to try to call over an animal
+ ~      or not. If yes, the animal may ignore the user, if not, Farmer
+ ~      Bob will call them over.
+ ~
+*~.
+
+.. Class definitions of all the animals and farmer
 class Animal (Main) {
     public: 
         void ignore() {
@@ -12,6 +27,9 @@ class Animal (Main) {
 
 class Farmer of Animal (Main) {
     public:
+        .. This function allows the farmer to "call" over the animal
+        .. by calling each animal's permit method "noise". The Farmer
+        .. class is a permitted class for all the different animal classes
         void callAnimal(Animal a) {
             a.noise();
         }
@@ -45,47 +63,44 @@ class Sheep of Animal (Farmer) {
         }
 }
 
+.. class that contains methods to run the farm tour
 class FarmTour (Main) {
     public:
+        .. runs the tour with the command loop
         void run() {
             Farmer bob = new Farmer();
             string input = "";
-            int seen = 0;
             
+            .. printing startup
             Olympus.println("Welcome to Farmer Bob's farm! Let's see what animals we can see.");
             Olympus.println("There's Farmer Bob! Farmer Bob asks: 'What animal would you like to see?'");
             
-            while (seen != 4) {
+            while (true) {
                 Olympus.print("Please enter p for pig, co for cow, d for duck, s for sheep, or q to leave: ");
                 input = Olympus.readaline();
                 
                 if (input == "p") {
                     seePig(bob);
-                    seen++;
                 } else if (input == "co") {
                     seeCow(bob);
-                    seen++;
                 } else if (input == "d") {
                     seeDuck(bob);
-                    seen++;
                 } else if (input == "s") {
                     seeSheep(bob);
-                    seen++;
                 } else if (input == "q") {
                     Olympus.println("Farmer Bob says: 'Thanks for coming to visit!'");
                     return;
                 } else {
                     Olympus.println("Farmer Bob says: 'We don't have that animal here, maybe next time!'");
                 }
-
-                if (seen < 4) {
-                    Olympus.println("Farmer Bob asks: 'What animal would you like to see next?'");
-                }
+                
+                Olympus.println("Farmer Bob asks: 'What animal would you like to see next?'");
            }
 
             Olympus.println("Farmer Bob says: 'That's all the animals we have here, thanks for coming to visit!'");
         } 
 
+        .. the following functions perform the operations for "seeing" an animal
         void seePig(Farmer f) {
             Pig p = new Pig();
 
@@ -138,17 +153,14 @@ class FarmTour (Main) {
 
             Olympus.print("Will you try calling Waddles? y/n: ");
             input = Olympus.readaline();
-            d.noise();
 
             if (input == "y") {
                 Olympus.println("You try calling Waddles");
-                d.noise();
-                Olympus.println("Farmer Bob says: 'Look at that, she came over!'");
             } else {
                 Olympus.println("Farmer Bob says: 'Let me call Waddles over: Waddles!'");
-                f.callAnimal(d);
-                Olympus.println("Waddles waddles over and you give her a pat");
             }
+            d.noise();
+            Olympus.println("Waddles waddles over and you give her a pat");
         }
 
         void seeSheep(Farmer f) {

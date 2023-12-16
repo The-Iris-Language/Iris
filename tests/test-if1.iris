@@ -1,4 +1,4 @@
-.. test true case of if (no else)
+.. Test true case of if (no else)
 class Main () {
     public:
         int univ main () {
