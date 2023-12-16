@@ -48,6 +48,16 @@ exits the porgram early, so it will not print the 'OK' like the other tests.
 This occurs in test-fail-classvar-permit, test-fail-classvar-assign-permit, and
 test-fail-permit-fun.
 
+ANOTHER NOTE:
+While we have included every test in this submission, our scanner/parser tests, 
+will fail because they expect a pretty-printed AST, while our compiler will 
+execute and output the result of the program. However, if you want to take a 
+look at all, these tests can be run with `sh testsyntax`.
+
+FINAL NOTE: 
+The following is a list of our comprehensive end-to-end test suite.
+
+
 failure tests:
 
     assign-typ
@@ -251,7 +261,8 @@ passing tests:
     -- Tests calling an instance method
 
     unop1
-    -- Test unop (!) on bool declaration and assignment, and isolated assignment and (-) on int/float declaration and assignment, and isolated assignment
+    -- Test unop (!) on bool declaration and assignment, and isolated assignment 
+       and (-) on int/float declaration and assignment, and isolated assignment
 
     while-counter
     -- Tests while loop with a counter
@@ -259,6 +270,14 @@ passing tests:
     while
     -- Tests simple while loop
 
+# How to access the demos
+The demos are located in the 'demos' folder. There are two demos: 
+AnimalGame.iris and FarmTour.iris. Both are interactive and take user
+input. AnimalGame is an animal guessing game that shows off our 
+implementation of inheritance and basic encapsulation (public and private). 
+FarmTour also uses both features, but includes our permit encapulation level.
+These can be run individually using the following script:
+"make demo file=filename" where filename is either AnimalGame or FarmTour. 
 
 # What has been implemented
 

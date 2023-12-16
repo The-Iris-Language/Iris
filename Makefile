@@ -80,8 +80,8 @@ plusplus univ1 univ2 wrongreturn
 TESTFILES = $(TESTS:%=test-%.iris) $(TESTS:%=test-%.out) \
 	    $(FAILS:%=fail-%.iris) $(FAILS:%=fail-%.err)
 
-ZIPFILES = bin demos dune-project lib Makefile \
-	README Olympus.c runtests irisc \
+ZIPFILES = bin demos scanner_parser_tests dune-project lib Makefile \
+	README Olympus.c testsyntax.sh runtests irisc \
 	$(TESTFILES:%=tests/%) 
 
 iris.zip : $(ZIPFILES)

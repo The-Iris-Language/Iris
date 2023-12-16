@@ -1,5 +1,0 @@
-dune exec --no-build iris tests/test-permit-func-public-call.iris > test-permit-func-public-call.ll
-/opt/homebrew/opt/llvm@14/bin/llc test-permit-func-public-call.ll > test-permit-func-public-call.s
-cc -o test-permit-func-public-call.exe test-permit-func-public-call.s Olympus.o
-./test-permit-func-public-call.exe
-Quack!

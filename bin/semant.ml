@@ -1,31 +1,25 @@
 (* Semantic checking for the Iris compiler *)
 
-     (* 
-      
-      hE's GoInG tO sAcRiFiCe HiMsElF!!!!!!
+(*    
+  hE's GoInG tO sAcRiFiCe HiMsElF!!!!!!
 
-      therE hAs to be anOthAr wAaY!
+  herE hAs to be anOthAr wAaY!
 
+  (* TODO:: FINISH THIS ~~~~~~ WAAHHHHH SADDDDD WE CRY BUT WE TIRED OOP
+     THERE
+     HAS
+     TO
+     BE
+     ANOTHER
+     WAYYYYYYYYYYYYYY
 
+     hEsGoInGtOsAcRiFiCeHiMsElF
 
-        (* TODO:: FINISH THIS ~~~~~~ WAAHHHHH SADDDDD WE CRY BUT WE TIRED OOP
-         THERE
-         HAS
-         TO
-         BE
-         ANOTHER
-         WAYYYYYYYYYYYYYY
+     NAAUUUUUUUU
+     RON NAAAAUUURRRR
 
-         hEsGoInGtOsAcRiFiCeHiMsElF
-
-         NAAUUUUUUUU
-         RON NAAAAUUURRRR
-
-         not me, not hermione, YOÖÜÜÜÜÜU
-         
-      *)
-
-
+     not me, not hermione, YOÖÜÜÜÜÜU 
+  *)
 
   (* ARCHITECTURE :P 
   - add built-in stuff 
@@ -43,22 +37,20 @@
           - can things inherit from main? olympus?   :O   ???????
           - are we allowing permit and private in main? non-class methods?
           - can they instantiate an instance of main? NO.
-
-
+  
    3. check each class individually with inheritance in mind (build new env for each)-- DFS thru inheritance tree
           - check for duplicate labels (public, permit, private)
           - permit classes exist
           - check member variables + typ23z732es (local and permitted, raise errors for private or unpermitted)
           - check methods + types (univ, local, and permitted, raise errors for private or unpermitted) (new env for each function)
               - member var and member func of same name is allowed, also overriding from parent allowed
-          - 
+
     4. check if main exists
           - make sure univ int main() exists
           - are we allowing Main.main() to be called in another class (or in Main?)
     5. return a sprogram type that is a tuple of a list of classes and the main class (class_decl list, sfunc_decl)
   *)
  
-  
   (* Implementation Plan :P 
    *   1. Implement semant & sast
    *   2. Implement codegen
@@ -490,6 +482,3 @@ module StringMap = Map.Make(String)
       
     in let classes_with_self = List.map add_self sclasses
   in List.rev classes_with_self
-
-
-

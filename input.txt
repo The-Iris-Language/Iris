@@ -1,5 +1,0 @@
-dune exec --no-build iris tests/test-check-stdin.iris > test-check-stdin.ll
-/opt/homebrew/opt/llvm@14/bin/llc test-check-stdin.ll > test-check-stdin.s
-cc -o test-check-stdin.exe test-check-stdin.s Olympus.o
-./test-check-stdin.exe
-hi

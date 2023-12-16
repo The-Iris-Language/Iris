@@ -132,7 +132,7 @@ if [ $# -ge 1 ]
 then
     files=$@
 else
-    files="tests/test-*.iris tests/fail-*.iris"
+    files="scanner_parser_tests/test-*.iris scanner_parser_tests/fail-*.iris"
 fi
 
 for file in $files
