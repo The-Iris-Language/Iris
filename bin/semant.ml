@@ -1,11 +1,5 @@
 (* Semantic checking for the Iris compiler *)
 
-open Ast
-open Sast
-open Gus
-
-module StringMap = Map.Make(String)
-
      (* 
       
       hE's GoInG tO sAcRiFiCe HiMsElF!!!!!!
@@ -72,7 +66,11 @@ module StringMap = Map.Make(String)
    *   4. wahoo
    *) *)
 
+open Ast
+open Sast
+open Gus
 
+module StringMap = Map.Make(String)
 
 (* Semantic checking of the AST. Returns an SAST if successful,
    throws an exception if something is wrong.
@@ -121,14 +119,14 @@ module StringMap = Map.Make(String)
                                                :: (MemberFun olympus_printerr)
                                                :: (MemberFun olympus_printi)
                                                :: (MemberFun olympus_streq)
-                                               (* :: (MemberFun olympus_intstr)  *)
-                                               (* :: (MemberFun olympus_float_to_string) *) 
                                                :: [])] }
     in let object_class =  { class_name = "Object";
                              parent_name = ""; 
                              permitted = [];
                              mems = [] }
-    in let big_chungus = List.fold_left build_chungus StringMap.empty (object_class :: (olympus_class :: classes)) 
+    in let big_chungus = List.fold_left build_chungus 
+                                        StringMap.empty 
+                                        (object_class :: (olympus_class :: classes)) 
       in let classes = object_class :: classes
         in let name_compare c1 c2 = compare c1.class_name c2.class_name in
         let check_dups checked a_class = 
@@ -172,9 +170,6 @@ module StringMap = Map.Make(String)
       let _ = (match func.typ with 
           Object(n) -> let _ = find_class big_chungus n in ()
         | _         -> ())
-      (* TODO
-        BIG TODO DO NOT FORGET
-        write check_func function that defines these within it! *)
       in let rec check_expr m (e : expr) = 
         match e with 
           Literal l -> ((Int, SLiteral l), m)
@@ -188,7 +183,8 @@ module StringMap = Map.Make(String)
                   in ((t, SClassVar("self", n)), m)
                   with _ -> raise (Failure ( "variable " ^ n ^ " not found"))))
         | Unop (uop, e) -> let ((t, e'), m') = check_expr m e in
-                            let wrong_type_err = "type: " ^ (string_of_typ t) ^ " is invalid for unop" ^ (string_of_uop Not)
+          let wrong_type_err = "type: " ^ (string_of_typ t) ^ 
+                               " is invalid for unop" ^ (string_of_uop Not)
                             in 
                               let ty = (match uop with
                                 Neg when t = Int || t = Float -> t
@@ -218,7 +214,8 @@ module StringMap = Map.Make(String)
             in (match typ with 
                                     Int   -> ((Int, SDoubleOp(n, doubleop)), m)
                                   | Float -> ((Float, SDoubleOp(n, doubleop)), m)
-                                  | _     -> raise (Failure (  (string_of_typ typ) ^ " is not a valid type for double op")))
+                                  | _     -> raise (Failure ((string_of_typ typ) ^ 
+                                              " is not a valid type for double op")))
         | Call (caller, function_string, (args : expr list)) -> 
           let err = "class " ^ caller ^ " not defined" in 
           let _ = err in 
@@ -250,13 +247,14 @@ module StringMap = Map.Make(String)
               then raise (Failure ( "function " ^ function_string ^ " is not accessible")) 
             else      
               let sxpr_list = List.map (check_expr m) args 
-                (* in let m_with_formals = List.fold_left (fun (new_map, (typ, name)) -> (StringMap.add name (typ, name) new_map)) m func_d.formals *)
                   in let sl  = List.map (fun ((t, sexpr), _) -> (t, sexpr)) sxpr_list
                     in let args = (try List.combine sl func_d.formals
-                                with _ -> raise (Failure ( "Number of arguments doesn't match")))
-                              in let _ = List.map (fun ((t1, _), (t2, _)) -> let  mismatch_err = function_string ^ " argument of type " ^ string_of_typ t1 
-                                                                              ^ " does not match argument of  " ^ string_of_typ t2 
-                                                                              in mismatch_types mismatch_err t2 t1) args
+                      with _ -> raise (Failure ( "Number of arguments doesn't match")))
+                      in let _ = List.map (fun ((t1, _), (t2, _)) -> 
+                        let  mismatch_err = 
+                            function_string ^ " argument of type " ^ string_of_typ t1 
+                            ^ " does not match argument of  " ^ string_of_typ t2 
+                        in mismatch_types mismatch_err t2 t1) args
                   in ((func_d.typ, SCall(caller, function_string, sl)), m))
         | Assign (n, e) -> 
           (try let var = StringMap.find n m 
@@ -277,10 +275,6 @@ module StringMap = Map.Make(String)
               let _ = mismatch_types mismatch_err typ1 typ2 in  
                 ((typ2, SClassVarAssign("self", n, sexpr)), m')
           with _ -> raise (Failure ( "variable " ^ n ^ " not found"))))
-                          (* try let _ = StringMap.find n m in
-                      raise (Failure ("local variable " ^ n ^ " already exists"))
-                    with Not_found -> ((SLocal (t, n)), m)) *)
-                (* check for same type and previously defined *)
         | DeclAssign (t, n, e) -> 
           let (sexpr, m') = (check_expr m e) in 
           let expr_type = fst sexpr in
@@ -335,9 +329,6 @@ module StringMap = Map.Make(String)
         | NewObject (n) -> let _ = find_class big_chungus n in 
                             ((Object (n), (SNewObject (n))), m)                                                  
         | Noexpr -> ((Void, SNoexpr), m)
-
-        (* Will have StringMap for Class Variables *)
-        (* TODO: eventually check formals / binds !! *)
           
       in let rec check_stmt m (s : stmt) = 
           let not_implemented_err = "not implemented stmt: " ^ string_of_stmt s
@@ -392,7 +383,9 @@ module StringMap = Map.Make(String)
 
           | _ -> raise (Failure not_implemented_err)
           (* in let member_vars =  *)
-          in let locals = List.fold_left (fun acc (typ, name) -> StringMap.add name (typ, name) acc) StringMap.empty func.formals
+          in let locals = List.fold_left 
+                            (fun acc (typ, name) -> StringMap.add name (typ, name) acc) 
+                            StringMap.empty func.formals
 
         in {suniv = func.univ;
             styp = func.typ;
@@ -405,9 +398,6 @@ module StringMap = Map.Make(String)
             sorigin = get_func_origin big_chungus curr_class func.fname;
             sencap = get_func_encap big_chungus curr_class func.fname}
 
-
-      
-          
       (* check_encap, check_class... *)
         in let check_mem enc ((vars, permitted_vars), meths) (mem : member)  =
             (match mem with
@@ -422,10 +412,7 @@ module StringMap = Map.Make(String)
                   | _         -> ())
               in (match enc with 
               "permit:" -> ((v :: vars, v :: permitted_vars), meths)
-              | _ -> ((v :: vars , permitted_vars), meths)
-              )
-              )
-
+              | _ -> ((v :: vars , permitted_vars), meths)))
 
         in let sort_fcns (fs : sfunc_decl list) (ps : sfunc_decl list) =
           let replace_local (p : sfunc_decl) =
@@ -439,25 +426,29 @@ module StringMap = Map.Make(String)
           in
             ps_updated @ (List.fold_left delete_local [] fs)
 
-  
         in let check_encap lists ((enc_level, mems) : encap) = 
           List.fold_left (check_mem enc_level) lists mems
         
-          in let ((vars, permitted_vars), meths) = List.fold_left check_encap (([], []), []) cls.mems
+          in let ((vars, permitted_vars), meths) = List.fold_left check_encap 
+                                                                  (([], []), []) 
+                                                                  cls.mems
           in 
             let curr_meths = (if (curr_class <> "Object") then
-            let sp_class = List.find (fun p_class -> p_class.sclass_name = parent_class) scls_accum 
+            let sp_class = List.find (fun p_class -> p_class.sclass_name = parent_class) 
+                                      scls_accum 
             in 
               sort_fcns meths sp_class.smeths 
             else meths)
             in let curr_vars = (if (curr_class <> "Object") then
-              let sp_class = List.find (fun p_class -> p_class.sclass_name = parent_class) scls_accum 
+              let sp_class = List.find (fun p_class -> p_class.sclass_name = parent_class) 
+                                        scls_accum 
               in 
                 sp_class.svars @ (List.rev vars)
               else (List.rev vars))
 
             in let curr_perm_vars = (if (curr_class <> "Object") then
-              let sp_class = List.find (fun p_class -> p_class.sclass_name = parent_class) scls_accum 
+              let sp_class = List.find (fun p_class -> p_class.sclass_name = parent_class) 
+                                        scls_accum 
               in 
                 sp_class.spermitted_vars @ (List.rev permitted_vars)
               else (List.rev permitted_vars))
@@ -470,22 +461,24 @@ module StringMap = Map.Make(String)
             smeths = curr_meths
           } :: scls_accum
     in List.fold_left check_class [] cdecls
-
      
   (* semantically check all, then make sure main exists *)
   in let sclasses = build_sast classes
 
     in let add_self (sclass : sclass_decl) = 
       let add_self_to_func (sfunc : sfunc_decl) = 
-        let new_formals = (if sfunc.suniv then sfunc.sformals else (Object (sfunc.sorigin), "self") :: sfunc.sformals) in 
-        { suniv = sfunc.suniv;
-          styp = sfunc.styp;
-          sfname = sfunc.sfname;
-          sformals = new_formals;
-          sbody = sfunc.sbody;
-          sorigin = sfunc.sorigin;
-          sencap = sfunc.sencap
-        }
+        let new_formals = (if sfunc.suniv 
+                          then sfunc.sformals 
+                          else (Object (sfunc.sorigin), "self") :: sfunc.sformals) 
+        in 
+          { suniv = sfunc.suniv;
+            styp = sfunc.styp;
+            sfname = sfunc.sfname;
+            sformals = new_formals;
+            sbody = sfunc.sbody;
+            sorigin = sfunc.sorigin;
+            sencap = sfunc.sencap
+          }
       in 
         { sclass_name = sclass.sclass_name;
           sparent_name = sclass.sparent_name;
@@ -494,7 +487,6 @@ module StringMap = Map.Make(String)
           spermitted_vars = sclass.spermitted_vars;
           smeths = List.map add_self_to_func sclass.smeths
         }
-        
       
     in let classes_with_self = List.map add_self sclasses
   in List.rev classes_with_self

@@ -3,13 +3,6 @@
 
 module StringMap = Map.Make(String)
 open Ast
-(* 
-  NOTE!!!!!!!!
-  - We reverse the order of the maps in chungus when we build 
-    -> IT IS NOT THE SAME AS IN THE PHOTO!!!!!!  
-  - the second tuple of chungus is (var_map, func_map) !!!
-
-*)
 let find_class chungus cname = 
   let class_not_defined = "class " ^ cname ^ " not defined" in
   (try StringMap.find cname chungus with 
