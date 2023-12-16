@@ -45,7 +45,7 @@ Invalid permitted access tests are not under the "fail" tests section because
 they produce a runtime error, not a compile-time error. Thus, the script will 
 check for the correct error message that we print to stdout. This runtime error 
 exits the porgram early, so it will not print the 'OK' like the other tests. 
-This occurs in test-fail-classvar-permit, test-fail-classvar-assign-permit, and
+This occurs in test-fail-classvar-permit, test-fail-classvarassign-permit, and
 test-fail-permit-fun.
 
 ANOTHER NOTE:
@@ -162,7 +162,7 @@ passing tests:
     -- Tests accessing a permit variable, where triggering the runtime error 
        for an invalid permitted access is expected behavior
 
-    fail-classvar-assign-permit
+    fail-classvarassign-permit
     -- Tests that a non-permitted class variable can't be assigned, where 
        triggering the runtime error for an invalid variable permitted access is
        expected behavior

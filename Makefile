@@ -64,7 +64,7 @@ clean :
 
 TESTS = \
 add-ints assign-and-access assign1 assign2 classvar-local-assign classvar-permit \
-classvarassign-permit decl-assign doubleop fail-classvar-permit fail-classvar-assign-permit \
+classvarassign-permit decl-assign doubleop fail-classvar-permit fail-classvarassign-permit \
 fail-permit-fun fail-permit fcall-inherited fcall-noarg fcall-overwritten fcall-returnlocal \
 fcall-witharg fcall-withinclass float functions hello-world if1 if2 if3 inherit-memvar \
 lits1 local-main main-classinst-constructor main-classinst main-inst-mem-assign main-return-new \
