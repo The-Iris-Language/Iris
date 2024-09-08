@@ -11,7 +11,10 @@ class Cat (Main) {
 class Main () {
     univ int main(){
         Animal a = helper();
-        a.noise(); .. we don't know if this is a Cat or Animal
+
+        .~* we don't know if this is a Cat or an Animal, meaning that the 
+        "permit" class can only be determined at runtime *~.
+        a.noise(); 
     }
 
     Animal helper() {

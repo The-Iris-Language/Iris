@@ -1,7 +1,0 @@
-- should we make Objects a pointer type within another class definition
-    - depends on how you want to pass around objects: pass by reference or pass by value -> pass by value will not change the value if we pass into a function
-
-- virtual table 
-    - making a virtual table type in a struct 
-    - pointers in the table are of the type of the return type of the method 
-    - in struct type of an object, the pointer need to be of type of the virtual table struct

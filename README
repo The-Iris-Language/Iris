@@ -1,10 +1,13 @@
 # README: Final Iris Compiler
 
 Ayda Aricanli              ayda.aricanli@tufts.edu
-Trevor Sullivan            trevor.sullivan@tufts.edu
+[Trevor Sullivan](https://github.com/tsully02)            trevor.sullivan@tufts.edu
 Tim Valk                   timothy.valk@tufts.edu
 Valerie Zhang              valerie.zhang@tufts.edu
 Josh Kim                   joshua.kim634361@tufts.edu
+
+# Iris Language Reference Manual
+The Iris LRM is included in final_report/iris.pdf.
 
 # How to compile and execute
 
@@ -38,6 +41,31 @@ provided in the test suite. All golden standard files contain the
 corresponding test name and terminates with '.out' as its name. The test 
 script will not successfully compile a test program when it is incorrect.
 
+
+# How to access the demos
+The demos are located in the 'demos' folder. There are two demos: 
+AnimalGame.iris and FarmTour.iris. Both are interactive and take user
+input. AnimalGame is an animal guessing game that shows off our 
+implementation of inheritance and basic encapsulation (public and private). 
+FarmTour also uses both features, but includes our permit encapulation level.
+These can be run individually using the following script:
+"make demo file=filename" where filename is either AnimalGame or FarmTour. 
+
+# What has been implemented
+
+We've implemented classes and related features, such as polymorphism, dynamic 
+dispatch of methods in the polymorphic case (e.g. `Animal a = new Dog()` where 
+`a` calls a Dog-specific function), the inheritance of member variables and 
+functions, overloading of methods by child classes, and `univ` methods. This 
+involves semantic checking of methods, inheritance, and public and private 
+encapsulation levels, since those can be checked at compile-time. We have also 
+implemented runtime checking of permitted functions and member variables to 
+disallow non-permitted classes, as, due to the polymorphic case, we cannot do
+this at compile-time.
+
+Although they were included in our original proposal, we have not implemented 
+Lists. This has been updated in our final Language Reference Manual.
+
 # What is in the test suite 
 
 NOTE: 
@@ -56,7 +84,6 @@ look at all, these tests can be run with `sh testsyntax`.
 
 FINAL NOTE: 
 The following is a list of our comprehensive end-to-end test suite.
-
 
 failure tests:
 
@@ -285,27 +312,3 @@ passing tests:
     
     while
     -- Tests simple while loop
-
-# How to access the demos
-The demos are located in the 'demos' folder. There are two demos: 
-AnimalGame.iris and FarmTour.iris. Both are interactive and take user
-input. AnimalGame is an animal guessing game that shows off our 
-implementation of inheritance and basic encapsulation (public and private). 
-FarmTour also uses both features, but includes our permit encapulation level.
-These can be run individually using the following script:
-"make demo file=filename" where filename is either AnimalGame or FarmTour. 
-
-# What has been implemented
-
-We've implemented classes and related features, such as polymorphism, dynamic 
-dispatch of methods in the polymorphic case (e.g. `Animal a = new Dog()` where 
-`a` calls a Dog-specific function), the inheritance of member variables and 
-functions, overloading of methods by child classes, and `univ` methods. This 
-involves semantic checking of methods, inheritance, and public and private 
-encapsulation levels, since those can be checked at compile-time. We have also 
-implemented runtime checking of permitted functions and member variables to 
-disallow non-permitted classes, as, due to the polymorphic case, we cannot do
-this at compile-time.
-
-Although they were included in our original proposal, we have not implemented 
-Lists. This has been updated in our final Language Reference Manual.
