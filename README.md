@@ -1,10 +1,10 @@
 # README: Final Iris Compiler
 
-Ayda Aricanli              ayda.aricanli@tufts.edu
-[Trevor Sullivan](https://github.com/tsully02)            trevor.sullivan@tufts.edu
-Tim Valk                   timothy.valk@tufts.edu
-Valerie Zhang              valerie.zhang@tufts.edu
-Josh Kim                   joshua.kim634361@tufts.edu
+Ayda Aricanli (ayda.aricanli@tufts.edu)\
+Trevor Sullivan (trevor.sullivan@tufts.edu, [github](https://github.com/tsully02))\
+Tim Valk (timothy.valk@tufts.edu)\
+Valerie Zhang (valerie.zhang@tufts.edu)\
+Josh Kim (joshua.kim634361@tufts.edu)
 
 # Iris Language Reference Manual
 The Iris LRM is included in final_report/iris.pdf.
